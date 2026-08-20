@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0B1220">
-<title>Tank Yang — Backend Engineering Manager</title>
-<meta name="description" content="Tank Yang（楊政宇）— Backend Engineering Manager。個人作品與開源工具集。">
+<title>Tank Yang — Backend Senior Associate Manager</title>
+<meta name="description" content="Tank Yang（楊政宇）— Backend Senior Associate Manager @ XREX。12 年後端工程經歷、個人作品與開源工具集。">
 <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230B1220'/><text x='16' y='22' font-size='16' font-family='monospace' font-weight='700' text-anchor='middle' fill='%2338BDF8'>T</text></svg>">
 <style>
   :root{
@@ -158,6 +158,22 @@
   .job p{margin:0;font-size:13.5px;color:var(--text-soft)}
   .job .job-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
   .job .job-tags .tag{font-size:11px;padding:2px 8px}
+  .promos{
+    list-style:none;margin:10px 0 12px;padding:10px 0 10px 14px;
+    border-left:2px solid var(--border);
+  }
+  .promos li{
+    display:flex;gap:12px;align-items:baseline;
+    font-size:13px;color:var(--muted);padding:2.5px 0;
+  }
+  .promos li time{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:11.5px;flex:none;width:62px;
+  }
+  .promos li.cur{color:var(--text)}
+  .promos li.cur b{color:var(--accent-soft);font-weight:650}
+  .sys{margin:2px 0 0;font-size:13px;color:var(--text-soft)}
+  .sys b{color:var(--text);font-weight:650}
   .badge-now{
     font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
     padding:2px 8px;border-radius:999px;background:rgba(74,222,128,.13);
@@ -271,8 +287,8 @@
   <div class="wrap">
     <div class="eyebrow"><span class="dot"></span><span data-i18n="hero.badge">目前任職於 XREX</span></div>
     <h1 data-i18n-html="hero.title">Hi，我是 <em>Tank</em>。</h1>
-    <p class="role" data-i18n="hero.role">Backend Engineering Manager — 帶領五人後端團隊</p>
-    <p class="lede" data-i18n="hero.lede">12 年後端工程資歷，從政府標案、遊戲金流一路做到 Binance 的資料管線，現在在 XREX 帶團隊。白天處理系統設計與人的問題，晚上把自己的生活需求寫成一個個小網站。這裡是那些東西的集合。</p>
+    <p class="role" data-i18n="hero.role">Backend Senior Associate Manager @ XREX — 帶領後端團隊</p>
+    <p class="lede" data-i18n="hero.lede">12 年後端工程資歷，從政府標案、遊戲金流一路做到 Binance 的微服務與資料管線，現在在 XREX 帶團隊，做區塊鏈合規與 AML 風控。白天處理系統設計與人的問題，晚上把自己的生活需求寫成一個個小網站。這裡是那些東西的集合。</p>
     <div class="cta">
       <a class="btn primary" href="#projects" data-i18n="hero.cta1">看作品 →</a>
       <a class="btn" href="https://github.com/tankfinal" target="_blank" rel="noopener">GitHub</a>
@@ -291,7 +307,7 @@
     </div>
     <div class="about-grid">
       <div class="about-body">
-        <p data-i18n-html="about.p1">我在 <strong>XREX</strong> 擔任 Backend Engineering Manager，帶一支五人的後端團隊。在這之前的十二年，我在 <strong>Binance</strong> 做交易資料管線、在製造業與遊戲產業做微服務、在系統整合商做過立法院、監察院、環保署、台大醫院的政府標案。<strong>Java / Spring Boot</strong> 是主軸，高併發、鎖與交易一致性是反覆練過的題目。</p>
+        <p data-i18n-html="about.p1">我在 <strong>XREX</strong> 擔任 Backend Senior Associate Manager，帶領後端團隊。2023 年底以資深工程師身分加入，做的是 AML 區塊鏈風控與合規鑑識這一塊；2025 年起轉管理職。在這之前，我在 <strong>Binance</strong> 做微服務與資料管線並擔任 Scrum Master，更早則在遊戲產業處理高併發金流、在系統整合商交付立法院、監察院、環保署、台大醫院的政府標案。<strong>Java / Spring Boot</strong> 是十二年來的主軸。</p>
         <p data-i18n-html="about.p2">從工程師走到管理職之後，關心的問題換了兩個：<strong>這個設計三年後還撐得住嗎</strong>，以及<strong>團隊成員這季有沒有長出新東西</strong>。我相信技術決策要留得下記錄——為什麼選 A 不選 B，比選了什麼更重要。</p>
         <p data-i18n-html="about.p3">下班後我寫的東西通常很小、很具體，而且<strong>都是自己真的會用的</strong>：出國前需要一份離線也能翻的行程，就做一個；女兒出生後要追 36 針疫苗，就做一個。共通點是<strong>零後端、零登入、一個網址打開就能用</strong>——因為要給家人用，不能有任何學習成本。另一條線是把重複的工作流程做成工具：MCP server、Claude Code 的 agent 團隊模板、可分享的 skill 集合，都在下面的<strong>開源</strong>區塊。</p>
       </div>
@@ -354,32 +370,47 @@
   <div class="wrap">
     <div class="sec-head">
       <h2 data-i18n="exp.h">工作經歷</h2>
-      <p data-i18n="exp.sub">2014 年至今 · 金融科技、電商交易所、製造業、遊戲、政府標案</p>
+      <p data-i18n="exp.sub">2014 年至今 · 區塊鏈金融、加密貨幣交易所、遊戲、政府標案</p>
     </div>
     <div class="tl">
 
       <article class="job now">
         <div class="job-head">
-          <span class="job-co">XREX</span>
+          <span class="job-co">XREX Inc.</span>
           <span class="badge-now" data-i18n="exp.now">現職</span>
-          <span class="job-when" data-i18n="e1.when">台北 · 現在</span>
+          <span class="job-when">2023.12 – <span data-i18n="exp.present">現在</span> · <span data-i18n="e1.dur">2 年 9 個月</span></span>
         </div>
-        <p class="job-role" data-i18n="e1.role">Backend Engineering Manager</p>
-        <p data-i18n="e1.desc">帶領五人後端團隊，負責系統設計審查、Code Review 與跨團隊交付。日常在需求釐清、技術決策與人的發展之間切換。</p>
+        <p class="job-role" data-i18n="e1.role">Backend Senior Associate Manager</p>
+
+        <ul class="promos">
+          <li class="cur"><time>2026.06</time><b>Backend Senior Associate Manager</b></li>
+          <li><time>2025.01</time>Backend Associate Manager</li>
+          <li><time>2024.12</time>Principal Backend Engineer</li>
+          <li><time>2023.12</time>Senior Backend Engineer</li>
+        </ul>
+
+        <p data-i18n="e1.desc">帶領後端團隊，負責任務分派、招募、績效評估與工程師的訓練發展。與 PM 一起做早期需求探索，跨 Frontend、QA、Compliance、SRE、AML 協作交付，並直接對 C-level 把公司目標轉譯成可執行的工程策略。也參與制定標準化 SDLC 與資料安全流程。</p>
+        <p class="sys" data-i18n-html="e1.sys">工程師階段主導或共同交付的系統：<b>Threat-Engine</b>（AML 區塊鏈風控，串 TRM Labs 鏈上偵測與 WorldCheck 名單篩查）、<b>XRAY</b>（合規與區塊鏈鑑識平台，多源鏈上掃描）、<b>Event-Center</b>（事件資料整合管線）、<b>User Tagging System</b>（Flink + Elasticsearch + Airflow 即時標籤）、<b>Risk Score</b>（標籤驅動的風險評分）。</p>
+
         <div class="job-tags">
           <span class="tag" data-i18n="e1.t1">團隊管理</span>
           <span class="tag" data-i18n="e1.t2">系統設計</span>
-          <span class="tag" data-i18n="e1.t3">金融科技</span>
+          <span class="tag" data-i18n="e1.t4">區塊鏈合規</span>
+          <span class="tag" data-i18n="e1.t5">AML</span>
+          <span class="tag">Elasticsearch</span>
+          <span class="tag">Flink</span>
+          <span class="tag">Airflow</span>
+          <span class="tag">SDLC</span>
         </div>
       </article>
 
       <article class="job">
         <div class="job-head">
           <span class="job-co">Binance</span>
-          <span class="job-when">2022.11 – 2023.11 · <span data-i18n="loc.tpe">台北</span></span>
+          <span class="job-when">2022.11 – 2023.11 · <span data-i18n="e2.dur">1 年 1 個月</span></span>
         </div>
         <p class="job-role" data-i18n="e2.role">Senior Software Engineer</p>
-        <p data-i18n="e2.desc">開發 Spring Boot 微服務與資料管線，並擔任 Scrum Master 帶領 Sprint。同時投入 LLM 應用的研究與落地。</p>
+        <p data-i18n="e2.desc">開發 Spring Cloud 微服務與資料管線，並擔任 Scrum Master 帶領 Sprint。同時投入 LLM 應用（Langchain / Langflow）的研究與落地。</p>
         <div class="job-tags">
           <span class="tag">Java</span><span class="tag">Kafka</span><span class="tag">HBase</span>
           <span class="tag">StarRocks</span><span class="tag">Spark</span><span class="tag">Flink</span>
@@ -389,8 +420,8 @@
 
       <article class="job">
         <div class="job-head">
-          <span class="job-co">Cimforce International</span>
-          <span class="job-when">2020.04 – 2022.10 · <span data-i18n="loc.tpe">台北</span></span>
+          <span class="job-co" data-i18n="e3.co">CIMFORCE 上博科技</span>
+          <span class="job-when">2020.04 – 2022.10 · <span data-i18n="e3.dur">2 年 7 個月</span></span>
         </div>
         <p class="job-role" data-i18n="e3.role">Software Deputy Manager</p>
         <p data-i18n="e3.desc">開發與維護 Spring Cloud 微服務，訂定 coding guideline、git-flow 與 issue tracking 流程。處理微服務的分散式交易、併發控制與資料鎖定問題。第一段帶人的經歷——招募、訓練與工作分派。</p>
@@ -402,8 +433,8 @@
 
       <article class="job">
         <div class="job-head">
-          <span class="job-co" data-i18n="e4.co">馳赢資訊（遊戲產業）</span>
-          <span class="job-when">2019.08 – 2020.03 · <span data-i18n="loc.tpe">台北</span></span>
+          <span class="job-co">Chiying Information Corp.</span>
+          <span class="job-when">2019.08 – 2020.03 · <span data-i18n="e4.dur">8 個月</span></span>
         </div>
         <p class="job-role" data-i18n="e4.role">Senior Java Software Engineer</p>
         <p data-i18n="e4.desc">以鎖機制、RabbitMQ 與 Redis 快取策略處理高併發場景。設計並實作 GameBox 與金流工具，用設計模式整合多家遊戲供應商；另以 WebSocket 打造即時客服聊天系統。</p>
@@ -415,10 +446,10 @@
 
       <article class="job">
         <div class="job-head">
-          <span class="job-co">Zyxel Communications</span>
-          <span class="job-when">2017.08 – 2019.07 · <span data-i18n="loc.tpe">台北</span></span>
+          <span class="job-co">Zyxel</span>
+          <span class="job-when">2017.08 – 2019.07 · <span data-i18n="e5.dur">2 年</span></span>
         </div>
-        <p class="job-role" data-i18n="e5.role">Java Software Engineer</p>
+        <p class="job-role" data-i18n="e5.role">Java Developer</p>
         <p data-i18n="e5.desc">直接與 end user 訪談需求並撰寫 SA / SD 文件。主導政府專案，開發 5 套系統、維運 2 套既有系統。</p>
         <div class="job-tags">
           <span class="tag">Spring MVC</span><span class="tag">MyBatis</span>
@@ -428,10 +459,10 @@
 
       <article class="job">
         <div class="job-head">
-          <span class="job-co">Ares International</span>
-          <span class="job-when">2014.03 – 2017.07 · <span data-i18n="loc.tpe">台北</span></span>
+          <span class="job-co">ARES International Corp.</span>
+          <span class="job-when">2014.02 – 2017.08 · <span data-i18n="e6.dur">3 年 7 個月</span></span>
         </div>
-        <p class="job-role" data-i18n="e6.role">Senior Software Engineer</p>
+        <p class="job-role" data-i18n="e6.role">Senior Java Software Engineer</p>
         <p data-i18n="e6.desc">職涯起點。承接政府標案，新建 1 套、維運 3 套系統，涵蓋開發、除錯與弱點掃描修補。後端 Struts2 + JDBC，前端 jQuery。</p>
         <div class="job-tags">
           <span class="tag">Struts2</span><span class="tag">JDBC</span><span class="tag">jQuery</span>
@@ -621,17 +652,17 @@
 
     "hero.badge":{zh:"目前任職於 XREX", en:"Currently at XREX"},
     "hero.title":{zh:"Hi，我是 <em>Tank</em>。", en:"Hi, I’m <em>Tank</em>."},
-    "hero.role": {zh:"Backend Engineering Manager — 帶領五人後端團隊",
-                  en:"Backend Engineering Manager — leading a team of five"},
-    "hero.lede": {zh:"12 年後端工程資歷，從政府標案、遊戲金流一路做到 Binance 的資料管線，現在在 XREX 帶團隊。白天處理系統設計與人的問題，晚上把自己的生活需求寫成一個個小網站。這裡是那些東西的集合。",
-                  en:"Twelve years of backend engineering — from government systems and game payment rails to data pipelines at Binance, and now leading a team at XREX. By day it’s system design and people problems. By night I turn my own everyday needs into small websites. This is where they live."},
+    "hero.role": {zh:"Backend Senior Associate Manager @ XREX — 帶領後端團隊",
+                  en:"Backend Senior Associate Manager @ XREX — leading the backend team"},
+    "hero.lede": {zh:"12 年後端工程資歷，從政府標案、遊戲金流一路做到 Binance 的微服務與資料管線，現在在 XREX 帶團隊，做區塊鏈合規與 AML 風控。白天處理系統設計與人的問題，晚上把自己的生活需求寫成一個個小網站。這裡是那些東西的集合。",
+                  en:"Twelve years of backend engineering — from government systems and game payment rails to microservices and data pipelines at Binance, and now leading the backend team at XREX, working on blockchain compliance and AML risk. By day it’s system design and people problems. By night I turn my own everyday needs into small websites. This is where they live."},
     "hero.cta1": {zh:"看作品 →", en:"See the work →"},
 
     "about.h":     {zh:"關於我", en:"About"},
     "about.sub":   {zh:"工作、興趣，以及為什麼會有這些網站",
                     en:"The job, the hobby, and why these sites exist"},
-    "about.p1":    {zh:"我在 <strong>XREX</strong> 擔任 Backend Engineering Manager，帶一支五人的後端團隊。在這之前的十二年，我在 <strong>Binance</strong> 做交易資料管線、在製造業與遊戲產業做微服務、在系統整合商做過立法院、監察院、環保署、台大醫院的政府標案。<strong>Java / Spring Boot</strong> 是主軸，高併發、鎖與交易一致性是反覆練過的題目。",
-                    en:"I’m a Backend Engineering Manager at <strong>XREX</strong>, leading a team of five. The twelve years before that: data pipelines at <strong>Binance</strong>, microservices in manufacturing and gaming, and government systems for Taiwan’s Legislative Yuan, Control Yuan, EPA and National Taiwan University Hospital. <strong>Java / Spring Boot</strong> is the through-line; high concurrency, locking and transactional consistency are the problems I’ve worked through most often."},
+    "about.p1":    {zh:"我在 <strong>XREX</strong> 擔任 Backend Senior Associate Manager，帶領後端團隊。2023 年底以資深工程師身分加入，做的是 AML 區塊鏈風控與合規鑑識這一塊；2025 年起轉管理職。在這之前，我在 <strong>Binance</strong> 做微服務與資料管線並擔任 Scrum Master，更早則在遊戲產業處理高併發金流、在系統整合商交付立法院、監察院、環保署、台大醫院的政府標案。<strong>Java / Spring Boot</strong> 是十二年來的主軸。",
+                    en:"I’m a Backend Senior Associate Manager at <strong>XREX</strong>, leading the backend team. I joined in late 2023 as a senior engineer working on AML blockchain risk and compliance forensics, and moved into management in 2025. Before that: microservices and data pipelines at <strong>Binance</strong>, where I also ran the team’s sprints as Scrum Master; earlier still, high-concurrency payment systems in gaming, and government systems for Taiwan’s Legislative Yuan, Control Yuan, EPA and National Taiwan University Hospital. <strong>Java / Spring Boot</strong> has been the through-line for twelve years."},
     "about.p2":    {zh:"從工程師走到管理職之後，關心的問題換了兩個：<strong>這個設計三年後還撐得住嗎</strong>，以及<strong>團隊成員這季有沒有長出新東西</strong>。我相信技術決策要留得下記錄——為什麼選 A 不選 B，比選了什麼更重要。",
                     en:"Moving from engineer to manager swapped my two questions for these: <strong>will this design still hold up in three years</strong>, and <strong>did each person on the team grow something new this quarter</strong>. I believe technical decisions have to leave a written trace — why A instead of B matters more than what got picked."},
     "about.p3":    {zh:"下班後我寫的東西通常很小、很具體，而且<strong>都是自己真的會用的</strong>：出國前需要一份離線也能翻的行程，就做一個；女兒出生後要追 36 針疫苗，就做一個。共通點是<strong>零後端、零登入、一個網址打開就能用</strong>——因為要給家人用，不能有任何學習成本。另一條線是把重複的工作流程做成工具：MCP server、Claude Code 的 agent 團隊模板、可分享的 skill 集合，都在下面的<strong>開源</strong>區塊。",
@@ -648,41 +679,49 @@
     "about.t5":    {zh:"Scrum", en:"Scrum"},
 
     "exp.h":    {zh:"工作經歷", en:"Experience"},
-    "exp.sub":  {zh:"2014 年至今 · 金融科技、電商交易所、製造業、遊戲、政府標案",
-                 en:"2014 – present · fintech, crypto exchange, manufacturing, gaming, government"},
-    "exp.now":  {zh:"現職", en:"Current"},
-    "loc.tpe":  {zh:"台北", en:"Taipei"},
+    "exp.sub":  {zh:"2014 年至今 · 區塊鏈金融、加密貨幣交易所、遊戲、政府標案",
+                 en:"2014 – present · blockchain fintech, crypto exchange, gaming, government"},
+    "exp.now":     {zh:"現職", en:"Current"},
+    "exp.present": {zh:"現在", en:"Present"},
 
-    "e1.when":{zh:"台北 · 現在", en:"Taipei · Present"},
-    "e1.role":{zh:"Backend Engineering Manager", en:"Backend Engineering Manager"},
-    "e1.desc":{zh:"帶領五人後端團隊，負責系統設計審查、Code Review 與跨團隊交付。日常在需求釐清、技術決策與人的發展之間切換。",
-               en:"Leading a backend team of five — design review, code review and cross-team delivery. The day moves between scoping requirements, technical decisions and growing the people who make them."},
+    "e1.dur": {zh:"2 年 9 個月", en:"2 yrs 9 mos"},
+    "e1.role":{zh:"Backend Senior Associate Manager", en:"Backend Senior Associate Manager"},
+    "e1.desc":{zh:"帶領後端團隊，負責任務分派、招募、績效評估與工程師的訓練發展。與 PM 一起做早期需求探索，跨 Frontend、QA、Compliance、SRE、AML 協作交付，並直接對 C-level 把公司目標轉譯成可執行的工程策略。也參與制定標準化 SDLC 與資料安全流程。",
+               en:"Leading the backend team — task allocation, hiring, performance reviews, and the onboarding and training that grows engineers. I work with PMs during early requirement discovery, deliver across Frontend, QA, Compliance, SRE and AML, and sit with C-level leadership to translate company objectives into engineering strategy that can actually be executed. Also helped define the standardized SDLC and data security procedures."},
+    "e1.sys": {zh:"工程師階段主導或共同交付的系統：<b>Threat-Engine</b>（AML 區塊鏈風控，串 TRM Labs 鏈上偵測與 WorldCheck 名單篩查）、<b>XRAY</b>（合規與區塊鏈鑑識平台，多源鏈上掃描）、<b>Event-Center</b>（事件資料整合管線）、<b>User Tagging System</b>（Flink + Elasticsearch + Airflow 即時標籤）、<b>Risk Score</b>（標籤驅動的風險評分）。",
+               en:"Systems I led or co-delivered as an engineer: <b>Threat-Engine</b> (AML blockchain risk, wired to TRM Labs for on-chain detection and WorldCheck for name screening), <b>XRAY</b> (compliance and blockchain forensics with multi-source on-chain scanning), <b>Event-Center</b> (event data integration pipeline), <b>User Tagging System</b> (real-time tagging on Flink + Elasticsearch + Airflow), and <b>Risk Score</b> (tag-driven risk assessment)."},
     "e1.t1":{zh:"團隊管理", en:"People Management"},
     "e1.t2":{zh:"系統設計", en:"System Design"},
-    "e1.t3":{zh:"金融科技", en:"Fintech"},
+    "e1.t4":{zh:"區塊鏈合規", en:"Blockchain Compliance"},
+    "e1.t5":{zh:"AML", en:"AML"},
 
+    "e2.dur": {zh:"1 年 1 個月", en:"1 yr 1 mo"},
     "e2.role":{zh:"Senior Software Engineer", en:"Senior Software Engineer"},
-    "e2.desc":{zh:"開發 Spring Boot 微服務與資料管線，並擔任 Scrum Master 帶領 Sprint。同時投入 LLM 應用的研究與落地。",
-               en:"Built Spring Boot microservices and data pipelines, and served as Scrum Master running the team’s sprints. Also spent time researching and shipping LLM-based applications."},
+    "e2.desc":{zh:"開發 Spring Cloud 微服務與資料管線，並擔任 Scrum Master 帶領 Sprint。同時投入 LLM 應用（Langchain / Langflow）的研究與落地。",
+               en:"Built Spring Cloud microservices and data pipelines, and served as Scrum Master running the team’s sprints. Also spent time researching and shipping LLM-based applications with Langchain and Langflow."},
 
+    "e3.co":  {zh:"CIMFORCE 上博科技", en:"CIMFORCE"},
+    "e3.dur": {zh:"2 年 7 個月", en:"2 yrs 7 mos"},
     "e3.role":{zh:"Software Deputy Manager", en:"Software Deputy Manager"},
     "e3.desc":{zh:"開發與維護 Spring Cloud 微服務，訂定 coding guideline、git-flow 與 issue tracking 流程。處理微服務的分散式交易、併發控制與資料鎖定問題。第一段帶人的經歷——招募、訓練與工作分派。",
                en:"Built and maintained Spring Cloud microservices, and set the team’s coding guidelines, git-flow strategy and issue-tracking process. Solved the hard integration problems — distributed transactions, concurrency control, data locking. This was where I first managed people: hiring, training and assigning the work."},
     "e3.t1":{zh:"分散式交易", en:"Distributed Transactions"},
     "e3.t2":{zh:"招募與訓練", en:"Hiring & Training"},
 
-    "e4.co":  {zh:"馳赢資訊（遊戲產業）", en:"Chiying Information (Gaming)"},
+    "e4.dur": {zh:"8 個月", en:"8 mos"},
     "e4.role":{zh:"Senior Java Software Engineer", en:"Senior Java Software Engineer"},
     "e4.desc":{zh:"以鎖機制、RabbitMQ 與 Redis 快取策略處理高併發場景。設計並實作 GameBox 與金流工具，用設計模式整合多家遊戲供應商；另以 WebSocket 打造即時客服聊天系統。",
                en:"Handled high-concurrency traffic with locking mechanisms, RabbitMQ and Redis caching. Designed and built GameBox and the payment tooling, using design patterns to integrate games from many different providers, plus a real-time webchat system over WebSocket."},
     "e4.t1":{zh:"高併發", en:"High Concurrency"},
 
-    "e5.role":{zh:"Java Software Engineer", en:"Java Software Engineer"},
+    "e5.dur": {zh:"2 年", en:"2 yrs"},
+    "e5.role":{zh:"Java Developer", en:"Java Developer"},
     "e5.desc":{zh:"直接與 end user 訪談需求並撰寫 SA / SD 文件。主導政府專案，開發 5 套系統、維運 2 套既有系統。",
                en:"Sat with end users to work out what they actually needed, then wrote the system analysis and design documents. Led government projects — five systems built, two more kept running."},
     "e5.t1":{zh:"系統分析", en:"System Analysis"},
 
-    "e6.role":{zh:"Senior Software Engineer", en:"Senior Software Engineer"},
+    "e6.dur": {zh:"3 年 7 個月", en:"3 yrs 7 mos"},
+    "e6.role":{zh:"Senior Java Software Engineer", en:"Senior Java Software Engineer"},
     "e6.desc":{zh:"職涯起點。承接政府標案，新建 1 套、維運 3 套系統，涵蓋開發、除錯與弱點掃描修補。後端 Struts2 + JDBC，前端 jQuery。",
                en:"Where it started. Government contracts — one system built, three maintained, covering development, debugging and patching what the vulnerability scans turned up. Struts2 + JDBC on the back, jQuery on the front."},
     "e6.t1":{zh:"資安弱掃", en:"Vulnerability Assessment"},
