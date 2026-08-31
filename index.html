@@ -190,6 +190,23 @@
   .ladder li.cur{color:var(--fg)}
   .ladder li.cur em{font-style:normal;font-weight:600}
   .ladder time{font-size:11px}
+  .j-detail{margin-top:16px}
+  .j-grp{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+  .j-grp:first-child{border-top:0;padding-top:0;margin-top:0}
+  .j-grp h4{
+    font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--fg-mute);font-weight:600;margin:0 0 7px;
+  }
+  .j-grp ul{list-style:none;margin:0;padding:0}
+  .j-grp li{
+    position:relative;padding-left:17px;margin-bottom:6px;
+    font-size:13.5px;color:var(--fg-soft);line-height:1.55;
+  }
+  .j-grp li:last-child{margin-bottom:0}
+  .j-grp li::before{
+    content:"—";position:absolute;left:0;top:0;color:var(--fg-mute);
+  }
+  .j-grp li b{color:var(--fg);font-weight:600}
   .kv{
     display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:14px;
     font-size:11.5px;color:var(--fg-mute);letter-spacing:.02em;
@@ -432,8 +449,56 @@
           <li><time>2023.12</time>Senior Backend Engineer</li>
         </ul>
 
-        <p class="j-body" data-i18n="e1.d1">帶後端團隊，負責任務分派、招募、績效評估，以及工程師的訓練跟發展。跟 PM 一起做早期需求探索，跨 Frontend、QA、Compliance、SRE、AML 協作交付，也直接對 C-level 把公司目標翻譯成可執行的工程策略。標準化 SDLC 與資料安全流程的制定我也有參與。</p>
-        <p class="j-body" data-i18n-html="e1.d2">工程師階段主導或共同交付的系統：<b>Threat-Engine</b>（AML 區塊鏈風控，串 TRM Labs 鏈上偵測與 WorldCheck 名單篩查）、<b>XRAY</b>（合規與區塊鏈鑑識平台，多源鏈上掃描）、<b>Event-Center</b>（事件資料整合管線）、<b>User Tagging System</b>（Flink + Elasticsearch + Airflow 即時標籤）、<b>Risk Score</b>（標籤驅動的風險評分）。</p>
+        <p class="j-body" data-i18n="e1.d1">2023 年底以工程師身份加入，做 AML 區塊鏈風控與合規鑑識，2025 年初轉管理職。現在帶整個後端團隊，同時保留對系統設計的最終判斷。</p>
+
+        <div class="j-detail">
+          <div class="j-grp">
+            <h4 data-i18n="e1.g1.h">團隊管理</h4>
+            <ul>
+              <li data-i18n="e1.g1.a">任務分派與日常運作，確保每個人清楚自己的 ownership。</li>
+              <li data-i18n="e1.g1.b">招募、績效評估，以及 onboarding 與訓練規劃。</li>
+              <li data-i18n="e1.g1.c">持續回饋與 coaching，把當責跟學習變成團隊的預設節奏。</li>
+            </ul>
+          </div>
+          <div class="j-grp">
+            <h4 data-i18n="e1.g2.h">跨部門協作</h4>
+            <ul>
+              <li data-i18n="e1.g2.a">在需求探索早期就跟 PM 一起看，把技術可行性提早講清楚，而不是等到承諾之後。</li>
+              <li data-i18n="e1.g2.b">跨 Frontend、QA、Compliance、SRE 協作交付。</li>
+              <li data-i18n="e1.g2.c">對 C-level 當工程與商業之間的翻譯層，把公司目標對回技術方向。</li>
+              <li data-i18n="e1.g2.d">跟其他 team lead 解跨隊人力相依，換取調度彈性。</li>
+            </ul>
+          </div>
+          <div class="j-grp">
+            <h4 data-i18n="e1.g3.h">專案交付</h4>
+            <ul>
+              <li data-i18n="e1.g3.a">共同主持 sprint planning，負責時程估算與工作量分析。</li>
+              <li data-i18n="e1.g3.b">追進度、排除卡點，依優先序變動重新配置人力。</li>
+              <li data-i18n="e1.g3.c">後端交付準時、守在 scope 內，並且對得上商業目標。</li>
+            </ul>
+          </div>
+          <div class="j-grp">
+            <h4 data-i18n="e1.g4.h">工程流程與策略</h4>
+            <ul>
+              <li data-i18n="e1.g4.a">制定標準化 SDLC，讓交付品質不取決於今天是誰接這張票。</li>
+              <li data-i18n="e1.g4.b">訂定資料安全流程，讓後端服務同時對得起內部政策與外部規範。</li>
+              <li data-i18n="e1.g4.c">把公司層級的目標拆成可執行的工程策略，並隨目標調整技術方向。</li>
+            </ul>
+          </div>
+          <div class="j-grp">
+            <h4 data-i18n="e1.g5.h">工程師階段交付的系統</h4>
+            <ul>
+              <li data-i18n-html="e1.g5.a"><b>Threat-Engine</b> — AML 區塊鏈風控。內部黑名單管線，串 TRM Labs 做鏈上偵測、WorldCheck 做即時名單篩查，Slack 互動式告警直接接給合規分析師分案。</li>
+              <li data-i18n-html="e1.g5.b"><b>XRAY</b> — 合規與區塊鏈鑑識平台。依台灣 VASP 法規調整判定邏輯，串 MistTrack、TRM Labs、Crystal Blockchain 做多源鏈上掃描，前面掛 Cloudflare 控存取。</li>
+              <li data-i18n-html="e1.g5.c"><b>Event-Center</b> — 事件資料整合管線。串 Appsflyer 做行動歸因，用 Meltano 打進 Metabase，關鍵產品與系統事件即時進 Slack。</li>
+              <li data-i18n-html="e1.g5.d"><b>User Tagging System</b> — Flink、Elasticsearch 與 Airflow 組成的即時與每日標籤服務，下游系統直接取用分群結果。</li>
+              <li data-i18n-html="e1.g5.e"><b>Risk Score</b> — 標籤驅動的風險評分，吃 User Tagging 的資料，高風險行為即時告警。</li>
+              <li data-i18n-html="e1.g5.f"><b>Internal CMS</b> — 重構成多角色、多法人的權限模型，讓後台各方人馬能各自到位。</li>
+              <li data-i18n-html="e1.g5.g"><b>Metabase PII</b> — 主導用 ETL 把使用者資料做 hash。</li>
+            </ul>
+          </div>
+        </div>
+
         <div class="kv mono">
           <span data-i18n="e1.k1">團隊管理</span><span data-i18n="e1.k2">系統設計</span>
           <span data-i18n="e1.k3">區塊鏈合規</span><span>AML</span>
@@ -450,7 +515,26 @@
       <div class="j-main">
         <h3 class="j-co">Binance</h3>
         <p class="j-role" data-i18n="e2.role">Senior Software Engineer</p>
-        <p class="j-body" data-i18n="e2.d">開發 Spring Cloud 微服務與資料管線，同時擔任 Scrum Master 帶 Sprint。也投入 LLM 應用（Langchain、Langflow）的研究跟落地。</p>
+        <p class="j-body" data-i18n="e2.d">開發 Spring Cloud 微服務與資料管線，同時擔任 Scrum Master 帶 Sprint。</p>
+
+        <div class="j-detail">
+          <div class="j-grp">
+            <h4 data-i18n="e2.g1.h">微服務與資料管線</h4>
+            <ul>
+              <li data-i18n="e2.g1.a">Spring Cloud 微服務，用 Java、Kafka、Redis、HBase、StarRocks、MyBatis、Elasticsearch 與 XXL Job。</li>
+              <li data-i18n="e2.g1.b">資料管線用 Python、Scala、Hive、Airflow、Spark 與 Flink。</li>
+              <li data-i18n="e2.g1.c">參與系統設計，在複雜問題上提替代方案。</li>
+            </ul>
+          </div>
+          <div class="j-grp">
+            <h4 data-i18n="e2.g2.h">團隊與技術探索</h4>
+            <ul>
+              <li data-i18n="e2.g2.a">擔任 Scrum Master 帶 Sprint，推進協作節奏與交付。</li>
+              <li data-i18n="e2.g2.b">投入 LLM 應用的研究與落地，主要是 Langchain 與 Langflow。</li>
+            </ul>
+          </div>
+        </div>
+
         <div class="kv mono">
           <span>Java</span><span>Kafka</span><span>HBase</span><span>StarRocks</span>
           <span>Spark</span><span>Flink</span><span>Airflow</span><span>Scrum Master</span>
@@ -466,7 +550,26 @@
       <div class="j-main">
         <h3 class="j-co" data-i18n="e3.co">CIMFORCE 上博科技</h3>
         <p class="j-role" data-i18n="e3.role">Software Deputy Manager</p>
-        <p class="j-body" data-i18n="e3.d">開發與維護 Spring Cloud 微服務，訂定 coding guideline、git-flow 策略跟 issue tracking 流程。處理微服務之間的分散式交易、併發控制與資料鎖定。這是我第一段帶人的經歷，負責招募、訓練跟工作分派。</p>
+        <p class="j-body" data-i18n="e3.d">開發與維護 Spring Cloud 微服務，同時是我第一段帶人的經歷。</p>
+
+        <div class="j-detail">
+          <div class="j-grp">
+            <h4 data-i18n="e3.g1.h">技術</h4>
+            <ul>
+              <li data-i18n="e3.g1.a">Spring Cloud 微服務開發與維護，Java、Redis、RabbitMQ 與 MyBatis。</li>
+              <li data-i18n="e3.g1.b">處理微服務之間最難的部分：分散式交易、併發控制與資料鎖定。</li>
+              <li data-i18n="e3.g1.c">撰寫系統設計文件，並推動跨部門溝通把專案接起來。</li>
+            </ul>
+          </div>
+          <div class="j-grp">
+            <h4 data-i18n="e3.g2.h">流程與帶人</h4>
+            <ul>
+              <li data-i18n="e3.g2.a">訂定 coding guideline、git-flow 策略與 issue tracking 流程。</li>
+              <li data-i18n="e3.g2.b">第一次管人：招募、訓練與工作分派。</li>
+            </ul>
+          </div>
+        </div>
+
         <div class="kv mono">
           <span>Spring Cloud</span><span>RabbitMQ</span><span>Redis</span>
           <span data-i18n="e3.k1">分散式交易</span><span data-i18n="e3.k2">招募與訓練</span>
@@ -482,7 +585,20 @@
       <div class="j-main">
         <h3 class="j-co">Chiying Information Corp.</h3>
         <p class="j-role" data-i18n="e4.role">Senior Java Software Engineer</p>
-        <p class="j-body" data-i18n="e4.d">用鎖機制、RabbitMQ 跟 Redis 快取策略處理高併發場景。設計並實作 GameBox 與金流工具，用設計模式整合多家遊戲供應商，另外以 WebSocket 做了即時客服聊天系統。</p>
+        <p class="j-body" data-i18n="e4.d">博弈產業，主場是高併發與金流整合。</p>
+
+        <div class="j-detail">
+          <div class="j-grp">
+            <h4 data-i18n="e4.g1.h">主要交付</h4>
+            <ul>
+              <li data-i18n="e4.g1.a">用鎖機制、RabbitMQ 與 Redis 快取策略扛住尖峰流量。</li>
+              <li data-i18n-html="e4.g1.b">設計並實作 <b>GameBox</b> 與金流工具，用設計模式把各家遊戲供應商的差異吸收掉。</li>
+              <li data-i18n="e4.g1.c">以 WebSocket 做即時客服聊天系統。</li>
+              <li data-i18n="e4.g1.d">Spring Boot 微服務，Java、Redis 與 MyBatis。</li>
+            </ul>
+          </div>
+        </div>
+
         <div class="kv mono">
           <span data-i18n="e4.k1">高併發</span><span>Redis</span><span>RabbitMQ</span><span>WebSocket</span>
         </div>
@@ -497,7 +613,20 @@
       <div class="j-main">
         <h3 class="j-co">Zyxel</h3>
         <p class="j-role" data-i18n="e5.role">Java Developer</p>
-        <p class="j-body" data-i18n="e5.d">直接跟 end user 訪談需求，再寫成 SA 與 SD 文件。主導政府專案，開發 5 套系統、維運 2 套既有系統。</p>
+        <p class="j-body" data-i18n="e5.d">從需求訪談一路做到交付的政府專案。</p>
+
+        <div class="j-detail">
+          <div class="j-grp">
+            <h4 data-i18n="e5.g1.h">主要交付</h4>
+            <ul>
+              <li data-i18n="e5.g1.a">直接跟 end user 訪談需求，再寫成 SA 與 SD 文件。</li>
+              <li data-i18n="e5.g1.b">主導政府專案：開發 5 套系統、維運 2 套既有系統。</li>
+              <li data-i18n="e5.g1.c">Spring MVC 服務，Java 與 MyBatis。</li>
+              <li data-i18n-html="e5.g1.d">交付的系統包含 <b>Fwmw</b> 防火牆中介系統。</li>
+            </ul>
+          </div>
+        </div>
+
         <div class="kv mono">
           <span>Spring MVC</span><span>MyBatis</span><span data-i18n="e5.k1">系統分析</span>
         </div>
@@ -512,8 +641,28 @@
       <div class="j-main">
         <h3 class="j-co">ARES International Corp.</h3>
         <p class="j-role" data-i18n="e6.role">Senior Java Software Engineer</p>
-        <p class="j-body" data-i18n="e6.d">職涯起點。承接政府標案，新建 1 套、維運 3 套系統，工作涵蓋開發、除錯跟弱點掃描修補。後端 Struts2 加 JDBC，前端 jQuery。</p>
-        <p class="j-body" data-i18n="e6.d2">這段期間交付的客戶包括立法院、監察院、環保署、國家安全局、新北市政府、工業局與台大醫院。</p>
+        <p class="j-body" data-i18n="e6.d">職涯起點。承接政府標案，從開發做到弱掃修補。</p>
+
+        <div class="j-detail">
+          <div class="j-grp">
+            <h4 data-i18n="e6.g1.h">主要交付</h4>
+            <ul>
+              <li data-i18n="e6.g1.a">政府標案：新建 1 套、維運 3 套系統。</li>
+              <li data-i18n="e6.g1.b">後端 Struts2 加 JDBC，前端 jQuery。</li>
+              <li data-i18n="e6.g1.c">開發、除錯，以及弱點掃描掃出什麼就補什麼。</li>
+            </ul>
+          </div>
+          <div class="j-grp">
+            <h4 data-i18n="e6.g2.h">交付的系統</h4>
+            <ul>
+              <li data-i18n-html="e6.g2.a"><b>PMIS</b> 採購管理資訊系統（新北市政府）與 <b>PmisEPA</b>（環保署）。</li>
+              <li data-i18n-html="e6.g2.b"><b>MISQ</b> 議事整合查詢系統（立法院）、<b>CPDS</b> 財產申報檢核系統（監察院）。</li>
+              <li data-i18n-html="e6.g2.c"><b>TIS</b> 追蹤管理系統與 <b>KMSAPP</b> 軍用 USB 裝置傳輸系統（國家安全局）。</li>
+              <li data-i18n-html="e6.g2.d"><b>E-portfolio</b> 醫學教學資源（台大醫院）、識別證申請系統（工業局）。</li>
+            </ul>
+          </div>
+        </div>
+
         <div class="kv mono">
           <span>Struts2</span><span>JDBC</span><span>jQuery</span><span data-i18n="e6.k1">資安弱掃</span>
         </div>
@@ -664,45 +813,144 @@
 
     "e1.dur": {zh:"2 年 9 個月", en:"2 yrs 9 mos"},
     "e1.role":{zh:"Backend Senior Associate Manager", en:"Backend Senior Associate Manager"},
-    "e1.d1":  {zh:"帶後端團隊，負責任務分派、招募、績效評估，以及工程師的訓練跟發展。跟 PM 一起做早期需求探索，跨 Frontend、QA、Compliance、SRE、AML 協作交付，也直接對 C-level 把公司目標翻譯成可執行的工程策略。標準化 SDLC 與資料安全流程的制定我也有參與。",
-               en:"I lead the backend team: task allocation, hiring, performance reviews, and the onboarding and training that grows engineers. I work with PMs during early requirement discovery, deliver across Frontend, QA, Compliance, SRE and AML, and sit with C-level leadership to turn company objectives into engineering strategy that can actually be executed. I also helped define the standardized SDLC and the data security procedures."},
-    "e1.d2":  {zh:"工程師階段主導或共同交付的系統：<b>Threat-Engine</b>（AML 區塊鏈風控，串 TRM Labs 鏈上偵測與 WorldCheck 名單篩查）、<b>XRAY</b>（合規與區塊鏈鑑識平台，多源鏈上掃描）、<b>Event-Center</b>（事件資料整合管線）、<b>User Tagging System</b>（Flink + Elasticsearch + Airflow 即時標籤）、<b>Risk Score</b>（標籤驅動的風險評分）。",
-               en:"Systems I led or co-delivered as an engineer: <b>Threat-Engine</b>, AML blockchain risk wired to TRM Labs for on-chain detection and WorldCheck for name screening; <b>XRAY</b>, a compliance and blockchain forensics platform with multi-source on-chain scanning; <b>Event-Center</b>, an event data integration pipeline; <b>User Tagging System</b>, real-time tagging on Flink, Elasticsearch and Airflow; and <b>Risk Score</b>, tag-driven risk assessment."},
+    "e1.d1":  {zh:"2023 年底以工程師身份加入，做 AML 區塊鏈風控與合規鑑識，2025 年初轉管理職。現在帶整個後端團隊，同時保留對系統設計的最終判斷。",
+               en:"Joined at the end of 2023 as an engineer on AML blockchain risk and compliance forensics, then moved into management at the start of 2025. I lead the whole backend team now, and still hold the final call on system design."},
+    "e1.g1.h":{zh:"團隊管理", en:"People management"},
+    "e1.g1.a":{zh:"任務分派與日常運作，確保每個人清楚自己的 ownership。",
+               en:"Task allocation and day-to-day operations, so ownership is never ambiguous."},
+    "e1.g1.b":{zh:"招募、績效評估，以及 onboarding 與訓練規劃。",
+               en:"Hiring, performance reviews, and the onboarding and training that grows engineers."},
+    "e1.g1.c":{zh:"持續回饋與 coaching，把當責跟學習變成團隊的預設節奏。",
+               en:"Continuous feedback and coaching, until accountability and learning are the default rhythm."},
+    "e1.g2.h":{zh:"跨部門協作", en:"Cross-functional collaboration"},
+    "e1.g2.a":{zh:"在需求探索早期就跟 PM 一起看，把技術可行性提早講清楚，而不是等到承諾之後。",
+               en:"Sit with PMs during early requirement discovery, so feasibility surfaces before anyone commits to it."},
+    "e1.g2.b":{zh:"跨 Frontend、QA、Compliance、SRE 協作交付。",
+               en:"Deliver across Frontend, QA, Compliance and SRE."},
+    "e1.g2.c":{zh:"對 C-level 當工程與商業之間的翻譯層，把公司目標對回技術方向。",
+               en:"Act as the translation layer between engineering and C-level, mapping company objectives back onto technical direction."},
+    "e1.g2.d":{zh:"跟其他 team lead 解跨隊人力相依，換取調度彈性。",
+               en:"Work with other team leads to resolve cross-team manpower dependencies and buy back flexibility."},
+    "e1.g3.h":{zh:"專案交付", en:"Project delivery"},
+    "e1.g3.a":{zh:"共同主持 sprint planning，負責時程估算與工作量分析。",
+               en:"Co-lead sprint planning, with timeline estimation and workload analysis."},
+    "e1.g3.b":{zh:"追進度、排除卡點，依優先序變動重新配置人力。",
+               en:"Track progress, clear blockers, reallocate people as priorities shift."},
+    "e1.g3.c":{zh:"後端交付準時、守在 scope 內，並且對得上商業目標。",
+               en:"Backend deliverables land on time, inside scope, and against the business goal."},
+    "e1.g4.h":{zh:"工程流程與策略", en:"Process & strategy"},
+    "e1.g4.a":{zh:"制定標準化 SDLC，讓交付品質不取決於今天是誰接這張票。",
+               en:"Define a standardized SDLC, so delivery quality does not depend on who happened to pick up the ticket."},
+    "e1.g4.b":{zh:"訂定資料安全流程，讓後端服務同時對得起內部政策與外部規範。",
+               en:"Set data security procedures that hold up against both internal policy and external standards."},
+    "e1.g4.c":{zh:"把公司層級的目標拆成可執行的工程策略，並隨目標調整技術方向。",
+               en:"Break company-level objectives into engineering strategy that can actually be executed, and adjust technical direction as those objectives move."},
+    "e1.g5.h":{zh:"工程師階段交付的系統", en:"Systems shipped as an engineer"},
+    "e1.g5.a":{zh:"<b>Threat-Engine</b> — AML 區塊鏈風控。內部黑名單管線，串 TRM Labs 做鏈上偵測、WorldCheck 做即時名單篩查，Slack 互動式告警直接接給合規分析師分案。",
+               en:"<b>Threat-Engine</b> — AML blockchain risk. Internal blacklist pipelines, TRM Labs for on-chain detection, WorldCheck for real-time name screening, and interactive Slack alerts routed straight to compliance analysts for triage."},
+    "e1.g5.b":{zh:"<b>XRAY</b> — 合規與區塊鏈鑑識平台。依台灣 VASP 法規調整判定邏輯，串 MistTrack、TRM Labs、Crystal Blockchain 做多源鏈上掃描，前面掛 Cloudflare 控存取。",
+               en:"<b>XRAY</b> — a compliance and blockchain forensics platform. Adapted the logic to Taiwan VASP requirements, scanned on-chain across MistTrack, TRM Labs and Crystal Blockchain, with Cloudflare in front for protection and access control."},
+    "e1.g5.c":{zh:"<b>Event-Center</b> — 事件資料整合管線。串 Appsflyer 做行動歸因，用 Meltano 打進 Metabase，關鍵產品與系統事件即時進 Slack。",
+               en:"<b>Event-Center</b> — an event data integration pipeline. Appsflyer for mobile attribution, Meltano streaming into Metabase, and critical product and system events straight into Slack."},
+    "e1.g5.d":{zh:"<b>User Tagging System</b> — Flink、Elasticsearch 與 Airflow 組成的即時與每日標籤服務，下游系統直接取用分群結果。",
+               en:"<b>User Tagging System</b> — real-time and daily tagging on Flink, Elasticsearch and Airflow, so downstream systems can pull segmentation directly."},
+    "e1.g5.e":{zh:"<b>Risk Score</b> — 標籤驅動的風險評分，吃 User Tagging 的資料，高風險行為即時告警。",
+               en:"<b>Risk Score</b> — tag-driven risk assessment built on the User Tagging data, alerting on high-risk activity as it happens."},
+    "e1.g5.f":{zh:"<b>Internal CMS</b> — 重構成多角色、多法人的權限模型，讓後台各方人馬能各自到位。",
+               en:"<b>Internal CMS</b> — refactored into a multi-role, multi-institution access model so every back-office stakeholder lands where they should."},
+    "e1.g5.g":{zh:"<b>Metabase PII</b> — 主導用 ETL 把使用者資料做 hash。",
+               en:"<b>Metabase PII</b> — led the project to hash user data through ETL."},
     "e1.k1":{zh:"團隊管理", en:"People Management"},
     "e1.k2":{zh:"系統設計", en:"System Design"},
     "e1.k3":{zh:"區塊鏈合規", en:"Blockchain Compliance"},
 
     "e2.dur": {zh:"1 年 1 個月", en:"1 yr 1 mo"},
     "e2.role":{zh:"Senior Software Engineer", en:"Senior Software Engineer"},
-    "e2.d":   {zh:"開發 Spring Cloud 微服務與資料管線，同時擔任 Scrum Master 帶 Sprint。也投入 LLM 應用（Langchain、Langflow）的研究跟落地。",
-               en:"Built Spring Cloud microservices and data pipelines while serving as Scrum Master for the team’s sprints. Also researched and shipped LLM applications with Langchain and Langflow."},
+    "e2.d":   {zh:"開發 Spring Cloud 微服務與資料管線，同時擔任 Scrum Master 帶 Sprint。",
+               en:"Built Spring Cloud microservices and data pipelines while serving as Scrum Master for the team’s sprints."},
+    "e2.g1.h":{zh:"微服務與資料管線", en:"Services & pipelines"},
+    "e2.g1.a":{zh:"Spring Cloud 微服務，用 Java、Kafka、Redis、HBase、StarRocks、MyBatis、Elasticsearch 與 XXL Job。",
+               en:"Spring Cloud microservices on Java, Kafka, Redis, HBase, StarRocks, MyBatis, Elasticsearch and XXL Job."},
+    "e2.g1.b":{zh:"資料管線用 Python、Scala、Hive、Airflow、Spark 與 Flink。",
+               en:"Data pipelines in Python, Scala, Hive, Airflow, Spark and Flink."},
+    "e2.g1.c":{zh:"參與系統設計，在複雜問題上提替代方案。",
+               en:"Contributed to system design, offering alternatives on the harder problems."},
+    "e2.g2.h":{zh:"團隊與技術探索", en:"Team & research"},
+    "e2.g2.a":{zh:"擔任 Scrum Master 帶 Sprint，推進協作節奏與交付。",
+               en:"Served as Scrum Master, running sprints and holding the collaboration rhythm together."},
+    "e2.g2.b":{zh:"投入 LLM 應用的研究與落地，主要是 Langchain 與 Langflow。",
+               en:"Researched and shipped LLM applications, mostly Langchain and Langflow."},
 
     "e3.co":  {zh:"CIMFORCE 上博科技", en:"CIMFORCE"},
     "e3.dur": {zh:"2 年 7 個月", en:"2 yrs 7 mos"},
     "e3.role":{zh:"Software Deputy Manager", en:"Software Deputy Manager"},
-    "e3.d":   {zh:"開發與維護 Spring Cloud 微服務，訂定 coding guideline、git-flow 策略跟 issue tracking 流程。處理微服務之間的分散式交易、併發控制與資料鎖定。這是我第一段帶人的經歷，負責招募、訓練跟工作分派。",
-               en:"Built and maintained Spring Cloud microservices, and set the coding guidelines, git-flow strategy and issue tracking process. Worked through the hard parts between services: distributed transactions, concurrency control, data locking. This was my first time managing people, covering hiring, training and work assignment."},
+    "e3.d":   {zh:"開發與維護 Spring Cloud 微服務，同時是我第一段帶人的經歷。",
+               en:"Built and maintained Spring Cloud microservices, and managed people for the first time."},
+    "e3.g1.h":{zh:"技術", en:"Engineering"},
+    "e3.g1.a":{zh:"Spring Cloud 微服務開發與維護，Java、Redis、RabbitMQ 與 MyBatis。",
+               en:"Built and maintained Spring Cloud microservices on Java, Redis, RabbitMQ and MyBatis."},
+    "e3.g1.b":{zh:"處理微服務之間最難的部分：分散式交易、併發控制與資料鎖定。",
+               en:"Worked through the hard parts between services: distributed transactions, concurrency control, data locking."},
+    "e3.g1.c":{zh:"撰寫系統設計文件，並推動跨部門溝通把專案接起來。",
+               en:"Authored system design documents and drove the cross-department communication that held projects together."},
+    "e3.g2.h":{zh:"流程與帶人", en:"Process & people"},
+    "e3.g2.a":{zh:"訂定 coding guideline、git-flow 策略與 issue tracking 流程。",
+               en:"Set the coding guidelines, git-flow strategy and issue tracking process."},
+    "e3.g2.b":{zh:"第一次管人：招募、訓練與工作分派。",
+               en:"First time managing people: hiring, training and work assignment."},
     "e3.k1":{zh:"分散式交易", en:"Distributed Transactions"},
     "e3.k2":{zh:"招募與訓練", en:"Hiring & Training"},
 
     "e4.dur": {zh:"8 個月", en:"8 mos"},
     "e4.role":{zh:"Senior Java Software Engineer", en:"Senior Java Software Engineer"},
-    "e4.d":   {zh:"用鎖機制、RabbitMQ 跟 Redis 快取策略處理高併發場景。設計並實作 GameBox 與金流工具，用設計模式整合多家遊戲供應商，另外以 WebSocket 做了即時客服聊天系統。",
-               en:"Handled high-concurrency traffic with locking mechanisms, RabbitMQ and Redis caching. Designed and built GameBox and the payment tooling, using design patterns to integrate games from many providers, plus a real-time webchat system over WebSocket."},
+    "e4.d":   {zh:"博弈產業，主場是高併發與金流整合。",
+               en:"Gaming industry. The whole job was high concurrency and payment integration."},
+    "e4.g1.h":{zh:"主要交付", en:"What I shipped"},
+    "e4.g1.a":{zh:"用鎖機制、RabbitMQ 與 Redis 快取策略扛住尖峰流量。",
+               en:"Held peak traffic with locking mechanisms, RabbitMQ and Redis caching strategies."},
+    "e4.g1.b":{zh:"設計並實作 <b>GameBox</b> 與金流工具，用設計模式把各家遊戲供應商的差異吸收掉。",
+               en:"Designed and built <b>GameBox</b> and the payment tooling, using design patterns to absorb the differences between game providers."},
+    "e4.g1.c":{zh:"以 WebSocket 做即時客服聊天系統。",
+               en:"Built a real-time webchat system over WebSocket."},
+    "e4.g1.d":{zh:"Spring Boot 微服務，Java、Redis 與 MyBatis。",
+               en:"Spring Boot microservices on Java, Redis and MyBatis."},
     "e4.k1":{zh:"高併發", en:"High Concurrency"},
 
     "e5.dur": {zh:"2 年", en:"2 yrs"},
     "e5.role":{zh:"Java Developer", en:"Java Developer"},
-    "e5.d":   {zh:"直接跟 end user 訪談需求，再寫成 SA 與 SD 文件。主導政府專案，開發 5 套系統、維運 2 套既有系統。",
-               en:"Sat with end users to work out what they needed, then wrote it up as system analysis and design documents. Led government projects: five systems built, two more kept running."},
+    "e5.d":   {zh:"從需求訪談一路做到交付的政府專案。",
+               en:"Government projects, carried from the requirement interview all the way to delivery."},
+    "e5.g1.h":{zh:"主要交付", en:"What I shipped"},
+    "e5.g1.a":{zh:"直接跟 end user 訪談需求，再寫成 SA 與 SD 文件。",
+               en:"Sat with end users to work out what they needed, then wrote it up as system analysis and design documents."},
+    "e5.g1.b":{zh:"主導政府專案：開發 5 套系統、維運 2 套既有系統。",
+               en:"Led government projects: five systems built, two more kept running."},
+    "e5.g1.c":{zh:"Spring MVC 服務，Java 與 MyBatis。",
+               en:"Spring MVC services on Java and MyBatis."},
+    "e5.g1.d":{zh:"交付的系統包含 <b>Fwmw</b> 防火牆中介系統。",
+               en:"Systems delivered include <b>Fwmw</b>, a firewall middleware system."},
     "e5.k1":{zh:"系統分析", en:"System Analysis"},
 
     "e6.dur": {zh:"3 年 7 個月", en:"3 yrs 7 mos"},
     "e6.role":{zh:"Senior Java Software Engineer", en:"Senior Java Software Engineer"},
-    "e6.d":   {zh:"職涯起點。承接政府標案，新建 1 套、維運 3 套系統，工作涵蓋開發、除錯跟弱點掃描修補。後端 Struts2 加 JDBC，前端 jQuery。",
-               en:"Where it started. Government contracts: one system built, three maintained, covering development, debugging and patching whatever the vulnerability scans found. Struts2 and JDBC on the back, jQuery on the front."},
-    "e6.d2":  {zh:"這段期間交付的客戶包括立法院、監察院、環保署、國家安全局、新北市政府、工業局與台大醫院。",
-               en:"Clients over this period included the Legislative Yuan, the Control Yuan, the EPA, the National Security Bureau, New Taipei City Government, the Industrial Development Bureau and National Taiwan University Hospital."},
+    "e6.d":   {zh:"職涯起點。承接政府標案，從開發做到弱掃修補。",
+               en:"Where it started. Government contracts, from writing the code to patching what the scans found."},
+    "e6.g1.h":{zh:"主要交付", en:"What I shipped"},
+    "e6.g1.a":{zh:"政府標案：新建 1 套、維運 3 套系統。",
+               en:"Government contracts: one system built, three maintained."},
+    "e6.g1.b":{zh:"後端 Struts2 加 JDBC，前端 jQuery。",
+               en:"Struts2 and JDBC on the back, jQuery on the front."},
+    "e6.g1.c":{zh:"開發、除錯，以及弱點掃描掃出什麼就補什麼。",
+               en:"Development, debugging, and patching whatever the vulnerability scans turned up."},
+    "e6.g2.h":{zh:"交付的系統", en:"Systems delivered"},
+    "e6.g2.a":{zh:"<b>PMIS</b> 採購管理資訊系統（新北市政府）與 <b>PmisEPA</b>（環保署）。",
+               en:"<b>PMIS</b>, procurement management for New Taipei City Government, and <b>PmisEPA</b> for the Environmental Protection Administration."},
+    "e6.g2.b":{zh:"<b>MISQ</b> 議事整合查詢系統（立法院）、<b>CPDS</b> 財產申報檢核系統（監察院）。",
+               en:"<b>MISQ</b>, motion integration and query for the Legislative Yuan, and <b>CPDS</b>, property declaration and checking for the Control Yuan."},
+    "e6.g2.c":{zh:"<b>TIS</b> 追蹤管理系統與 <b>KMSAPP</b> 軍用 USB 裝置傳輸系統（國家安全局）。",
+               en:"<b>TIS</b>, an issue tracking system, and <b>KMSAPP</b>, USB device transmission for the army, both for the National Security Bureau."},
+    "e6.g2.d":{zh:"<b>E-portfolio</b> 醫學教學資源（台大醫院）、識別證申請系統（工業局）。",
+               en:"<b>E-portfolio</b> for medical teaching at National Taiwan University Hospital, and the badge application system for the Industrial Development Bureau."},
     "e6.k1":{zh:"資安弱掃", en:"Vulnerability Assessment"},
 
     "oss.h":   {zh:"Open Source", en:"Open Source"},
