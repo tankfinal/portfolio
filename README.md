@@ -106,3 +106,5 @@ python3 -m http.server 4321   # http://localhost:4321
 ## Deploy
 
 Push 到 `main` → GitHub Pages（Deploy from a branch，`main` / root）自動發佈。
+
+同一個 push 也會觸發 Cloudflare Worker `tank-portfolio`（Workers Builds，repo 根目錄整個當靜態檔上傳）。Workers 不會自動略過 `.git` 這類檔案，不是網站的檔案要列進 `.assetsignore`。
