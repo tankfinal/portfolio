@@ -73,7 +73,19 @@
   .ic svg,.bar-btn svg,.group svg{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
 
   /* ---------- wallpaper ---------- */
-  .wall{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+  /* Photo: Komezuka, Aso (taken on the Kyushu trip). The white wash fades it so icons and windows stay readable. */
+  .wall{
+    position:fixed;inset:0;z-index:0;
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.14) 45%,rgba(255,255,255,.26)),
+      url(images/wallpaper-komezuka.jpg) 54% 58% / cover no-repeat;
+    background-color:#9CB6D6;
+  }
+  @media (max-width:768px){
+    .wall{background-image:
+      linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.14) 45%,rgba(255,255,255,.26)),
+      url(images/wallpaper-komezuka-sm.jpg)}
+  }
   .wall-dim{position:fixed;inset:0;background:#000;opacity:var(--wall-dim);pointer-events:none;z-index:0}
 
   /* ---------- menu bar ---------- */
@@ -325,39 +337,7 @@
   <symbol id="g-side" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.2"/><path d="M9.5 5v14"/></symbol>
 </svg>
 
-<svg class="wall" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-  <defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#0A1238"/>
-      <stop offset=".45" stop-color="#2B1A5E"/>
-      <stop offset=".8" stop-color="#B8436E"/>
-      <stop offset="1" stop-color="#FF8A5C"/>
-    </linearGradient>
-    <radialGradient id="sun" cx="1120" cy="560" r="520" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FFC58A" stop-opacity=".9"/>
-      <stop offset=".35" stop-color="#FF7A59" stop-opacity=".45"/>
-      <stop offset="1" stop-color="#FF7A59" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="wa" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#6D28D9"/>
-      <stop offset="1" stop-color="#F0507A"/>
-    </linearGradient>
-    <linearGradient id="wb" x1="0" y1="0" x2="1" y2=".4">
-      <stop offset="0" stop-color="#FF7448"/>
-      <stop offset=".6" stop-color="#D62828"/>
-      <stop offset="1" stop-color="#7A1238"/>
-    </linearGradient>
-    <linearGradient id="wc" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1A2A6C"/>
-      <stop offset="1" stop-color="#070B24"/>
-    </linearGradient>
-  </defs>
-  <rect width="1600" height="1000" fill="url(#sky)"/>
-  <rect width="1600" height="1000" fill="url(#sun)"/>
-  <path fill="url(#wa)" opacity=".85" d="M0 600C220 540 420 520 640 590S1060 700 1300 610 1520 520 1600 540V1000H0Z"/>
-  <path fill="url(#wb)" d="M0 720C260 650 470 700 720 760S1180 800 1400 720 1560 660 1600 670V1000H0Z"/>
-  <path fill="url(#wc)" d="M0 850C300 790 560 860 860 880S1360 830 1600 800V1000H0Z"/>
-</svg>
+<div class="wall" aria-hidden="true"></div>
 <div class="wall-dim"></div>
 
 <noscript><p class="nojs">TankOS 需要 JavaScript 才能執行。<a href="classic/">改看經典版</a></p></noscript>

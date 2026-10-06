@@ -36,6 +36,8 @@ images/
 ├── fukuoka-trip.jpg      # 經典版的作品縮圖（截自 live 站）
 ├── busan-trip.jpg
 ├── yangmingshan-trip.jpg
+├── wallpaper-komezuka.jpg     # TankOS 桌布（1920px）
+├── wallpaper-komezuka-sm.jpg  # 手機版桌布（1200px）
 └── averlyn-vaccine.jpg
 ```
 
@@ -70,7 +72,7 @@ PY
 
 macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.html`。經典版從選單列的「經典版」或 Dock 的 T 進去，經典版 hero 的 TankOS 連結再連回來。
 
-- **設計語彙跟經典版相反**：漸層桌布、毛玻璃選單列與 Dock、圓角、陰影都在這裡用。桌布是內嵌 SVG，不吃外部圖檔。
+- **設計語彙跟經典版相反**：漸層桌布、毛玻璃選單列與 Dock、圓角、陰影都在這裡用。桌布是九州自駕時拍的阿蘇米塚（`images/wallpaper-komezuka.jpg`，手機版吃 `-sm`），`background-size:cover` 滿版，上面疊一層白色漸層淡化，讓 icon 和視窗字好讀。
 - **視窗**：紅黃綠三顆鈕分別是關閉、縮到 Dock、放大（雙擊標題列也是放大）。標題列可拖曳，右下角可縮放。768px 以下視窗一律全螢幕、不可拖曳，桌面 icon 改成點一下就開。
 - **App 視窗用 iframe 直接跑 live 站**，左側欄是經典版同一份作品介紹。新增 App：在 `APPS` 加一筆（`k` 指向經典版的作品 key、`url`、`src`、`spec`），再補桌面 icon 和 Dock 各一顆按鈕。被嵌的站不能送 `X-Frame-Options` / `frame-ancestors`，GitHub Pages 預設沒有。
 - **Terminal** 是假的，指令寫死在 `run()` 裡。
