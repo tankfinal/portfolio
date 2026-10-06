@@ -9,11 +9,11 @@ Tank Yang 的個人網站 — 經歷、個人專案與開源工具的集合。
 同一份內容做成兩個版本，都有中英雙語切換：
 
 - **TankOS**（首頁 `/`）：macOS 風格的桌面，作品以 App 視窗開啟、直接跑 live 站。見下方 TankOS 一節。
-- **經典版**（[`/classic/`](https://tankfinal.github.io/portfolio/classic/)）：一頁式排版，收錄六段工作經歷、三個自己在用的個人網站，以及三個開源工具。
+- **經典版**（[`/classic/`](https://tankfinal.github.io/portfolio/classic/)）：一頁式排版，收錄六段工作經歷、四個自己在用的個人網站，以及三個開源工具。
 
 `/os/` 是 TankOS 搬到首頁前的網址，已經分享出去過，現在只負責轉址回首頁。
 
-**沒有 build step。** 兩個版本各是一個 HTML 檔（CSS 與 JS 都內嵌），加三張截圖。改完 push 就是部署。
+**沒有 build step。** 兩個版本各是一個 HTML 檔（CSS 與 JS 都內嵌），加四張截圖。改完 push 就是部署。
 
 ## 設計語彙
 
@@ -35,6 +35,7 @@ os/index.html       # 只做轉址回首頁，讓已分享出去的 /os/ 連結�
 images/
 ├── fukuoka-trip.jpg      # 經典版的作品縮圖（截自 live 站）
 ├── busan-trip.jpg
+├── yangmingshan-trip.jpg
 └── averlyn-vaccine.jpg
 ```
 

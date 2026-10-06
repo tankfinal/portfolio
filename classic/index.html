@@ -351,7 +351,7 @@
     <div class="sec-head">
       <span class="sec-num mono">01</span>
       <span class="sec-title" data-i18n="work.h">Selected Work</span>
-      <p class="sec-note" data-i18n="work.note">三個自己在用的網站。都是靜態站，沒有後端、沒有資料庫、不用登入。</p>
+      <p class="sec-note" data-i18n="work.note">四個自己在用的網站。都是靜態站，沒有後端、沒有資料庫、不用登入。</p>
     </div>
 
     <article class="work-item">
@@ -402,6 +402,29 @@
 
     <article class="work-item">
       <div class="w-num mono">03</div>
+      <div>
+        <div class="w-head">
+          <h3 class="w-title" data-i18n="w4.t">陽明山一泊二日慶生行程</h3>
+          <span class="w-year mono">2026</span>
+        </div>
+        <p class="w-desc" data-i18n="w4.d">給老婆過生日的陽明山一泊二日。七個分頁放了逐日時間軸、竹子湖不點雞也吃得好的店、大車停車與下山塞車的時段，還有可以打勾的行前清單。日落時間用 NOAA 公式算好，慶生晚餐的訂位就卡在夕陽轉夜景的那十分鐘。</p>
+        <dl class="w-spec mono">
+          <dt data-i18n="spec.build">Build</dt><dd data-i18n="w4.s1">單一 index.html，無框架無 build step</dd>
+          <dt data-i18n="spec.feat">Feature</dt><dd data-i18n="w4.s2">行程倒數、可勾選清單、手機優先版面</dd>
+          <dt data-i18n="spec.size">Size</dt><dd>28 KB</dd>
+        </dl>
+        <div class="w-links">
+          <a href="https://tankfinal.github.io/yangmingshan-trip/" target="_blank" rel="noopener" data-i18n="link.visit">開啟網站</a>
+          <a href="https://github.com/tankfinal/yangmingshan-trip" target="_blank" rel="noopener">Source</a>
+        </div>
+      </div>
+      <a class="w-shot" href="https://tankfinal.github.io/yangmingshan-trip/" target="_blank" rel="noopener">
+        <img src="../images/yangmingshan-trip.jpg" alt="陽明山一泊二日慶生行程網站畫面" loading="lazy" width="900" height="562">
+      </a>
+    </article>
+
+    <article class="work-item">
+      <div class="w-num mono">04</div>
       <div>
         <div class="w-head">
           <h3 class="w-title" data-i18n="w3.t">Averlyn 疫苗接種追蹤</h3>
@@ -780,8 +803,8 @@
     "hero.l2":    {zh:"工作經歷", en:"Experience"},
 
     "work.h":   {zh:"Selected Work", en:"Selected Work"},
-    "work.note":{zh:"三個自己在用的網站。都是靜態站，沒有後端、沒有資料庫、不用登入。",
-                 en:"Three sites I use myself. All static: no backend, no database, no login."},
+    "work.note":{zh:"四個自己在用的網站。都是靜態站，沒有後端、沒有資料庫、不用登入。",
+                 en:"Four sites I use myself. All static: no backend, no database, no login."},
     "spec.build": {zh:"Build",  en:"Build"},
     "spec.feat":  {zh:"Feature",en:"Feature"},
     "spec.size":  {zh:"Size",   en:"Size"},
@@ -801,6 +824,11 @@
     "w2.s1":{zh:"單一 index.html，無框架無 build step", en:"One index.html. No framework, no build step."},
     "w2.s2":{zh:"深淺色主題切換、離線可讀", en:"Dark / light theme, readable offline"},
 
+    "w4.t": {zh:"陽明山一泊二日慶生行程", en:"Yangmingshan: Birthday Overnight"},
+    "w4.d": {zh:"給老婆過生日的陽明山一泊二日。七個分頁放了逐日時間軸、竹子湖不點雞也吃得好的店、大車停車與下山塞車的時段，還有可以打勾的行前清單。日落時間用 NOAA 公式算好，慶生晚餐的訂位就卡在夕陽轉夜景的那十分鐘。",
+             en:"An overnight trip up Yangmingshan for my wife’s birthday. Seven tabs hold a timeline for each day, places in Zhuzihu that are good without ordering chicken, parking and traffic windows for a large SUV, and a pre-trip checklist you can tick off. Sunset is worked out with the NOAA formula, so the birthday dinner booking lands right as daylight turns into city lights."},
+    "w4.s1":{zh:"單一 index.html，無框架無 build step", en:"One index.html. No framework, no build step."},
+    "w4.s2":{zh:"行程倒數、可勾選清單、手機優先版面", en:"Trip countdown, tickable checklist, mobile-first layout"},
     "w3.t": {zh:"Averlyn 疫苗接種追蹤", en:"Averlyn Vaccine Tracker"},
     "w3.d": {zh:"追蹤女兒對照台灣公費與自費時程的 36 針接種進度。時間軸依日期分組，可以篩已完成、待施打、逾期，並顯示下一劑倒數。中間曾經長出 FastAPI + Supabase 後端讓任何裝置都能改，後來刻意砍掉退回純靜態，資料在 build 時烘進 bundle，瀏覽器一支 API 都不打。",
              en:"Tracks my daughter through 36 shots against Taiwan’s public and self-paid vaccine schedule. The timeline groups by date, filters to done, upcoming or overdue, and counts down to the next shot. It grew a FastAPI and Supabase backend for a while so it could be edited from any device, then I tore that out and went back to pure static. Data is baked into the bundle at build time and the browser calls no API at all."},

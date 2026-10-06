@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a1238">
 <title>TankOS · Tank Yang</title>
-<meta name="description" content="Tank Yang 的桌面版作品集。福岡自駕、釜山清單、Averlyn 疫苗追蹤三個作品直接在視窗裡跑，另有經歷與聯絡方式。">
+<meta name="description" content="Tank Yang 的桌面版作品集。福岡自駕、釜山清單、陽明山慶生、Averlyn 疫苗追蹤四個作品直接在視窗裡跑，另有經歷與聯絡方式。">
 <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23D62828'/><text x='16' y='23' font-size='19' font-family='Helvetica,Arial,sans-serif' font-weight='700' text-anchor='middle' fill='%23fff'>T</text></svg>">
 <style>
   :root{
@@ -125,6 +125,7 @@
   .ic svg{width:58%;height:58%;stroke-width:1.8}
   .ic-fukuoka{background:linear-gradient(160deg,#FF7A50,#D62828 68%,#A3141E)}
   .ic-busan{background:linear-gradient(160deg,#4FE0D0,#1593C9 60%,#0D5FA8)}
+  .ic-yms{background:linear-gradient(160deg,#F2B263,#C9667A 45%,#5A3E7A 78%,#2B2350)}
   .ic-averlyn{background:linear-gradient(160deg,#FFB0C8,#F0628E 60%,#C93C6C)}
   .ic-terminal{background:linear-gradient(180deg,#3A3A3E,#151517);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
   .ic-contact{background:linear-gradient(160deg,#8AA4FF,#4A5CF0 60%,#3241C4)}
@@ -284,7 +285,7 @@
 
   /* ---------- phones ---------- */
   @media (max-width:768px){
-    :root{--ds:clamp(34px,calc((100vw - 96px) / 7),52px)}
+    :root{--ds:clamp(28px,calc((100vw - 104px) / 8),52px)}
     .icons{left:0;right:0;top:14px;padding:0 6px;grid-template-columns:repeat(4,1fr);grid-template-rows:none;grid-auto-flow:row;justify-items:center}
     .dicon{width:84px}
     .dicon .ic{--s:56px}
@@ -309,6 +310,7 @@
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="g-torii" viewBox="0 0 24 24"><path d="M3 6.2c5.6 1.3 12.4 1.3 18 0"/><path d="M5 10.2h14"/><path d="M7.4 7.3v13.2M16.6 7.3v13.2"/><path d="M12 7.6v2.6"/></symbol>
   <symbol id="g-wave" viewBox="0 0 24 24"><path d="M7 12.5a5 5 0 0 1 10 0"/><path d="M12 4.5v1.8M6.3 6.8l1.2 1.2M17.7 6.8l-1.2 1.2"/><path d="M2.5 16c1.6 0 1.6-1.4 3.2-1.4s1.6 1.4 3.2 1.4 1.6-1.4 3.1-1.4 1.6 1.4 3.2 1.4 1.6-1.4 3.2-1.4 1.6 1.4 3.1 1.4"/><path d="M2.5 20c1.6 0 1.6-1.4 3.2-1.4s1.6 1.4 3.2 1.4 1.6-1.4 3.1-1.4 1.6 1.4 3.2 1.4 1.6-1.4 3.2-1.4 1.6 1.4 3.1 1.4"/></symbol>
+  <symbol id="g-mountain" viewBox="0 0 24 24"><path d="M2.5 19.5 9 9.5l3.6 5.4 2.6-3.6 6.3 8.2Z"/><circle cx="17" cy="6" r="2.2"/></symbol>
   <symbol id="g-syringe" viewBox="0 0 24 24"><path d="M13 3l8 8"/><path d="M15 5l-8.5 8.5a1.5 1.5 0 0 0 0 2.1l1.9 1.9a1.5 1.5 0 0 0 2.1 0L19 9"/><path d="M17 7l3.5-3.5M19 2l3 3"/><path d="M7.4 16.6L3 21"/><path d="M12.2 7.8l1.6 1.6M10 10l1.6 1.6"/></symbol>
   <symbol id="g-term" viewBox="0 0 24 24"><path d="M5 7l5 5-5 5"/><path d="M12.5 17.5H19"/></symbol>
   <symbol id="g-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.2"/><path d="M3.8 7.2l8.2 6 8.2-6"/></symbol>
@@ -377,6 +379,7 @@
   <ul class="icons">
     <li><button class="dicon" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="lbl" data-i18n="app.fukuoka">福岡自駕</span></button></li>
     <li><button class="dicon" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="lbl" data-i18n="app.busan">釜山清單</span></button></li>
+    <li><button class="dicon" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="lbl" data-i18n="app.yangmingshan">陽明山慶生</span></button></li>
     <li><button class="dicon" type="button" data-open="averlyn"><span class="ic ic-averlyn"><svg><use href="#g-syringe"/></svg></span><span class="lbl" data-i18n="app.averlyn">Averlyn 疫苗</span></button></li>
     <li><button class="dicon" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="lbl">README.md</span></button></li>
     <li><button class="dicon" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="lbl" data-i18n="app.terminal">終端機</span></button></li>
@@ -389,6 +392,7 @@
 <nav class="dock" id="dock" aria-label="Dock">
   <button class="dk" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="tip" data-i18n="app.fukuoka">福岡自駕</span></button>
   <button class="dk" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="tip" data-i18n="app.busan">釜山清單</span></button>
+  <button class="dk" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="tip" data-i18n="app.yangmingshan">陽明山慶生</span></button>
   <button class="dk" type="button" data-open="averlyn"><span class="ic ic-averlyn"><svg><use href="#g-syringe"/></svg></span><span class="tip" data-i18n="app.averlyn">Averlyn 疫苗</span></button>
   <button class="dk" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="tip">README.md</span></button>
   <button class="dk" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="tip" data-i18n="app.terminal">終端機</span></button>
@@ -475,6 +479,11 @@
              en:"A day-by-day checklist for five days in Busan, weighted toward sea views and low spend. Dark theme with a light mode you can switch to, plus the metro map, an airport transfer comparison, luggage storage points, and the actual walking route for every stop."},
     "w2.s1": {zh:"單一 index.html，無框架無 build step", en:"One index.html. No framework, no build step."},
     "w2.s2": {zh:"深淺色主題切換、離線可讀", en:"Dark / light theme, readable offline"},
+    "w4.t": {zh:"陽明山一泊二日慶生行程", en:"Yangmingshan: Birthday Overnight"},
+    "w4.d": {zh:"給老婆過生日的陽明山一泊二日。七個分頁放了逐日時間軸、竹子湖不點雞也吃得好的店、大車停車與下山塞車的時段，還有可以打勾的行前清單。日落時間用 NOAA 公式算好，慶生晚餐的訂位就卡在夕陽轉夜景的那十分鐘。",
+             en:"An overnight trip up Yangmingshan for my wife’s birthday. Seven tabs hold a timeline for each day, places in Zhuzihu that are good without ordering chicken, parking and traffic windows for a large SUV, and a pre-trip checklist you can tick off. Sunset is worked out with the NOAA formula, so the birthday dinner booking lands right as daylight turns into city lights."},
+    "w4.s1": {zh:"單一 index.html，無框架無 build step", en:"One index.html. No framework, no build step."},
+    "w4.s2": {zh:"行程倒數、可勾選清單、手機優先版面", en:"Trip countdown, tickable checklist, mobile-first layout"},
     "w3.t": {zh:"Averlyn 疫苗接種追蹤", en:"Averlyn Vaccine Tracker"},
     "w3.d": {zh:"追蹤女兒對照台灣公費與自費時程的 36 針接種進度。時間軸依日期分組，可以篩已完成、待施打、逾期，並顯示下一劑倒數。中間曾經長出 FastAPI + Supabase 後端讓任何裝置都能改，後來刻意砍掉退回純靜態，資料在 build 時烘進 bundle，瀏覽器一支 API 都不打。",
              en:"Tracks my daughter through 36 shots against Taiwan’s public and self-paid vaccine schedule. The timeline groups by date, filters to done, upcoming or overdue, and counts down to the next shot. It grew a FastAPI and Supabase backend for a while so it could be edited from any device, then I tore that out and went back to pure static. Data is baked into the bundle at build time and the browser calls no API at all."},
@@ -515,6 +524,7 @@
     "mb.classic":  {zh:"經典版", en:"Classic site"},
     "app.fukuoka": {zh:"福岡自駕", en:"Fukuoka"},
     "app.busan":   {zh:"釜山清單", en:"Busan"},
+    "app.yangmingshan": {zh:"陽明山慶生", en:"Yangmingshan"},
     "app.averlyn": {zh:"Averlyn 疫苗", en:"Averlyn"},
     "app.readme":  {zh:"README.md", en:"README.md"},
     "app.terminal":{zh:"終端機", en:"Terminal"},
@@ -536,6 +546,8 @@
               spec:[["spec.build","w1.s1"], ["spec.feat","w1.s2"], ["spec.size",null,"113 KB"]], w:1080, h:720},
     busan:   {k:"w2", url:"https://tankfinal.github.io/busan-trip/", src:"https://github.com/tankfinal/busan-trip",
               spec:[["spec.build","w2.s1"], ["spec.feat","w2.s2"], ["spec.size",null,"136 KB"]], w:1080, h:720},
+    yangmingshan: {k:"w4", url:"https://tankfinal.github.io/yangmingshan-trip/", src:"https://github.com/tankfinal/yangmingshan-trip",
+              spec:[["spec.build","w4.s1"], ["spec.feat","w4.s2"], ["spec.size",null,"28 KB"]], w:1080, h:720},
     averlyn: {k:"w3", url:"https://tankfinal.github.io/averlyn-vaccine/", src:"https://github.com/tankfinal/averlyn-vaccine",
               spec:[["spec.build",null,"React 19 · TypeScript · Vite"], ["spec.deploy","w3.s2"], ["spec.note","w3.s3"]], w:1080, h:720},
     readme:  {w:680, h:660},
@@ -795,7 +807,7 @@
     ["help",          "show this list"],
     ["whoami",        "who runs this machine"],
     ["ls",            "list what's here"],
-    ["open <app>",    "fukuoka · busan · averlyn · readme · contact"],
+    ["open <app>",    "fukuoka · busan · yangmingshan · averlyn · readme · contact"],
     ["cat README.md", "a short bio"],
     ["contact",       "how to reach me"],
     ["date",          "current date and time"],
@@ -829,13 +841,13 @@
           line("Tank Yang — Backend Senior Associate Manager @ XREX");
           return;
         case "ls":
-          line("fukuoka/   busan/   averlyn/   README.md   contact");
+          line("fukuoka/   busan/   yangmingshan/   averlyn/   README.md   contact");
           return;
         case "open":
           var id = rest.toLowerCase().replace(/\/$/, "").replace(/\.md$/, "");
           if (APPS[id] && id !== "terminal") { line("Opening " + appName(id) + "…", "dim"); open(id); }
           else if (rest) line("open: " + rest + ": no such app", "err");
-          else line("usage: open <fukuoka | busan | averlyn | readme | contact>", "err");
+          else line("usage: open <fukuoka | busan | yangmingshan | averlyn | readme | contact>", "err");
           return;
         case "cat":
           if (/^readme(\.md)?$/i.test(rest)) line(t("hero.lede"));
