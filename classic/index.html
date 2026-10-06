@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFFFFF">
+<title>Tank Yang · Backend Senior Associate Manager</title>
+<meta name="description" content="Tank Yang。Backend Senior Associate Manager at XREX。12 年後端工程經歷、個人專案與開源工具。">
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23D62828'/><text x='16' y='23' font-size='19' font-family='Helvetica,Arial,sans-serif' font-weight='700' text-anchor='middle' fill='%23fff'>T</text></svg>">
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --fg:#101010;
+    --fg-soft:#4A4A4A;
+    --fg-mute:#8C8C8C;
+    --line:#E2E2E2;
+    --line-hard:#101010;
+    --accent:#D62828;
+    --wrap:1080px;
+    --gut:32px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#0D0D0D;
+      --fg:#F2F2F2;
+      --fg-soft:#ABABAB;
+      --fg-mute:#6C6C6C;
+      --line:#262626;
+      --line-hard:#F2F2F2;
+      --accent:#FF4B3E;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0D0D0D;
+    --fg:#F2F2F2;
+    --fg-soft:#ABABAB;
+    --fg-mute:#6C6C6C;
+    --line:#262626;
+    --line-hard:#F2F2F2;
+    --accent:#FF4B3E;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:"Helvetica Neue",Helvetica,Arial,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+  .mono{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace}
+
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--accent);color:#fff}
+
+  .wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gut)}
+
+  /* ============ Masthead ============ */
+  .mast{
+    position:sticky;top:0;z-index:40;
+    background:var(--bg);
+    border-bottom:1px solid var(--line);
+  }
+  .mast-in{
+    max-width:var(--wrap);margin:0 auto;padding:16px var(--gut);
+    display:flex;align-items:center;gap:24px;
+  }
+  .wordmark{
+    font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .mast nav{margin-left:auto;display:flex;gap:22px}
+  .mast nav a{
+    font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--fg-mute);
+  }
+  .mast nav a:hover{color:var(--accent)}
+  .lang{display:flex;align-items:center;gap:7px;font-size:11.5px;letter-spacing:.08em;flex:none}
+  .lang button{
+    background:none;border:0;padding:0;cursor:pointer;font:inherit;
+    color:var(--fg-mute);letter-spacing:inherit;
+  }
+  .lang button.on{color:var(--fg);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+  .lang i{color:var(--line);font-style:normal}
+
+  /* ============ Hero ============ */
+  .hero{padding:96px 0 88px;border-bottom:1px solid var(--line)}
+  .hero .kicker{
+    font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--fg-mute);margin:0 0 26px;
+  }
+  .hero h1{
+    margin:0 0 30px;
+    font-size:clamp(38px,7.6vw,82px);
+    line-height:.98;
+    letter-spacing:-.035em;
+    font-weight:600;
+    max-width:15ch;
+  }
+  .hero .meta{
+    display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;
+    padding-top:20px;border-top:1px solid var(--line);
+    font-size:12.5px;letter-spacing:.05em;color:var(--fg-mute);margin-bottom:26px;
+  }
+  .hero .meta b{color:var(--fg);font-weight:600}
+  .hero .lede{
+    font-size:clamp(17px,1.9vw,20px);line-height:1.55;color:var(--fg-soft);
+    max-width:46ch;margin:0 0 34px;
+  }
+  .inline-links{display:flex;flex-wrap:wrap;gap:24px;font-size:13.5px}
+  .inline-links a{
+    border-bottom:1px solid var(--line-hard);padding-bottom:2px;font-weight:500;
+  }
+  .inline-links a:hover{color:var(--accent);border-color:var(--accent)}
+
+  /* ============ Section frame ============ */
+  section{border-bottom:1px solid var(--line)}
+  .sec-head{
+    display:grid;grid-template-columns:64px 1fr;gap:0 24px;
+    padding:56px 0 40px;align-items:baseline;
+  }
+  .sec-num{
+    font-size:11.5px;letter-spacing:.1em;color:var(--accent);font-weight:600;
+  }
+  .sec-title{
+    font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;
+  }
+  .sec-note{
+    grid-column:2;font-size:13.5px;color:var(--fg-mute);margin:8px 0 0;max-width:52ch;
+  }
+
+  /* ============ Work ============ */
+  .work-item{
+    display:grid;grid-template-columns:64px minmax(0,1fr) minmax(0,1.05fr);
+    gap:0 24px;
+    padding:38px 0;border-top:1px solid var(--line);
+  }
+  .work-item:last-child{padding-bottom:64px}
+  .w-num{font-size:11.5px;color:var(--fg-mute);padding-top:5px}
+  .w-head{display:flex;align-items:baseline;gap:14px;margin-bottom:12px}
+  .w-title{font-size:clamp(20px,2.4vw,27px);letter-spacing:-.02em;font-weight:600;margin:0;line-height:1.2}
+  .w-year{margin-left:auto;font-size:11.5px;color:var(--fg-mute);flex:none}
+  .w-desc{font-size:14.5px;color:var(--fg-soft);margin:0 0 16px;max-width:44ch}
+  .w-spec{
+    display:grid;grid-template-columns:auto 1fr;gap:4px 18px;
+    font-size:12px;color:var(--fg-mute);margin-bottom:20px;
+  }
+  .w-spec dt{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px;padding-top:1px}
+  .w-spec dd{margin:0;color:var(--fg-soft)}
+  .w-links{display:flex;gap:20px;font-size:12.5px}
+  .w-links a{border-bottom:1px solid var(--line-hard);padding-bottom:2px}
+  .w-links a:hover{color:var(--accent);border-color:var(--accent)}
+  .w-shot{align-self:start;border:1px solid var(--line);overflow:hidden;background:var(--bg)}
+  .w-shot img{display:block;width:100%;height:auto}
+  .work-item:hover .w-shot{border-color:var(--fg-mute)}
+
+  /* ============ Experience ============ */
+  .job{
+    display:grid;grid-template-columns:64px 116px minmax(0,1fr);
+    gap:0 24px;padding:32px 0;border-top:1px solid var(--line);
+  }
+  .job:last-of-type{padding-bottom:56px}
+  .j-when{grid-column:2;text-align:right;font-size:11.5px;color:var(--fg-mute);padding-top:4px;line-height:1.5}
+  .j-main{grid-column:3;min-width:0}
+  .j-when span{display:block}
+  .j-dur{color:var(--line-hard);opacity:.45}
+  .j-co{font-size:19px;font-weight:600;letter-spacing:-.015em;margin:0 0 2px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .j-now{
+    font-style:normal;font-weight:600;
+    font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--accent);border:1px solid var(--accent);padding:1px 6px;
+  }
+  .j-role{font-size:13.5px;color:var(--accent);margin:0 0 12px;font-weight:500}
+  .j-body{font-size:14px;color:var(--fg-soft);margin:0}
+  .j-body + .j-body{margin-top:10px}
+  .j-body b{color:var(--fg);font-weight:600}
+  .ladder{
+    list-style:none;margin:0 0 16px;padding:0;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  }
+  .ladder li{
+    display:grid;grid-template-columns:74px 1fr;gap:16px;
+    padding:6px 0;font-size:12.5px;color:var(--fg-mute);
+    border-bottom:1px solid var(--line);
+  }
+  .ladder li:last-child{border-bottom:0}
+  .ladder li.cur{color:var(--fg)}
+  .ladder li.cur em{font-style:normal;font-weight:600}
+  .ladder time{font-size:11px}
+  .j-detail{margin-top:16px}
+  .j-grp{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+  .j-grp:first-child{border-top:0;padding-top:0;margin-top:0}
+  .j-grp h4{
+    font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--fg-mute);font-weight:600;margin:0 0 7px;
+  }
+  .j-grp ul{list-style:none;margin:0;padding:0}
+  .j-grp li{
+    position:relative;padding-left:17px;margin-bottom:6px;
+    font-size:13.5px;color:var(--fg-soft);line-height:1.55;
+  }
+  .j-grp li:last-child{margin-bottom:0}
+  .j-grp li::before{
+    content:"—";position:absolute;left:0;top:0;color:var(--fg-mute);
+  }
+  .j-grp li b{color:var(--fg);font-weight:600}
+  .kv{
+    display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:14px;
+    font-size:11.5px;color:var(--fg-mute);letter-spacing:.02em;
+  }
+  .kv span::after{content:"";}
+
+  /* ============ Open source ============ */
+  .oss{
+    display:grid;grid-template-columns:64px 180px minmax(0,1fr) auto;
+    gap:0 24px;align-items:baseline;
+    padding:26px 0;border-top:1px solid var(--line);
+  }
+  .oss:last-of-type{padding-bottom:56px}
+  .o-name{grid-column:2;font-size:15px;font-weight:600;letter-spacing:-.01em}
+  .o-desc{grid-column:3;min-width:0;font-size:13.5px;color:var(--fg-soft);margin:0}
+  .o-lang{grid-column:4;font-size:11.5px;color:var(--fg-mute);white-space:nowrap}
+  .oss a.o-name:hover{color:var(--accent)}
+
+  /* ============ About ============ */
+  .about{
+    display:grid;grid-template-columns:64px minmax(0,1.35fr) minmax(0,1fr);
+    gap:0 24px;padding:0 0 64px;border-top:1px solid var(--line);padding-top:38px;
+  }
+  .about-body{grid-column:2;min-width:0}
+  .stack{grid-column:3;min-width:0}
+  .about-body p{margin:0 0 18px;font-size:15px;color:var(--fg-soft);max-width:56ch}
+  .about-body p:last-child{margin-bottom:0}
+  .about-body b{color:var(--fg);font-weight:600}
+  .stack dl{margin:0;display:grid;grid-template-columns:1fr;gap:0}
+  .stack dt{
+    font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-mute);
+    padding:12px 0 5px;border-top:1px solid var(--line);
+  }
+  .stack dt:first-child{padding-top:0;border-top:0}
+  .stack dd{margin:0 0 6px;font-size:13px;color:var(--fg-soft);line-height:1.7}
+
+  /* ============ Contact ============ */
+  .contact{padding:56px 0 72px;display:grid;grid-template-columns:64px minmax(0,1fr);gap:0 24px}
+  .contact h2{
+    font-size:clamp(26px,4vw,44px);letter-spacing:-.03em;font-weight:600;
+    margin:0 0 18px;line-height:1.05;
+  }
+  .contact p{margin:0 0 30px;font-size:15px;color:var(--fg-soft);max-width:44ch}
+  .c-list{border-top:1px solid var(--line)}
+  .c-list a{
+    display:grid;grid-template-columns:118px minmax(0,1fr) auto;
+    gap:0 24px;align-items:baseline;
+    padding:13px 0;border-bottom:1px solid var(--line);
+  }
+  .c-list .lab{
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-mute);
+  }
+  .c-list .val{font-size:13.5px;color:var(--fg-soft);overflow-wrap:anywhere}
+  .c-list .arw{font-size:12px;color:var(--fg-mute)}
+  .c-list a:hover .lab,.c-list a:hover .val,.c-list a:hover .arw{color:var(--accent)}
+
+  footer{padding:34px 0 56px;font-size:11.5px;color:var(--fg-mute)}
+  .foot-in{display:flex;flex-wrap:wrap;gap:10px 28px;align-items:baseline}
+  .foot-in .q{max-width:44ch;font-style:italic}
+  .foot-in .r{margin-left:auto}
+
+  /* ============ Responsive ============ */
+  @media (max-width:900px){
+    :root{--gut:22px}
+    .work-item{grid-template-columns:44px minmax(0,1fr);gap:0 18px}
+    .w-shot{grid-column:2;margin-top:22px}
+    .sec-head,.about,.contact{grid-template-columns:44px minmax(0,1fr);gap:0 18px}
+    .about-body{grid-column:2}
+    .stack{grid-column:2;margin-top:34px}
+    .job{grid-template-columns:44px minmax(0,1fr);gap:0 18px}
+    .j-when{grid-column:2;padding:0 0 8px;display:flex;gap:14px}
+    .j-when span{display:inline}
+    .j-main{grid-column:2}
+    .oss{grid-template-columns:44px minmax(0,1fr);gap:6px 18px}
+    .o-name,.o-desc,.o-lang{grid-column:2}
+    .c-list a{grid-template-columns:minmax(0,1fr) auto;gap:2px 16px}
+    .c-list .lab{grid-column:1}
+    .c-list .val{grid-column:1}
+    .c-list .arw{grid-column:2;grid-row:1/3}
+    .mast nav{display:none}
+  }
+  @media (max-width:560px){
+    .hero{padding:64px 0 56px}
+    .sec-head{padding:42px 0 28px}
+    .w-head{flex-wrap:wrap;gap:4px 14px}
+    .w-year{margin-left:0;width:100%}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important}
+  }
+  @media print{
+    .mast,.w-shot{display:none}
+    body{font-size:11pt}
+  }
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="mast-in">
+    <a class="wordmark" href="#top">Tank Yang</a>
+    <nav>
+      <a href="#work"       data-i18n="nav.work">Work</a>
+      <a href="#experience" data-i18n="nav.exp">Experience</a>
+      <a href="#oss"        data-i18n="nav.oss">Open Source</a>
+      <a href="#about"      data-i18n="nav.about">About</a>
+      <a href="#contact"    data-i18n="nav.contact">Contact</a>
+    </nav>
+    <div class="lang">
+      <button id="btnZh" type="button">中文</button><i>/</i><button id="btnEn" type="button">EN</button>
+    </div>
+  </div>
+</header>
+
+<div id="top"></div>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap">
+    <p class="kicker mono" data-i18n="hero.kicker">Backend Engineering · Taipei</p>
+    <h1 data-i18n="hero.h1">Backend Senior Associate Manager</h1>
+    <div class="meta mono">
+      <span><b>XREX Inc.</b></span>
+      <span data-i18n="hero.m1">2023 至今</span>
+      <span data-i18n="hero.m2">12 年後端工程</span>
+      <span data-i18n="hero.m3">Java / Spring</span>
+    </div>
+    <p class="lede" data-i18n="hero.lede">我帶 XREX 的後端團隊，做區塊鏈合規與 AML 風控系統。在這之前是 Binance 的微服務跟資料管線。晚上寫一些自己會用的小網站。</p>
+    <div class="inline-links">
+      <a href="#work"    data-i18n="hero.l1">看作品</a>
+      <a href="#experience" data-i18n="hero.l2">工作經歷</a>
+      <a href="https://github.com/tankfinal" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.linkedin.com/in/zheng-yu-yang-807a5281/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="../">TankOS</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WORK ============ -->
+<section id="work">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num mono">01</span>
+      <span class="sec-title" data-i18n="work.h">Selected Work</span>
+      <p class="sec-note" data-i18n="work.note">三個自己在用的網站。都是靜態站，沒有後端、沒有資料庫、不用登入。</p>
+    </div>
+
+    <article class="work-item">
+      <div class="w-num mono">01</div>
+      <div>
+        <div class="w-head">
+          <h3 class="w-title" data-i18n="w1.t">福岡九州 7 日自駕行程</h3>
+          <span class="w-year mono">2026</span>
+        </div>
+        <p class="w-desc" data-i18n="w1.d">九州自駕的完整手冊。八個分頁裝了每日行程、美食地圖、開車須知跟緊急聯絡，另外內建即時匯率換算和「今天是 Day N」的倒數。日本 9/1 上路的生活道路速限新制、白銀週五連休會造成的塞車，都寫進去了。</p>
+        <dl class="w-spec mono">
+          <dt data-i18n="spec.build">Build</dt><dd data-i18n="w1.s1">單一 index.html，無框架無 build step</dd>
+          <dt data-i18n="spec.feat">Feature</dt><dd data-i18n="w1.s2">即時匯率 API、行程倒數、手機優先版面</dd>
+          <dt data-i18n="spec.size">Size</dt><dd>113 KB</dd>
+        </dl>
+        <div class="w-links">
+          <a href="https://tankfinal.github.io/fukuoka-trip/" target="_blank" rel="noopener" data-i18n="link.visit">開啟網站</a>
+          <a href="https://github.com/tankfinal/fukuoka-trip" target="_blank" rel="noopener">Source</a>
+        </div>
+      </div>
+      <a class="w-shot" href="https://tankfinal.github.io/fukuoka-trip/" target="_blank" rel="noopener">
+        <img src="../images/fukuoka-trip.jpg" alt="福岡九州 7 日自駕行程網站畫面" loading="lazy" width="900" height="562">
+      </a>
+    </article>
+
+    <article class="work-item">
+      <div class="w-num mono">02</div>
+      <div>
+        <div class="w-head">
+          <h3 class="w-title" data-i18n="w2.t">五天釜山旅遊清單</h3>
+          <span class="w-year mono">2026</span>
+        </div>
+        <p class="w-desc" data-i18n="w2.d">釜山五天四夜的逐日清單，走海景優先、低消費的路線。深色主題配一個可切換的清新模式，裡面有地鐵路線圖、機場交通比較、行李寄放點，還有每個景點實際怎麼走。</p>
+        <dl class="w-spec mono">
+          <dt data-i18n="spec.build">Build</dt><dd data-i18n="w2.s1">單一 index.html，無框架無 build step</dd>
+          <dt data-i18n="spec.feat">Feature</dt><dd data-i18n="w2.s2">深淺色主題切換、離線可讀</dd>
+          <dt data-i18n="spec.size">Size</dt><dd>136 KB</dd>
+        </dl>
+        <div class="w-links">
+          <a href="https://tankfinal.github.io/busan-trip/" target="_blank" rel="noopener" data-i18n="link.visit">開啟網站</a>
+          <a href="https://github.com/tankfinal/busan-trip" target="_blank" rel="noopener">Source</a>
+        </div>
+      </div>
+      <a class="w-shot" href="https://tankfinal.github.io/busan-trip/" target="_blank" rel="noopener">
+        <img src="../images/busan-trip.jpg" alt="五天釜山旅遊清單網站畫面" loading="lazy" width="900" height="562">
+      </a>
+    </article>
+
+    <article class="work-item">
+      <div class="w-num mono">03</div>
+      <div>
+        <div class="w-head">
+          <h3 class="w-title" data-i18n="w3.t">Averlyn 疫苗接種追蹤</h3>
+          <span class="w-year mono">2026</span>
+        </div>
+        <p class="w-desc" data-i18n="w3.d">追蹤女兒對照台灣公費與自費時程的 36 針接種進度。時間軸依日期分組，可以篩已完成、待施打、逾期，並顯示下一劑倒數。中間曾經長出 FastAPI + Supabase 後端讓任何裝置都能改，後來刻意砍掉退回純靜態，資料在 build 時烘進 bundle，瀏覽器一支 API 都不打。</p>
+        <dl class="w-spec mono">
+          <dt data-i18n="spec.build">Build</dt><dd>React 19 · TypeScript · Vite</dd>
+          <dt data-i18n="spec.deploy">Deploy</dt><dd data-i18n="w3.s2">GitHub Actions 自動建置發佈</dd>
+          <dt data-i18n="spec.note">Note</dt><dd data-i18n="w3.s3">從有後端退回純靜態</dd>
+        </dl>
+        <div class="w-links">
+          <a href="https://tankfinal.github.io/averlyn-vaccine/" target="_blank" rel="noopener" data-i18n="link.visit">開啟網站</a>
+          <a href="https://github.com/tankfinal/averlyn-vaccine" target="_blank" rel="noopener">Source</a>
+        </div>
+      </div>
+      <a class="w-shot" href="https://tankfinal.github.io/averlyn-vaccine/" target="_blank" rel="noopener">
+        <img src="../images/averlyn-vaccine.jpg" alt="Averlyn Vaccine Tracker 網站畫面" loading="lazy" width="900" height="562">
+      </a>
+    </article>
+  </div>
+</section>
+
+<!-- ============ EXPERIENCE ============ -->
+<section id="experience">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num mono">02</span>
+      <span class="sec-title" data-i18n="exp.h">Experience</span>
+      <p class="sec-note" data-i18n="exp.note">2014 年至今。區塊鏈金融、加密貨幣交易所、遊戲、政府標案。</p>
+    </div>
+
+    <article class="job">
+      <div class="j-when mono">
+        <span>2023.12 →</span>
+        <span class="j-dur" data-i18n="e1.dur">2 年 9 個月</span>
+      </div>
+      <div class="j-main">
+        <h3 class="j-co">XREX Inc. <em class="j-now" data-i18n="exp.now">現職</em></h3>
+        <p class="j-role" data-i18n="e1.role">Backend Senior Associate Manager</p>
+
+        <ul class="ladder mono">
+          <li class="cur"><time>2026.06</time><em>Backend Senior Associate Manager</em></li>
+          <li><time>2025.01</time>Backend Associate Manager</li>
+          <li><time>2024.12</time>Principal Backend Engineer</li>
+          <li><time>2023.12</time>Senior Backend Engineer</li>
+        </ul>
+
+        <p class="j-body" data-i18n="e1.d1">2023 年底以工程師身份加入，做 AML 區塊鏈風控與合規鑑識，2025 年初轉管理職。現在帶整個後端團隊，同時保留對系統設計的最終判斷。</p>
+
+        <div class="j-detail">
+          <div class="j-grp">
+            <h4 data-i18n="e1.g1.h">團隊管理</h4>
+            <ul>
+              <li data-i18n="e1.g1.a">任務分派與日常運作，確保每個人清楚自己的 ownership。</li>
+              <li data-i18n="e1.g1.b">招募、績效評估，以及 onboarding 與訓練規劃。</li>
+              <li data-i18n="e1.g1.c">持續回饋與 coaching，把當責跟學習變成團隊的預設節奏。</li>
+            </ul>
+          </div>
+          <div class="j-grp">
+            <h4 data-i18n="e1.g2.h">跨部門協作</h4>
+            <ul>
+              <li data-i18n="e1.g2.a">在需求探索早期就跟 PM 一起看，把技術可行性提早講清楚，而不是等到承諾之後。</li>
+              <li data-i18n="e1.g2.b">跨 Frontend、QA、Compliance、SRE 協作交付。</li>
+              <li data-i18n="e1.g2.c">對 C-level 當工程與商業之間的翻譯層，把公司目標對回技術方向。</li>
+              <li data-i18n="e1.g2.d">跟其他 team lead 解跨隊人力相依，換取調度彈性。</li>
+            </ul>
+          </div>
+          <div class="j-grp">
+            <h4 data-i18n="e1.g3.h">專案交付</h4>
+            <ul>
+              <li data-i18n="e1.g3.a">共同主持 sprint planning，負責時程估算與工作量分析。</li>
+              <li data-i18n="e1.g3.b">追進度、排除卡點，依優先序變動重新配置人力。</li>
+              <li data-i18n="e1.g3.c">後端交付準時、守在 scope 內，並且對得上商業目標。</li>
+            </ul>
+          </div>
+          <div class="j-grp">
+            <h4 data-i18n="e1.g4.h">工程流程與策略</h4>
+            <ul>
+              <li data-i18n="e1.g4.a">制定標準化 SDLC，讓交付品質不取決於今天是誰接這張票。</li>
+              <li data-i18n="e1.g4.b">訂定資料安全流程，讓後端服務同時對得起內部政策與外部規範。</li>
+              <li data-i18n="e1.g4.c">把公司層級的目標拆成可執行的工程策略，並隨目標調整技術方向。</li>
+            </ul>
+          </div>
+          <div class="j-grp">
+            <h4 data-i18n="e1.g5.h">工程師階段交付的系統</h4>
+            <ul>
+              <li data-i18n-html="e1.g5.a"><b>Threat-Engine</b> — AML 區塊鏈風控。內部黑名單管線，串 TRM Labs 做鏈上偵測、WorldCheck 做即時名單篩查，Slack 互動式告警直接接給合規分析師分案。</li>
+              <li data-i18n-html="e1.g5.b"><b>XRAY</b> — 合規與區塊鏈鑑識平台。依台灣 VASP 法規調整判定邏輯，串 MistTrack、TRM Labs、Crystal Blockchain 做多源鏈上掃描，前面掛 Cloudflare 控存取。</li>
+              <li data-i18n-html="e1.g5.c"><b>Event-Center</b> — 事件資料整合管線。串 Appsflyer 做行動歸因，用 Meltano 打進 Metabase，關鍵產品與系統事件即時進 Slack。</li>
+              <li data-i18n-html="e1.g5.d"><b>User Tagging System</b> — Flink、Elasticsearch 與 Airflow 組成的即時與每日標籤服務，下游系統直接取用分群結果。</li>
+              <li data-i18n-html="e1.g5.e"><b>Risk Score</b> — 標籤驅動的風險評分，吃 User Tagging 的資料，高風險行為即時告警。</li>
+              <li data-i18n-html="e1.g5.f"><b>Internal CMS</b> — 重構成多角色、多法人的權限模型，讓後台各方人馬能各自到位。</li>
+              <li data-i18n-html="e1.g5.g"><b>Metabase PII</b> — 主導用 ETL 把使用者資料做 hash。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="kv mono">
+          <span data-i18n="e1.k1">團隊管理</span><span data-i18n="e1.k2">系統設計</span>
+          <span data-i18n="e1.k3">區塊鏈合規</span><span>AML</span>
+          <span>Elasticsearch</span><span>Flink</span><span>Airflow</span><span>SDLC</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="job">
+      <div class="j-when mono">
+        <span>2022.11 – 2023.11</span>
+        <span class="j-dur" data-i18n="e2.dur">1 年 1 個月</span>
+      </div>
+      <div class="j-main">
+        <h3 class="j-co">Binance</h3>
+        <p class="j-role" data-i18n="e2.role">Senior Software Engineer</p>
+        <p class="j-body" data-i18n="e2.d">開發 Spring Cloud 微服務與資料管線，同時擔任 Scrum Master 帶 Sprint。</p>
+
+        <div class="j-detail">
+          <div class="j-grp">
+            <h4 data-i18n="e2.g1.h">微服務與資料管線</h4>
+            <ul>
+              <li data-i18n="e2.g1.a">Spring Cloud 微服務，用 Java、Kafka、Redis、HBase、StarRocks、MyBatis、Elasticsearch 與 XXL Job。</li>
+              <li data-i18n="e2.g1.b">資料管線用 Python、Scala、Hive、Airflow、Spark 與 Flink。</li>
+              <li data-i18n="e2.g1.c">參與系統設計，在複雜問題上提替代方案。</li>
+            </ul>
+          </div>
+          <div class="j-grp">
+            <h4 data-i18n="e2.g2.h">團隊與技術探索</h4>
+            <ul>
+              <li data-i18n="e2.g2.a">擔任 Scrum Master 帶 Sprint，推進協作節奏與交付。</li>
+              <li data-i18n="e2.g2.b">投入 LLM 應用的研究與落地，主要是 Langchain 與 Langflow。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="kv mono">
+          <span>Java</span><span>Kafka</span><span>HBase</span><span>StarRocks</span>
+          <span>Spark</span><span>Flink</span><span>Airflow</span><span>Scrum Master</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="job">
+      <div class="j-when mono">
+        <span>2020.04 – 2022.10</span>
+        <span class="j-dur" data-i18n="e3.dur">2 年 7 個月</span>
+      </div>
+      <div class="j-main">
+        <h3 class="j-co" data-i18n="e3.co">CIMFORCE 上博科技</h3>
+        <p class="j-role" data-i18n="e3.role">Software Deputy Manager</p>
+        <p class="j-body" data-i18n="e3.d">開發與維護 Spring Cloud 微服務，同時是我第一段帶人的經歷。</p>
+
+        <div class="j-detail">
+          <div class="j-grp">
+            <h4 data-i18n="e3.g1.h">技術</h4>
+            <ul>
+              <li data-i18n="e3.g1.a">Spring Cloud 微服務開發與維護，Java、Redis、RabbitMQ 與 MyBatis。</li>
+              <li data-i18n="e3.g1.b">處理微服務之間最難的部分：分散式交易、併發控制與資料鎖定。</li>
+              <li data-i18n="e3.g1.c">撰寫系統設計文件，並推動跨部門溝通把專案接起來。</li>
+            </ul>
+          </div>
+          <div class="j-grp">
+            <h4 data-i18n="e3.g2.h">流程與帶人</h4>
+            <ul>
+              <li data-i18n="e3.g2.a">訂定 coding guideline、git-flow 策略與 issue tracking 流程。</li>
+              <li data-i18n="e3.g2.b">第一次管人：招募、訓練與工作分派。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="kv mono">
+          <span>Spring Cloud</span><span>RabbitMQ</span><span>Redis</span>
+          <span data-i18n="e3.k1">分散式交易</span><span data-i18n="e3.k2">招募與訓練</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="job">
+      <div class="j-when mono">
+        <span>2019.08 – 2020.03</span>
+        <span class="j-dur" data-i18n="e4.dur">8 個月</span>
+      </div>
+      <div class="j-main">
+        <h3 class="j-co">Chiying Information Corp.</h3>
+        <p class="j-role" data-i18n="e4.role">Senior Java Software Engineer</p>
+        <p class="j-body" data-i18n="e4.d">博弈產業，主場是高併發與金流整合。</p>
+
+        <div class="j-detail">
+          <div class="j-grp">
+            <h4 data-i18n="e4.g1.h">主要交付</h4>
+            <ul>
+              <li data-i18n="e4.g1.a">用鎖機制、RabbitMQ 與 Redis 快取策略扛住尖峰流量。</li>
+              <li data-i18n-html="e4.g1.b">設計並實作 <b>GameBox</b> 與金流工具，用設計模式把各家遊戲供應商的差異吸收掉。</li>
+              <li data-i18n="e4.g1.c">以 WebSocket 做即時客服聊天系統。</li>
+              <li data-i18n="e4.g1.d">Spring Boot 微服務，Java、Redis 與 MyBatis。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="kv mono">
+          <span data-i18n="e4.k1">高併發</span><span>Redis</span><span>RabbitMQ</span><span>WebSocket</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="job">
+      <div class="j-when mono">
+        <span>2017.08 – 2019.07</span>
+        <span class="j-dur" data-i18n="e5.dur">2 年</span>
+      </div>
+      <div class="j-main">
+        <h3 class="j-co">Zyxel</h3>
+        <p class="j-role" data-i18n="e5.role">Java Developer</p>
+        <p class="j-body" data-i18n="e5.d">從需求訪談一路做到交付的政府專案。</p>
+
+        <div class="j-detail">
+          <div class="j-grp">
+            <h4 data-i18n="e5.g1.h">主要交付</h4>
+            <ul>
+              <li data-i18n="e5.g1.a">直接跟 end user 訪談需求，再寫成 SA 與 SD 文件。</li>
+              <li data-i18n="e5.g1.b">主導政府專案：開發 5 套系統、維運 2 套既有系統。</li>
+              <li data-i18n="e5.g1.c">Spring MVC 服務，Java 與 MyBatis。</li>
+              <li data-i18n-html="e5.g1.d">交付的系統包含 <b>Fwmw</b> 防火牆中介系統。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="kv mono">
+          <span>Spring MVC</span><span>MyBatis</span><span data-i18n="e5.k1">系統分析</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="job">
+      <div class="j-when mono">
+        <span>2014.02 – 2017.08</span>
+        <span class="j-dur" data-i18n="e6.dur">3 年 7 個月</span>
+      </div>
+      <div class="j-main">
+        <h3 class="j-co">ARES International Corp.</h3>
+        <p class="j-role" data-i18n="e6.role">Senior Java Software Engineer</p>
+        <p class="j-body" data-i18n="e6.d">職涯起點。承接政府標案，從開發做到弱掃修補。</p>
+
+        <div class="j-detail">
+          <div class="j-grp">
+            <h4 data-i18n="e6.g1.h">主要交付</h4>
+            <ul>
+              <li data-i18n="e6.g1.a">政府標案：新建 1 套、維運 3 套系統。</li>
+              <li data-i18n="e6.g1.b">後端 Struts2 加 JDBC，前端 jQuery。</li>
+              <li data-i18n="e6.g1.c">開發、除錯，以及弱點掃描掃出什麼就補什麼。</li>
+            </ul>
+          </div>
+          <div class="j-grp">
+            <h4 data-i18n="e6.g2.h">交付的系統</h4>
+            <ul>
+              <li data-i18n-html="e6.g2.a"><b>PMIS</b> 採購管理資訊系統（新北市政府）與 <b>PmisEPA</b>（環保署）。</li>
+              <li data-i18n-html="e6.g2.b"><b>MISQ</b> 議事整合查詢系統（立法院）、<b>CPDS</b> 財產申報檢核系統（監察院）。</li>
+              <li data-i18n-html="e6.g2.c"><b>TIS</b> 追蹤管理系統與 <b>KMSAPP</b> 軍用 USB 裝置傳輸系統（國家安全局）。</li>
+              <li data-i18n-html="e6.g2.d"><b>E-portfolio</b> 醫學教學資源（台大醫院）、識別證申請系統（工業局）。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="kv mono">
+          <span>Struts2</span><span>JDBC</span><span>jQuery</span><span data-i18n="e6.k1">資安弱掃</span>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ OPEN SOURCE ============ -->
+<section id="oss">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num mono">03</span>
+      <span class="sec-title" data-i18n="oss.h">Open Source</span>
+      <p class="sec-note" data-i18n="oss.note">把重複的工作流程做成工具。</p>
+    </div>
+
+    <div class="oss">
+      <a class="o-name mono" href="https://github.com/tankfinal/nueip-mcp" target="_blank" rel="noopener">nueip-mcp ↗</a>
+      <p class="o-desc" data-i18n="o1.d">NUEiP 人資系統的 MCP server。讓任何 MCP client 用自然語言查出勤、假期餘額、團隊請假跟待簽核。密碼走 macOS Keychain，不落地。</p>
+      <span class="o-lang mono">Python</span>
+    </div>
+
+    <div class="oss">
+      <a class="o-name mono" href="https://github.com/tankfinal/agent-team" target="_blank" rel="noopener">agent-team ↗</a>
+      <p class="o-desc" data-i18n="o2.d">Claude Code 的 agent team 模板。develop team 的 pm 刻意沒有寫檔權限，逼他真的派工；consult team 則是三位不同領域的專家互相辯論。用 tmux split pane 即時看所有人的對話。</p>
+      <span class="o-lang mono">TypeScript</span>
+    </div>
+
+    <div class="oss">
+      <a class="o-name mono" href="https://github.com/tankfinal/agent-skills-pub" target="_blank" rel="noopener">agent-skills-pub ↗</a>
+      <p class="o-desc" data-i18n="o3.d">可分享的 Claude Code skills 集合，以 toolkit-pub plugin 發佈。裝一次之後新增的 skill 會自動拿到。目前收錄 NUEiP 一鍵查詢，單一入口路由八個子指令。</p>
+      <span class="o-lang mono" data-i18n="o3.lang">Claude Skill</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num mono">04</span>
+      <span class="sec-title" data-i18n="about.h">About</span>
+    </div>
+    <div class="about">
+      <div class="about-body">
+        <p data-i18n-html="about.p1">我 2023 年底加入 <b>XREX</b>，一開始做 AML 區塊鏈風控跟合規鑑識的系統，2025 年轉管理職，現在帶後端團隊。在這之前在 <b>Binance</b> 寫微服務跟資料管線，同時擔任 Scrum Master。更早則在遊戲產業處理高併發金流，在系統整合商交付政府標案。Java 跟 Spring 是這十二年的主軸。</p>
+        <p data-i18n-html="about.p2">當了主管之後，判斷事情的標準變成兩件：這個設計三年後還撐不撐得住，還有團隊的人這一季有沒有真的長出東西。技術決策我要求留下記錄，為什麼選 A 不選 B，比選了什麼更重要。</p>
+        <p data-i18n-html="about.p3">下班寫的東西通常很小，而且都是自己會用的。出國前想要一份離線也能翻的行程，就做了一個；女兒出生後要追 36 針疫苗，也做了一個。共同點是沒有後端、不用登入、開網址就能用，因為要給家人用，不能有學習成本。另一條線是把重複的工作做成工具，MCP server、Claude Code 的 agent 模板、可分享的 skill 集合都屬於這類。</p>
+        <p data-i18n-html="about.p4">學歷是朝陽科技大學資訊工程，2012 年畢業。</p>
+      </div>
+      <div class="stack">
+        <dl>
+          <dt data-i18n="st.1">後端主力</dt>
+          <dd>Java · Spring Boot · Spring Cloud · MyBatis · Kafka · RabbitMQ · Redis</dd>
+          <dt data-i18n="st.2">資料與基礎設施</dt>
+          <dd>MySQL · Elasticsearch · HBase · StarRocks · Airflow · Spark · Flink · Docker · Kubernetes · AWS</dd>
+          <dt data-i18n="st.3">業餘專案</dt>
+          <dd>TypeScript · React · Vite · Python · MCP</dd>
+          <dt data-i18n="st.4">工作方法</dt>
+          <dd data-i18n="st.4v">系統設計 · Code Review · 團隊管理 · Scrum · 跨團隊協作</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="contact" style="border-bottom:0">
+  <div class="wrap">
+    <div class="contact">
+      <span class="sec-num mono">05</span>
+      <div>
+        <h2 data-i18n="c.h">想聊聊的話</h2>
+        <p data-i18n="c.p">對上面任何一個東西有興趣，或者想談後端跟團隊管理，都可以找我。</p>
+        <div class="c-list">
+          <a id="mailLink" href="#"><span class="lab">Email</span><span class="val mono" id="mailText"></span><span class="arw mono">&#8599;</span></a>
+          <a href="https://www.linkedin.com/in/zheng-yu-yang-807a5281/" target="_blank" rel="noopener"><span class="lab">LinkedIn</span><span class="val mono">zheng-yu-yang</span><span class="arw mono">&#8599;</span></a>
+          <a href="https://github.com/tankfinal" target="_blank" rel="noopener"><span class="lab">GitHub</span><span class="val mono">github.com/tankfinal</span><span class="arw mono">&#8599;</span></a>
+          <a href="https://gitlab.com/aaa2003.loveyou" target="_blank" rel="noopener"><span class="lab">GitLab</span><span class="val mono">gitlab.com/aaa2003.loveyou</span><span class="arw mono">&#8599;</span></a>
+          <a href="https://tankfinal.notion.site/Tank-Yang-s-Avenue-508a9a2578e64faf840fecb0fa8cd485" target="_blank" rel="noopener"><span class="lab" data-i18n="c.resume">完整履歷</span><span class="val mono">tankfinal.notion.site</span><span class="arw mono">&#8599;</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-in">
+    <span class="q">“If you find a path with no obstacles, it probably doesn’t lead anywhere.”</span>
+    <span class="r mono">© <span id="yr"></span> Tank Yang</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  var I18N = {
+    "nav.work":    {zh:"作品",   en:"Work"},
+    "nav.exp":     {zh:"經歷",   en:"Experience"},
+    "nav.oss":     {zh:"開源",   en:"Open Source"},
+    "nav.about":   {zh:"關於",   en:"About"},
+    "nav.contact": {zh:"聯絡",   en:"Contact"},
+
+    "hero.kicker":{zh:"Backend Engineering · Taipei", en:"Backend Engineering · Taipei"},
+    "hero.h1":    {zh:"Backend Senior Associate Manager", en:"Backend Senior Associate Manager"},
+    "hero.m1":    {zh:"2023 至今", en:"Since 2023"},
+    "hero.m2":    {zh:"12 年後端工程", en:"12 years in backend"},
+    "hero.m3":    {zh:"Java / Spring", en:"Java / Spring"},
+    "hero.lede":  {zh:"我帶 XREX 的後端團隊，做區塊鏈合規與 AML 風控系統。在這之前是 Binance 的微服務跟資料管線。晚上寫一些自己會用的小網站。",
+                   en:"I lead the backend team at XREX, building blockchain compliance and AML risk systems. Before that, microservices and data pipelines at Binance. At night I write small websites I actually use."},
+    "hero.l1":    {zh:"看作品", en:"See the work"},
+    "hero.l2":    {zh:"工作經歷", en:"Experience"},
+
+    "work.h":   {zh:"Selected Work", en:"Selected Work"},
+    "work.note":{zh:"三個自己在用的網站。都是靜態站，沒有後端、沒有資料庫、不用登入。",
+                 en:"Three sites I use myself. All static: no backend, no database, no login."},
+    "spec.build": {zh:"Build",  en:"Build"},
+    "spec.feat":  {zh:"Feature",en:"Feature"},
+    "spec.size":  {zh:"Size",   en:"Size"},
+    "spec.deploy":{zh:"Deploy", en:"Deploy"},
+    "spec.note":  {zh:"Note",   en:"Note"},
+    "link.visit": {zh:"開啟網站", en:"Visit site"},
+
+    "w1.t": {zh:"福岡九州 7 日自駕行程", en:"Fukuoka: 7-Day Kyushu Road Trip"},
+    "w1.d": {zh:"九州自駕的完整手冊。八個分頁裝了每日行程、美食地圖、開車須知跟緊急聯絡，另外內建即時匯率換算和「今天是 Day N」的倒數。日本 9/1 上路的生活道路速限新制、白銀週五連休會造成的塞車，都寫進去了。",
+             en:"A full field manual for driving around Kyushu. Eight tabs hold the daily route, a food map, Japanese driving rules and emergency contacts, plus a live currency converter and a “you are on Day N” countdown. Japan’s new 30 km/h residential speed limit and the traffic from the five-day Silver Week holiday are both covered."},
+    "w1.s1":{zh:"單一 index.html，無框架無 build step", en:"One index.html. No framework, no build step."},
+    "w1.s2":{zh:"即時匯率 API、行程倒數、手機優先版面", en:"Live FX API, trip countdown, mobile-first layout"},
+
+    "w2.t": {zh:"五天釜山旅遊清單", en:"Busan: Five-Day Checklist"},
+    "w2.d": {zh:"釜山五天四夜的逐日清單，走海景優先、低消費的路線。深色主題配一個可切換的清新模式，裡面有地鐵路線圖、機場交通比較、行李寄放點，還有每個景點實際怎麼走。",
+             en:"A day-by-day checklist for five days in Busan, weighted toward sea views and low spend. Dark theme with a light mode you can switch to, plus the metro map, an airport transfer comparison, luggage storage points, and the actual walking route for every stop."},
+    "w2.s1":{zh:"單一 index.html，無框架無 build step", en:"One index.html. No framework, no build step."},
+    "w2.s2":{zh:"深淺色主題切換、離線可讀", en:"Dark / light theme, readable offline"},
+
+    "w3.t": {zh:"Averlyn 疫苗接種追蹤", en:"Averlyn Vaccine Tracker"},
+    "w3.d": {zh:"追蹤女兒對照台灣公費與自費時程的 36 針接種進度。時間軸依日期分組，可以篩已完成、待施打、逾期，並顯示下一劑倒數。中間曾經長出 FastAPI + Supabase 後端讓任何裝置都能改，後來刻意砍掉退回純靜態，資料在 build 時烘進 bundle，瀏覽器一支 API 都不打。",
+             en:"Tracks my daughter through 36 shots against Taiwan’s public and self-paid vaccine schedule. The timeline groups by date, filters to done, upcoming or overdue, and counts down to the next shot. It grew a FastAPI and Supabase backend for a while so it could be edited from any device, then I tore that out and went back to pure static. Data is baked into the bundle at build time and the browser calls no API at all."},
+    "w3.s2":{zh:"GitHub Actions 自動建置發佈", en:"GitHub Actions builds and publishes"},
+    "w3.s3":{zh:"從有後端退回純靜態", en:"Deliberately reverted from a backend to static"},
+
+    "exp.h":   {zh:"Experience", en:"Experience"},
+    "exp.note":{zh:"2014 年至今。區塊鏈金融、加密貨幣交易所、遊戲、政府標案。",
+                en:"2014 to now. Blockchain fintech, crypto exchange, gaming, government."},
+    "exp.now": {zh:"現職", en:"Current"},
+
+    "e1.dur": {zh:"2 年 9 個月", en:"2 yrs 9 mos"},
+    "e1.role":{zh:"Backend Senior Associate Manager", en:"Backend Senior Associate Manager"},
+    "e1.d1":  {zh:"2023 年底以工程師身份加入，做 AML 區塊鏈風控與合規鑑識，2025 年初轉管理職。現在帶整個後端團隊，同時保留對系統設計的最終判斷。",
+               en:"Joined at the end of 2023 as an engineer on AML blockchain risk and compliance forensics, then moved into management at the start of 2025. I lead the whole backend team now, and still hold the final call on system design."},
+    "e1.g1.h":{zh:"團隊管理", en:"People management"},
+    "e1.g1.a":{zh:"任務分派與日常運作，確保每個人清楚自己的 ownership。",
+               en:"Task allocation and day-to-day operations, so ownership is never ambiguous."},
+    "e1.g1.b":{zh:"招募、績效評估，以及 onboarding 與訓練規劃。",
+               en:"Hiring, performance reviews, and the onboarding and training that grows engineers."},
+    "e1.g1.c":{zh:"持續回饋與 coaching，把當責跟學習變成團隊的預設節奏。",
+               en:"Continuous feedback and coaching, until accountability and learning are the default rhythm."},
+    "e1.g2.h":{zh:"跨部門協作", en:"Cross-functional collaboration"},
+    "e1.g2.a":{zh:"在需求探索早期就跟 PM 一起看，把技術可行性提早講清楚，而不是等到承諾之後。",
+               en:"Sit with PMs during early requirement discovery, so feasibility surfaces before anyone commits to it."},
+    "e1.g2.b":{zh:"跨 Frontend、QA、Compliance、SRE 協作交付。",
+               en:"Deliver across Frontend, QA, Compliance and SRE."},
+    "e1.g2.c":{zh:"對 C-level 當工程與商業之間的翻譯層，把公司目標對回技術方向。",
+               en:"Act as the translation layer between engineering and C-level, mapping company objectives back onto technical direction."},
+    "e1.g2.d":{zh:"跟其他 team lead 解跨隊人力相依，換取調度彈性。",
+               en:"Work with other team leads to resolve cross-team manpower dependencies and buy back flexibility."},
+    "e1.g3.h":{zh:"專案交付", en:"Project delivery"},
+    "e1.g3.a":{zh:"共同主持 sprint planning，負責時程估算與工作量分析。",
+               en:"Co-lead sprint planning, with timeline estimation and workload analysis."},
+    "e1.g3.b":{zh:"追進度、排除卡點，依優先序變動重新配置人力。",
+               en:"Track progress, clear blockers, reallocate people as priorities shift."},
+    "e1.g3.c":{zh:"後端交付準時、守在 scope 內，並且對得上商業目標。",
+               en:"Backend deliverables land on time, inside scope, and against the business goal."},
+    "e1.g4.h":{zh:"工程流程與策略", en:"Process & strategy"},
+    "e1.g4.a":{zh:"制定標準化 SDLC，讓交付品質不取決於今天是誰接這張票。",
+               en:"Define a standardized SDLC, so delivery quality does not depend on who happened to pick up the ticket."},
+    "e1.g4.b":{zh:"訂定資料安全流程，讓後端服務同時對得起內部政策與外部規範。",
+               en:"Set data security procedures that hold up against both internal policy and external standards."},
+    "e1.g4.c":{zh:"把公司層級的目標拆成可執行的工程策略，並隨目標調整技術方向。",
+               en:"Break company-level objectives into engineering strategy that can actually be executed, and adjust technical direction as those objectives move."},
+    "e1.g5.h":{zh:"工程師階段交付的系統", en:"Systems shipped as an engineer"},
+    "e1.g5.a":{zh:"<b>Threat-Engine</b> — AML 區塊鏈風控。內部黑名單管線，串 TRM Labs 做鏈上偵測、WorldCheck 做即時名單篩查，Slack 互動式告警直接接給合規分析師分案。",
+               en:"<b>Threat-Engine</b> — AML blockchain risk. Internal blacklist pipelines, TRM Labs for on-chain detection, WorldCheck for real-time name screening, and interactive Slack alerts routed straight to compliance analysts for triage."},
+    "e1.g5.b":{zh:"<b>XRAY</b> — 合規與區塊鏈鑑識平台。依台灣 VASP 法規調整判定邏輯，串 MistTrack、TRM Labs、Crystal Blockchain 做多源鏈上掃描，前面掛 Cloudflare 控存取。",
+               en:"<b>XRAY</b> — a compliance and blockchain forensics platform. Adapted the logic to Taiwan VASP requirements, scanned on-chain across MistTrack, TRM Labs and Crystal Blockchain, with Cloudflare in front for protection and access control."},
+    "e1.g5.c":{zh:"<b>Event-Center</b> — 事件資料整合管線。串 Appsflyer 做行動歸因，用 Meltano 打進 Metabase，關鍵產品與系統事件即時進 Slack。",
+               en:"<b>Event-Center</b> — an event data integration pipeline. Appsflyer for mobile attribution, Meltano streaming into Metabase, and critical product and system events straight into Slack."},
+    "e1.g5.d":{zh:"<b>User Tagging System</b> — Flink、Elasticsearch 與 Airflow 組成的即時與每日標籤服務，下游系統直接取用分群結果。",
+               en:"<b>User Tagging System</b> — real-time and daily tagging on Flink, Elasticsearch and Airflow, so downstream systems can pull segmentation directly."},
+    "e1.g5.e":{zh:"<b>Risk Score</b> — 標籤驅動的風險評分，吃 User Tagging 的資料，高風險行為即時告警。",
+               en:"<b>Risk Score</b> — tag-driven risk assessment built on the User Tagging data, alerting on high-risk activity as it happens."},
+    "e1.g5.f":{zh:"<b>Internal CMS</b> — 重構成多角色、多法人的權限模型，讓後台各方人馬能各自到位。",
+               en:"<b>Internal CMS</b> — refactored into a multi-role, multi-institution access model so every back-office stakeholder lands where they should."},
+    "e1.g5.g":{zh:"<b>Metabase PII</b> — 主導用 ETL 把使用者資料做 hash。",
+               en:"<b>Metabase PII</b> — led the project to hash user data through ETL."},
+    "e1.k1":{zh:"團隊管理", en:"People Management"},
+    "e1.k2":{zh:"系統設計", en:"System Design"},
+    "e1.k3":{zh:"區塊鏈合規", en:"Blockchain Compliance"},
+
+    "e2.dur": {zh:"1 年 1 個月", en:"1 yr 1 mo"},
+    "e2.role":{zh:"Senior Software Engineer", en:"Senior Software Engineer"},
+    "e2.d":   {zh:"開發 Spring Cloud 微服務與資料管線，同時擔任 Scrum Master 帶 Sprint。",
+               en:"Built Spring Cloud microservices and data pipelines while serving as Scrum Master for the team’s sprints."},
+    "e2.g1.h":{zh:"微服務與資料管線", en:"Services & pipelines"},
+    "e2.g1.a":{zh:"Spring Cloud 微服務，用 Java、Kafka、Redis、HBase、StarRocks、MyBatis、Elasticsearch 與 XXL Job。",
+               en:"Spring Cloud microservices on Java, Kafka, Redis, HBase, StarRocks, MyBatis, Elasticsearch and XXL Job."},
+    "e2.g1.b":{zh:"資料管線用 Python、Scala、Hive、Airflow、Spark 與 Flink。",
+               en:"Data pipelines in Python, Scala, Hive, Airflow, Spark and Flink."},
+    "e2.g1.c":{zh:"參與系統設計，在複雜問題上提替代方案。",
+               en:"Contributed to system design, offering alternatives on the harder problems."},
+    "e2.g2.h":{zh:"團隊與技術探索", en:"Team & research"},
+    "e2.g2.a":{zh:"擔任 Scrum Master 帶 Sprint，推進協作節奏與交付。",
+               en:"Served as Scrum Master, running sprints and holding the collaboration rhythm together."},
+    "e2.g2.b":{zh:"投入 LLM 應用的研究與落地，主要是 Langchain 與 Langflow。",
+               en:"Researched and shipped LLM applications, mostly Langchain and Langflow."},
+
+    "e3.co":  {zh:"CIMFORCE 上博科技", en:"CIMFORCE"},
+    "e3.dur": {zh:"2 年 7 個月", en:"2 yrs 7 mos"},
+    "e3.role":{zh:"Software Deputy Manager", en:"Software Deputy Manager"},
+    "e3.d":   {zh:"開發與維護 Spring Cloud 微服務，同時是我第一段帶人的經歷。",
+               en:"Built and maintained Spring Cloud microservices, and managed people for the first time."},
+    "e3.g1.h":{zh:"技術", en:"Engineering"},
+    "e3.g1.a":{zh:"Spring Cloud 微服務開發與維護，Java、Redis、RabbitMQ 與 MyBatis。",
+               en:"Built and maintained Spring Cloud microservices on Java, Redis, RabbitMQ and MyBatis."},
+    "e3.g1.b":{zh:"處理微服務之間最難的部分：分散式交易、併發控制與資料鎖定。",
+               en:"Worked through the hard parts between services: distributed transactions, concurrency control, data locking."},
+    "e3.g1.c":{zh:"撰寫系統設計文件，並推動跨部門溝通把專案接起來。",
+               en:"Authored system design documents and drove the cross-department communication that held projects together."},
+    "e3.g2.h":{zh:"流程與帶人", en:"Process & people"},
+    "e3.g2.a":{zh:"訂定 coding guideline、git-flow 策略與 issue tracking 流程。",
+               en:"Set the coding guidelines, git-flow strategy and issue tracking process."},
+    "e3.g2.b":{zh:"第一次管人：招募、訓練與工作分派。",
+               en:"First time managing people: hiring, training and work assignment."},
+    "e3.k1":{zh:"分散式交易", en:"Distributed Transactions"},
+    "e3.k2":{zh:"招募與訓練", en:"Hiring & Training"},
+
+    "e4.dur": {zh:"8 個月", en:"8 mos"},
+    "e4.role":{zh:"Senior Java Software Engineer", en:"Senior Java Software Engineer"},
+    "e4.d":   {zh:"博弈產業，主場是高併發與金流整合。",
+               en:"Gaming industry. The whole job was high concurrency and payment integration."},
+    "e4.g1.h":{zh:"主要交付", en:"What I shipped"},
+    "e4.g1.a":{zh:"用鎖機制、RabbitMQ 與 Redis 快取策略扛住尖峰流量。",
+               en:"Held peak traffic with locking mechanisms, RabbitMQ and Redis caching strategies."},
+    "e4.g1.b":{zh:"設計並實作 <b>GameBox</b> 與金流工具，用設計模式把各家遊戲供應商的差異吸收掉。",
+               en:"Designed and built <b>GameBox</b> and the payment tooling, using design patterns to absorb the differences between game providers."},
+    "e4.g1.c":{zh:"以 WebSocket 做即時客服聊天系統。",
+               en:"Built a real-time webchat system over WebSocket."},
+    "e4.g1.d":{zh:"Spring Boot 微服務，Java、Redis 與 MyBatis。",
+               en:"Spring Boot microservices on Java, Redis and MyBatis."},
+    "e4.k1":{zh:"高併發", en:"High Concurrency"},
+
+    "e5.dur": {zh:"2 年", en:"2 yrs"},
+    "e5.role":{zh:"Java Developer", en:"Java Developer"},
+    "e5.d":   {zh:"從需求訪談一路做到交付的政府專案。",
+               en:"Government projects, carried from the requirement interview all the way to delivery."},
+    "e5.g1.h":{zh:"主要交付", en:"What I shipped"},
+    "e5.g1.a":{zh:"直接跟 end user 訪談需求，再寫成 SA 與 SD 文件。",
+               en:"Sat with end users to work out what they needed, then wrote it up as system analysis and design documents."},
+    "e5.g1.b":{zh:"主導政府專案：開發 5 套系統、維運 2 套既有系統。",
+               en:"Led government projects: five systems built, two more kept running."},
+    "e5.g1.c":{zh:"Spring MVC 服務，Java 與 MyBatis。",
+               en:"Spring MVC services on Java and MyBatis."},
+    "e5.g1.d":{zh:"交付的系統包含 <b>Fwmw</b> 防火牆中介系統。",
+               en:"Systems delivered include <b>Fwmw</b>, a firewall middleware system."},
+    "e5.k1":{zh:"系統分析", en:"System Analysis"},
+
+    "e6.dur": {zh:"3 年 7 個月", en:"3 yrs 7 mos"},
+    "e6.role":{zh:"Senior Java Software Engineer", en:"Senior Java Software Engineer"},
+    "e6.d":   {zh:"職涯起點。承接政府標案，從開發做到弱掃修補。",
+               en:"Where it started. Government contracts, from writing the code to patching what the scans found."},
+    "e6.g1.h":{zh:"主要交付", en:"What I shipped"},
+    "e6.g1.a":{zh:"政府標案：新建 1 套、維運 3 套系統。",
+               en:"Government contracts: one system built, three maintained."},
+    "e6.g1.b":{zh:"後端 Struts2 加 JDBC，前端 jQuery。",
+               en:"Struts2 and JDBC on the back, jQuery on the front."},
+    "e6.g1.c":{zh:"開發、除錯，以及弱點掃描掃出什麼就補什麼。",
+               en:"Development, debugging, and patching whatever the vulnerability scans turned up."},
+    "e6.g2.h":{zh:"交付的系統", en:"Systems delivered"},
+    "e6.g2.a":{zh:"<b>PMIS</b> 採購管理資訊系統（新北市政府）與 <b>PmisEPA</b>（環保署）。",
+               en:"<b>PMIS</b>, procurement management for New Taipei City Government, and <b>PmisEPA</b> for the Environmental Protection Administration."},
+    "e6.g2.b":{zh:"<b>MISQ</b> 議事整合查詢系統（立法院）、<b>CPDS</b> 財產申報檢核系統（監察院）。",
+               en:"<b>MISQ</b>, motion integration and query for the Legislative Yuan, and <b>CPDS</b>, property declaration and checking for the Control Yuan."},
+    "e6.g2.c":{zh:"<b>TIS</b> 追蹤管理系統與 <b>KMSAPP</b> 軍用 USB 裝置傳輸系統（國家安全局）。",
+               en:"<b>TIS</b>, an issue tracking system, and <b>KMSAPP</b>, USB device transmission for the army, both for the National Security Bureau."},
+    "e6.g2.d":{zh:"<b>E-portfolio</b> 醫學教學資源（台大醫院）、識別證申請系統（工業局）。",
+               en:"<b>E-portfolio</b> for medical teaching at National Taiwan University Hospital, and the badge application system for the Industrial Development Bureau."},
+    "e6.k1":{zh:"資安弱掃", en:"Vulnerability Assessment"},
+
+    "oss.h":   {zh:"Open Source", en:"Open Source"},
+    "oss.note":{zh:"把重複的工作流程做成工具。", en:"Turning repetitive work into tooling."},
+    "o1.d":{zh:"NUEiP 人資系統的 MCP server。讓任何 MCP client 用自然語言查出勤、假期餘額、團隊請假跟待簽核。密碼走 macOS Keychain，不落地。",
+            en:"An MCP server for the NUEiP HR system. Any MCP client can query attendance, leave balance, team leave and pending approvals in plain language. Credentials live in the macOS Keychain, never on disk."},
+    "o2.d":{zh:"Claude Code 的 agent team 模板。develop team 的 pm 刻意沒有寫檔權限，逼他真的派工；consult team 則是三位不同領域的專家互相辯論。用 tmux split pane 即時看所有人的對話。",
+            en:"Agent team templates for Claude Code. In the develop team the pm has no write access on purpose, which forces real delegation; in the consult team three domain experts argue with each other. tmux split panes let you watch everyone work in real time."},
+    "o3.d":{zh:"可分享的 Claude Code skills 集合，以 toolkit-pub plugin 發佈。裝一次之後新增的 skill 會自動拿到。目前收錄 NUEiP 一鍵查詢，單一入口路由八個子指令。",
+            en:"A shareable pack of Claude Code skills published as the toolkit-pub plugin. Install once and new skills arrive automatically. It currently ships the NUEiP one-stop skill, routing eight sub-commands behind a single entry point."},
+    "o3.lang":{zh:"Claude Skill", en:"Claude Skill"},
+
+    "about.h": {zh:"About", en:"About"},
+    "about.p1":{zh:"我 2023 年底加入 <b>XREX</b>，一開始做 AML 區塊鏈風控跟合規鑑識的系統，2025 年轉管理職，現在帶後端團隊。在這之前在 <b>Binance</b> 寫微服務跟資料管線，同時擔任 Scrum Master。更早則在遊戲產業處理高併發金流，在系統整合商交付政府標案。Java 跟 Spring 是這十二年的主軸。",
+                en:"I joined <b>XREX</b> at the end of 2023, first building AML blockchain risk and compliance forensics systems, then moving into management in 2025. I lead the backend team now. Before that I wrote microservices and data pipelines at <b>Binance</b> while serving as Scrum Master, and earlier worked on high-concurrency payment systems in gaming and delivered government contracts at a systems integrator. Java and Spring have been the through-line for twelve years."},
+    "about.p2":{zh:"當了主管之後，判斷事情的標準變成兩件：這個設計三年後還撐不撐得住，還有團隊的人這一季有沒有真的長出東西。技術決策我要求留下記錄，為什麼選 A 不選 B，比選了什麼更重要。",
+                en:"Becoming a manager changed what I measure. Two things now: will this design still hold up in three years, and did the people on my team actually grow something this quarter. I ask for technical decisions to leave a written trace. Why A instead of B matters more than what got picked."},
+    "about.p3":{zh:"下班寫的東西通常很小，而且都是自己會用的。出國前想要一份離線也能翻的行程，就做了一個；女兒出生後要追 36 針疫苗，也做了一個。共同點是沒有後端、不用登入、開網址就能用，因為要給家人用，不能有學習成本。另一條線是把重複的工作做成工具，MCP server、Claude Code 的 agent 模板、可分享的 skill 集合都屬於這類。",
+                en:"What I write after hours is small, and it is always something I use. I wanted an itinerary I could read without signal, so I made one. My daughter was born with 36 shots to track, so I made that too. They have the same shape: no backend, no login, one URL and it works, because my family uses them and there is no room for a learning curve. The other thread is turning repetitive work into tooling. The MCP server, the agent templates for Claude Code and the shareable skill pack all come from that."},
+    "about.p4":{zh:"學歷是朝陽科技大學資訊工程，2012 年畢業。",
+                en:"I studied Information Engineering at Chaoyang University of Technology, graduating in 2012."},
+    "st.1": {zh:"後端主力", en:"Core backend"},
+    "st.2": {zh:"資料與基礎設施", en:"Data & infrastructure"},
+    "st.3": {zh:"業餘專案", en:"Side projects"},
+    "st.4": {zh:"工作方法", en:"Ways of working"},
+    "st.4v":{zh:"系統設計 · Code Review · 團隊管理 · Scrum · 跨團隊協作",
+             en:"System design · Code review · People management · Scrum · Cross-team delivery"},
+
+    "c.h":     {zh:"想聊聊的話", en:"Say hello"},
+    "c.p":     {zh:"對上面任何一個東西有興趣，或者想談後端跟團隊管理，都可以找我。",
+                en:"If any of this is interesting to you, or you want to talk backend and engineering management, get in touch."},
+    "c.resume":{zh:"完整履歷", en:"Full résumé"}
+  };
+
+  var btnZh = document.getElementById("btnZh");
+  var btnEn = document.getElementById("btnEn");
+
+  function apply(lang){
+    document.documentElement.lang = (lang === "en") ? "en" : "zh-Hant";
+
+    document.querySelectorAll("[data-i18n]").forEach(function(el){
+      var e = I18N[el.getAttribute("data-i18n")];
+      if (e) el.textContent = e[lang];
+    });
+    document.querySelectorAll("[data-i18n-html]").forEach(function(el){
+      var e = I18N[el.getAttribute("data-i18n-html")];
+      if (e) el.innerHTML = e[lang];
+    });
+
+    btnZh.classList.toggle("on", lang === "zh");
+    btnEn.classList.toggle("on", lang === "en");
+    try { localStorage.setItem("lang", lang); } catch (e) {}
+  }
+
+  btnZh.addEventListener("click", function(){ apply("zh"); });
+  btnEn.addEventListener("click", function(){ apply("en"); });
+
+  var saved = null;
+  try { saved = localStorage.getItem("lang"); } catch (e) {}
+  if (!saved) saved = /^zh/i.test(navigator.language || "") ? "zh" : "en";
+  apply(saved);
+
+  // Email is assembled at runtime so scrapers cannot lift it straight out of the markup.
+  var USER = "aaa2003.loveyou";
+  var HOST = "gmail.com";
+  document.getElementById("mailLink")
+          .setAttribute("href", "mailto:" + USER + "@" + HOST);
+  document.getElementById("mailText").textContent = USER + "@" + HOST;
+
+  document.getElementById("yr").textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
