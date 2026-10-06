@@ -1080,6 +1080,24 @@
   function pad(s, n){ s = String(s); while (s.length < n) s += " "; return s; }
 
   // `git log busan` and `git log busan-trip` both work.
+  // `open 福岡自駕`, `open 福岡`, `open Busan`, `open vaccine` all land on the right app.
+  function resolveApp(q){
+    q = q.toLowerCase().replace(/\/$/, "").replace(/\.md$/, "").trim();
+    if (!q) return null;
+    if (APPS[q]) return q;
+    var best = null;
+    OPENABLE.concat(["terminal"]).some(function(id){
+      var a = APPS[id], names = [];
+      ["app." + id, a.k ? a.k + ".t" : ""].forEach(function(k){ if (I18N[k]) names.push(I18N[k].zh, I18N[k].en); });
+      names = names.map(function(n){ return n.toLowerCase(); });
+      var words = (KW[id] || "").toLowerCase().split(/\s+/);
+      if (names.indexOf(q) > -1 || words.indexOf(q) > -1) { best = id; return true; }
+      if (!best && names.some(function(n){ return n.indexOf(q) > -1; })) best = id;
+      return false;
+    });
+    return best;
+  }
+
   function repoOf(name){
     if (!name) return "portfolio";
     name = name.toLowerCase();
@@ -1208,8 +1226,9 @@
           line("fukuoka/   busan/   yangmingshan/   averlyn/   activity   README.md   contact");
           return;
         case "open":
-          var id = rest.toLowerCase().replace(/\/$/, "").replace(/\.md$/, "");
-          if (APPS[id] && id !== "terminal") { line("Opening " + appName(id) + "…", "dim"); open(id); }
+          var id = resolveApp(rest);
+          if (id === "terminal") { line("open: you're already in it 😄", "dim"); return; }
+          if (id) { line("Opening " + appName(id) + "…", "dim"); open(id); }
           else if (rest) line("open: " + rest + ": no such app", "err");
           else line("usage: open <" + OPENABLE.join(" | ") + ">", "err");
           return;
