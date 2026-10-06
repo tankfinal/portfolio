@@ -78,6 +78,7 @@ macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.htm
 - **鎖定畫面**：每次進站都會出現（米塚模糊背景、時鐘、Tank Yang），點一下或按任意鍵解鎖。markup 帶 `hidden`，由 JS 打開，所以沒有 JS 時不會擋住頁面。
 - **Spotlight**：⌘K / Ctrl+K、`/`，或選單列的放大鏡。索引在 `index()`：App、經歷（`e1`–`e6`）、技術名詞、動作（切語言、經典版、GitHub）。
 - **活動監視器**（`activity`，只在桌面和 Spotlight，不放 Dock）：瀏覽器直接對 `SERVICES` 每個站發 `fetch(no-store)`，顯示狀態、延遲、趨勢線、HTML 大小、`Last-Modified` 當作最後部署時間，每 15 秒更新，關視窗就停。CORS 被擋時退回 `no-cors`，只能判斷有沒有活著。
+- **方塊消除**（`blocks`，桌面與 Spotlight）：8×8 盤面、一次給三塊，拖曳放置，填滿整排或整列就消除，連擊加分，三塊都放不下就結束。最佳分數存在 `localStorage.blocks.best`。手機拖曳時方塊會浮在手指上方，避免被擋住。
 - **Terminal** 是假的，指令寫死在 `run()` 裡；開視窗時會先列出 `HELP`。有幾個吃真資料：`git log [repo]`（GitHub API，未登入每小時 60 次）、`kubectl get pods`（跟活動監視器同一個 `probe()`）、`neofetch`、`top`。Tab 會補指令、`open` 的 App 名稱和 `git log` 的 repo。彩蛋（不列在 help）：`sudo`、`sudo rm -rf /`、`rm`、`deploy`（禮拜五不同）、`乖乖`、`vim`、`咖啡`、`hi`、`fortune`、`bug`，中文在上、英文在下。
 
 ### 文案與經典版同步

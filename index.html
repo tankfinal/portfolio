@@ -402,6 +402,50 @@
   .t-out .hl{display:grid;grid-template-columns:19ch 1fr}
   @media (max-width:768px){ .t-out .hl{grid-template-columns:17ch 1fr} }
 
+
+  /* ---------- Block Puzzle ---------- */
+  .ic-blocks{background:linear-gradient(160deg,#FFD84D,#F2A20C 55%,#C46A00)}
+  .blocks{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px 14px 10px;background:radial-gradient(120% 80% at 50% 0%,#4A2A1E,#1E100B);color:#F6E7D8;user-select:none;-webkit-user-select:none;overflow:hidden}
+  .bk-top{width:min(100%,368px);display:flex;align-items:center;gap:16px;font-size:12px;color:#C9AE98}
+  .bk-top b{display:block;font:700 20px var(--mono);color:#FFE27A;font-variant-numeric:tabular-nums;line-height:1.1}
+  .bk-top .bk-best{color:#F6E7D8;font-size:15px}
+  .bk-new{margin-left:auto;padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.1);border:.5px solid rgba(255,255,255,.18);font-size:12px;color:#F6E7D8;cursor:pointer}
+  .bk-new:hover{background:rgba(255,255,255,.18)}
+  .bk-wrap{position:relative;width:min(100%,368px)}
+  .bk-board{display:grid;grid-template-columns:repeat(8,1fr);aspect-ratio:1;border-radius:10px;overflow:hidden;background:#24130E;box-shadow:0 0 0 3px #24130E,0 10px 30px rgba(0,0,0,.45);touch-action:none}
+  .bk-cell,.bk-piece i{box-sizing:border-box;border:2px solid #24130E;border-radius:6px;background-clip:padding-box}
+  .bk-cell{background-color:#3B2219;box-shadow:inset 0 2px 4px rgba(0,0,0,.35)}
+  .j{--j:#F5B800;--jl:#FFE27A;--jd:#B07A00;background-image:linear-gradient(145deg,var(--jl),var(--j) 52%,var(--jd));box-shadow:inset 0 0 0 1px rgba(0,0,0,.2),inset 3px 3px 0 rgba(255,255,255,.38),inset -3px -3px 0 rgba(0,0,0,.24)}
+  .j-gold{--j:#F5B800;--jl:#FFE27A;--jd:#B07A00}
+  .j-red{--j:#E23B2E;--jl:#FF9686;--jd:#9E1B12}
+  .j-blue{--j:#2F6FE0;--jl:#93B9FF;--jd:#183F96}
+  .j-green{--j:#3DB83A;--jl:#A2EC8A;--jd:#1E7A1E}
+  .j-purple{--j:#A64BE0;--jl:#E1AEFF;--jd:#6A1E9E}
+  .j-orange{--j:#F07A22;--jl:#FFC392;--jd:#A8480B}
+  .j-cyan{--j:#20B8D8;--jl:#A0EEFF;--jd:#0E7A93}
+  .bk-cell.pv{background-image:linear-gradient(145deg,var(--jl),var(--j) 52%,var(--jd));opacity:.5}
+  .bk-cell.pvx{position:relative;z-index:1;box-shadow:0 0 0 2px #FFE27A,0 0 14px rgba(255,226,122,.85)}
+  .bk-cell.boom{animation:bk-boom .32s ease-out forwards}
+  @keyframes bk-boom{0%{filter:brightness(1)}40%{filter:brightness(2.4);transform:scale(1.08)}100%{filter:brightness(1.5);transform:scale(.2);opacity:0}}
+  .bk-pop{position:absolute;left:0;right:0;top:42%;text-align:center;font:800 26px var(--sys);color:#FFE27A;text-shadow:0 2px 10px rgba(0,0,0,.6);pointer-events:none;opacity:0}
+  .bk-pop.go{animation:bk-pop .9s ease-out}
+  @keyframes bk-pop{0%{opacity:0;transform:translateY(10px) scale(.8)}20%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-30px)}}
+  .bk-tray{width:min(100%,368px);display:grid;grid-template-columns:repeat(3,1fr);min-height:112px;align-items:center}
+  .bk-slot{display:grid;place-items:center;min-height:112px}
+  .bk-piece{--m:24px;display:grid;cursor:grab;touch-action:none}
+  .bk-piece.lift{opacity:.25}
+  .bk-piece.dead{filter:grayscale(1) brightness(.6);cursor:not-allowed}
+  .bk-piece i{border-width:1.5px;border-color:transparent;border-radius:5px}
+  .bk-ghost{position:fixed;left:0;top:0;z-index:9700;pointer-events:none;filter:drop-shadow(0 10px 16px rgba(0,0,0,.45))}
+  .bk-ghost i{border-width:2px;border-radius:6px}
+  .bk-hint{font-size:11.5px;color:#A88C77;text-align:center}
+  .bk-over{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(20,10,6,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+  .bk-over[hidden]{display:none}
+  .bk-over h3{font-size:22px;color:#fff}
+  .bk-over p{font-size:15px;color:#FFE27A}
+  .bk-again{margin-top:6px;padding:10px 26px;border-radius:999px;background:#D62828;color:#fff;font-weight:700;cursor:pointer}
+  .bk-again:hover{background:#E43B3B}
+
   /* ---------- phones ---------- */
   @media (max-width:768px){
     :root{--ds:clamp(28px,calc((100vw - 104px) / 8),52px)}
@@ -433,6 +477,7 @@
   <symbol id="g-syringe" viewBox="0 0 24 24"><path d="M13 3l8 8"/><path d="M15 5l-8.5 8.5a1.5 1.5 0 0 0 0 2.1l1.9 1.9a1.5 1.5 0 0 0 2.1 0L19 9"/><path d="M17 7l3.5-3.5M19 2l3 3"/><path d="M7.4 16.6L3 21"/><path d="M12.2 7.8l1.6 1.6M10 10l1.6 1.6"/></symbol>
   <symbol id="g-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></symbol>
   <symbol id="g-pulse" viewBox="0 0 24 24"><path d="M2.5 12.5h4l2.2-5.5 4 11 2.6-7 1.6 1.5h4.6"/></symbol>
+  <symbol id="g-blocks" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect x="3.5" y="13" width="7.5" height="7.5" rx="1.6"/><path d="M15 17h4M17 15v4" opacity=".7"/></symbol>
   <symbol id="g-term" viewBox="0 0 24 24"><path d="M5 7l5 5-5 5"/><path d="M12.5 17.5H19"/></symbol>
   <symbol id="g-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.2"/><path d="M3.8 7.2l8.2 6 8.2-6"/></symbol>
   <symbol id="g-doc" viewBox="0 0 48 60">
@@ -472,6 +517,7 @@
     <li><button class="dicon" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="lbl" data-i18n="app.yangmingshan">陽明山慶生</span></button></li>
     <li><button class="dicon" type="button" data-open="averlyn"><span class="ic ic-averlyn"><svg><use href="#g-syringe"/></svg></span><span class="lbl" data-i18n="app.averlyn">Averlyn 疫苗</span></button></li>
     <li><button class="dicon" type="button" data-open="activity"><span class="ic ic-activity"><svg><use href="#g-pulse"/></svg></span><span class="lbl" data-i18n="app.activity">活動監視器</span></button></li>
+    <li><button class="dicon" type="button" data-open="blocks"><span class="ic ic-blocks"><svg><use href="#g-blocks"/></svg></span><span class="lbl" data-i18n="app.blocks">方塊消除</span></button></li>
     <li><button class="dicon" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="lbl">README.md</span></button></li>
     <li><button class="dicon" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="lbl" data-i18n="app.terminal">終端機</span></button></li>
     <li><button class="dicon" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="lbl" data-i18n="app.contact">聯絡我</span></button></li>
@@ -585,6 +631,24 @@
   </div>
 </template>
 
+<template id="tpl-blocks">
+  <div class="body blocks">
+    <div class="bk-top">
+      <span><span data-i18n="os.bk.score"></span><b class="bk-score">0</b></span>
+      <span><span data-i18n="os.bk.best"></span><b class="bk-best">0</b></span>
+      <button type="button" class="bk-new" data-i18n="os.bk.new"></button>
+    </div>
+    <div class="bk-wrap"><div class="bk-board"></div><div class="bk-pop"></div></div>
+    <div class="bk-tray"></div>
+    <p class="bk-hint" data-i18n="os.bk.hint"></p>
+    <div class="bk-over" hidden>
+      <h3 data-i18n="os.bk.over"></h3>
+      <p class="bk-final"></p>
+      <button type="button" class="bk-again" data-i18n="os.bk.again"></button>
+    </div>
+  </div>
+</template>
+
 <template id="tpl-terminal">
   <div class="body term">
     <div class="t-out"></div>
@@ -672,6 +736,15 @@
     "os.c.p":      {zh:"對這幾個作品有興趣，或想聊後端跟團隊管理，都可以找我。",
                     en:"If any of this is interesting to you, or you want to talk backend and engineering management, get in touch."},
     "app.activity":{zh:"活動監視器", en:"Activity Monitor"},
+    "app.blocks":  {zh:"方塊消除", en:"Block Puzzle"},
+    "os.bk.score": {zh:"分數", en:"Score"},
+    "os.bk.best":  {zh:"最佳", en:"Best"},
+    "os.bk.new":   {zh:"重新開始", en:"New game"},
+    "os.bk.hint":  {zh:"把方塊拖進格子，填滿一整排或一整列就會消除", en:"Drag pieces onto the board. Fill a whole row or column to clear it."},
+    "os.bk.combo": {zh:"連擊", en:"Combo"},
+    "os.bk.over":  {zh:"沒地方放了！", en:"No room left!"},
+    "os.bk.final": {zh:"這局得分 {s}", en:"You scored {s}"},
+    "os.bk.again": {zh:"再玩一次", en:"Play again"},
     "os.lock.hint":{zh:"點一下或按任意鍵解鎖", en:"Click or press any key to unlock"},
     "os.spot.btn": {zh:"Spotlight 搜尋（⌘K）", en:"Spotlight search (⌘K)"},
     "os.spot.ph":  {zh:"搜尋 App、經歷、技術…", en:"Search apps, experience, skills…"},
@@ -707,6 +780,7 @@
     averlyn: {k:"w3", url:"https://tankfinal.github.io/averlyn-vaccine/", src:"https://github.com/tankfinal/averlyn-vaccine",
               spec:[["spec.build",null,"React 19 · TypeScript · Vite"], ["spec.deploy","w3.s2"], ["spec.note","w3.s3"]], w:1080, h:720},
     activity:{w:780, h:430},
+    blocks:  {w:420, h:660},
     readme:  {w:680, h:660},
     terminal:{w:700, h:560, cls:"term-win"},
     contact: {w:440, h:450}
@@ -835,6 +909,7 @@
     }
     if (id === "terminal") initTerm(el);
     if (id === "activity") initActivity(el);
+    if (id === "blocks") initBlocks(el);
     wire(el, id);
     return el;
   }
@@ -1057,6 +1132,222 @@
     };
   }
 
+  /* ---------- Block Puzzle ---------- */
+  // 8x8 board, three pieces at a time. Drag a piece onto the board; a full row or column clears.
+  // The game ends when none of the pieces left in the tray fits anywhere.
+  var BK_N = 8;
+  var BK_COLORS = ["gold","red","blue","green","purple","orange","cyan"];
+  var BK_SHAPES = [
+    [[0,0]],
+    [[0,0],[1,0]], [[0,0],[0,1]],
+    [[0,0],[1,0],[2,0]], [[0,0],[0,1],[0,2]],
+    [[0,0],[1,0],[2,0],[3,0]], [[0,0],[0,1],[0,2],[0,3]],
+    [[0,0],[1,0],[2,0],[3,0],[4,0]], [[0,0],[0,1],[0,2],[0,3],[0,4]],
+    [[0,0],[1,0],[0,1],[1,1]],
+    [[0,0],[1,0],[2,0],[0,1],[1,1],[2,1],[0,2],[1,2],[2,2]],
+    [[0,0],[1,0],[0,1]], [[0,0],[1,0],[1,1]], [[0,0],[0,1],[1,1]], [[1,0],[0,1],[1,1]],
+    [[0,0],[0,1],[0,2],[1,2]], [[0,0],[1,0],[2,0],[0,1]], [[0,0],[1,0],[1,1],[1,2]], [[2,0],[0,1],[1,1],[2,1]],
+    [[0,0],[1,0],[2,0],[1,1]], [[1,0],[0,1],[1,1],[2,1]],
+    [[0,0],[1,0],[1,1],[2,1]], [[1,0],[2,0],[0,1],[1,1]],
+    [[0,0],[0,1],[0,2],[1,0],[2,0]], [[0,0],[1,0],[2,0],[2,1],[2,2]]
+  ];
+
+  function initBlocks(el){
+    var board = el.querySelector(".bk-board"), tray = el.querySelector(".bk-tray");
+    var scoreEl = el.querySelector(".bk-score"), bestEl = el.querySelector(".bk-best");
+    var over = el.querySelector(".bk-over"), pop = el.querySelector(".bk-pop");
+    var grid, cells = [], pieces = [], score = 0, best = 0, combo = 0, drag = null;
+    try { best = +localStorage.getItem("blocks.best") || 0; } catch (e) {}
+
+    for (var i = 0; i < BK_N * BK_N; i++) {
+      var c = document.createElement("div");
+      c.className = "bk-cell";
+      board.appendChild(c);
+      cells.push(c);
+    }
+
+    function paint(){
+      for (var y = 0; y < BK_N; y++) for (var x = 0; x < BK_N; x++) {
+        var c = cells[y * BK_N + x], v = grid[y][x];
+        c.className = "bk-cell" + (v ? " j j-" + v : "");
+      }
+    }
+    function stats(){
+      scoreEl.textContent = score;
+      bestEl.textContent = best;
+    }
+
+    function fits(shape, ox, oy){
+      return shape.every(function(p){
+        var x = ox + p[0], y = oy + p[1];
+        return x >= 0 && y >= 0 && x < BK_N && y < BK_N && !grid[y][x];
+      });
+    }
+    function fitsAnywhere(shape){
+      for (var y = 0; y < BK_N; y++) for (var x = 0; x < BK_N; x++) if (fits(shape, x, y)) return true;
+      return false;
+    }
+    // Rows and columns that would be full if `shape` landed at (ox, oy).
+    function lines(shape, ox, oy){
+      var g = grid.map(function(r){ return r.slice(); });
+      shape.forEach(function(p){ g[oy + p[1]][ox + p[0]] = "x"; });
+      var rows = [], cols = [];
+      for (var i = 0; i < BK_N; i++) {
+        if (g[i].every(Boolean)) rows.push(i);
+        if (g.every(function(r){ return r[i]; })) cols.push(i);
+      }
+      return {rows:rows, cols:cols};
+    }
+
+    function mini(shape, color){
+      var w = 0, h = 0;
+      shape.forEach(function(p){ w = Math.max(w, p[0] + 1); h = Math.max(h, p[1] + 1); });
+      var d = document.createElement("div");
+      d.className = "bk-piece";
+      d.style.gridTemplateColumns = "repeat(" + w + ", var(--m))";
+      d.style.gridTemplateRows = "repeat(" + h + ", var(--m))";
+      shape.forEach(function(p){
+        var b = document.createElement("i");
+        b.className = "j j-" + color;
+        b.style.gridColumn = p[0] + 1;
+        b.style.gridRow = p[1] + 1;
+        d.appendChild(b);
+      });
+      return d;
+    }
+
+    function deal(){
+      pieces = [0,1,2].map(function(){
+        return {shape:BK_SHAPES[Math.floor(Math.random() * BK_SHAPES.length)], color:BK_COLORS[Math.floor(Math.random() * BK_COLORS.length)], used:false};
+      });
+      renderTray();
+    }
+    function renderTray(){
+      tray.textContent = "";
+      pieces.forEach(function(pc, i){
+        var slot = document.createElement("div");
+        slot.className = "bk-slot";
+        if (!pc.used) {
+          var m = mini(pc.shape, pc.color);
+          if (!fitsAnywhere(pc.shape)) m.classList.add("dead");
+          m.addEventListener("pointerdown", function(e){ start(e, i, m); });
+          slot.appendChild(m);
+        }
+        tray.appendChild(slot);
+      });
+    }
+
+    function cellSize(){ return board.getBoundingClientRect().width / BK_N; }
+
+    function start(e, i, src){
+      if (e.button) return;
+      e.preventDefault();
+      var pc = pieces[i], cs = cellSize();
+      var ghost = mini(pc.shape, pc.color);
+      ghost.classList.add("bk-ghost");
+      ghost.style.setProperty("--m", cs + "px");
+      document.body.appendChild(ghost);
+      src.classList.add("lift");
+      // Lift the piece above a finger so it stays visible; a mouse grabs it where it was clicked.
+      var lift = e.pointerType === "touch" ? cs * 2.2 : 0;
+      var r = src.getBoundingClientRect(), w = 0;
+      pc.shape.forEach(function(p){ w = Math.max(w, p[0] + 1); });
+      var scale = cs * w / r.width;
+      var gx = (e.clientX - r.left) * scale, gy = (e.clientY - r.top) * scale + lift;
+      drag = {i:i, pc:pc, ghost:ghost, src:src, gx:gx, gy:gy, at:null};
+      move(e);
+      document.addEventListener("pointermove", move);
+      document.addEventListener("pointerup", end);
+      document.addEventListener("pointercancel", end);
+    }
+
+    function move(e){
+      if (!drag) return;
+      var left = e.clientX - drag.gx, top = e.clientY - drag.gy;
+      drag.ghost.style.transform = "translate(" + left + "px," + top + "px)";
+      var b = board.getBoundingClientRect(), cs = b.width / BK_N;
+      var ox = Math.round((left - b.left) / cs), oy = Math.round((top - b.top) / cs);
+      paint();
+      drag.at = null;
+      if (fits(drag.pc.shape, ox, oy)) {
+        drag.at = [ox, oy];
+        drag.pc.shape.forEach(function(p){ cells[(oy + p[1]) * BK_N + ox + p[0]].classList.add("pv", "j-" + drag.pc.color); });
+        var L = lines(drag.pc.shape, ox, oy);
+        L.rows.forEach(function(y){ for (var x = 0; x < BK_N; x++) cells[y * BK_N + x].classList.add("pvx"); });
+        L.cols.forEach(function(x){ for (var y = 0; y < BK_N; y++) cells[y * BK_N + x].classList.add("pvx"); });
+      }
+    }
+
+    function end(){
+      if (!drag) return;
+      document.removeEventListener("pointermove", move);
+      document.removeEventListener("pointerup", end);
+      document.removeEventListener("pointercancel", end);
+      var d = drag; drag = null;
+      d.ghost.remove();
+      d.src.classList.remove("lift");
+      paint();
+      if (d.at) place(d.i, d.at[0], d.at[1]);
+    }
+
+    function flash(text){
+      pop.textContent = text;
+      pop.classList.remove("go");
+      void pop.offsetWidth;
+      pop.classList.add("go");
+    }
+
+    function place(i, ox, oy){
+      var pc = pieces[i], L = lines(pc.shape, ox, oy);
+      pc.shape.forEach(function(p){ grid[oy + p[1]][ox + p[0]] = pc.color; });
+      pc.used = true;
+      score += pc.shape.length;
+      var n = L.rows.length + L.cols.length;
+      if (n) {
+        combo++;
+        var gain = n * 10 * n * combo;
+        score += gain;
+        var hit = [];
+        L.rows.forEach(function(y){ for (var x = 0; x < BK_N; x++) hit.push(y * BK_N + x); });
+        L.cols.forEach(function(x){ for (var y = 0; y < BK_N; y++) hit.push(y * BK_N + x); });
+        paint();
+        hit.forEach(function(k){ cells[k].classList.add("boom"); });
+        L.rows.forEach(function(y){ for (var x = 0; x < BK_N; x++) grid[y][x] = 0; });
+        L.cols.forEach(function(x){ for (var y = 0; y < BK_N; y++) grid[y][x] = 0; });
+        flash("+" + gain + (combo > 1 ? "  " + t("os.bk.combo") + " ×" + combo : n > 1 ? "  ×" + n : ""));
+        setTimeout(paint, still.matches ? 0 : 320);
+      } else {
+        combo = 0;
+        paint();
+      }
+      if (score > best) { best = score; try { localStorage.setItem("blocks.best", String(best)); } catch (e) {} }
+      stats();
+      if (pieces.every(function(p){ return p.used; })) deal(); else renderTray();
+      var left = pieces.filter(function(p){ return !p.used; });
+      if (left.length && !left.some(function(p){ return fitsAnywhere(p.shape); })) {
+        setTimeout(function(){
+          over.querySelector(".bk-final").textContent = fill(t("os.bk.final"), {s:score});
+          over.hidden = false;
+        }, 500);
+      }
+    }
+
+    function reset(){
+      grid = [];
+      for (var y = 0; y < BK_N; y++) { grid.push([]); for (var x = 0; x < BK_N; x++) grid[y].push(0); }
+      score = 0; combo = 0;
+      over.hidden = true;
+      paint(); stats(); deal();
+    }
+
+    el.querySelector(".bk-again").addEventListener("click", reset);
+    el.querySelector(".bk-new").addEventListener("click", reset);
+    function relabel(){ if (!over.hidden) over.querySelector(".bk-final").textContent = fill(t("os.bk.final"), {s:score}); }
+    langHooks.push(relabel);
+    el._stop = function(){ end(); langHooks.splice(langHooks.indexOf(relabel), 1); };
+    reset();
+  }
+
   /* ---------- terminal ---------- */
   var HELP = [
     ["help",             "show this list"],
@@ -1074,7 +1365,7 @@
     ["exit",             "close this window"]
   ];
   var CMDS = ["help","whoami","neofetch","ls","open","git","kubectl","top","cat","contact","date","clear","exit","sudo"];
-  var OPENABLE = ["fukuoka","busan","yangmingshan","averlyn","activity","readme","contact"];
+  var OPENABLE = ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","readme","contact"];
   var REPOS = SERVICES.map(function(s){ return s.repo; });
 
   function pad(s, n){ s = String(s); while (s.length < n) s += " "; return s; }
@@ -1223,7 +1514,7 @@
           neofetch();
           return;
         case "ls":
-          line("fukuoka/   busan/   yangmingshan/   averlyn/   activity   README.md   contact");
+          line("fukuoka/   busan/   yangmingshan/   averlyn/   activity   blocks   README.md   contact");
           return;
         case "open":
           var id = resolveApp(rest);
@@ -1427,6 +1718,7 @@
     yangmingshan:"陽明山 慶生 生日 芒草 溫泉 birthday taipei",
     averlyn:"疫苗 女兒 寶寶 vaccine baby react vite",
     activity:"活動監視器 監控 狀態 延遲 uptime monitor status health top",
+    blocks:"方塊 消除 遊戲 小遊戲 益智 俄羅斯方塊 block puzzle game 1010",
     readme:"關於 經歷 履歷 about bio resume experience",
     terminal:"終端機 shell cli zsh command",
     contact:"聯絡 email mail linkedin github"
@@ -1441,7 +1733,7 @@
 
   function index(){
     var items = [];
-    ["fukuoka","busan","yangmingshan","averlyn","activity","readme","terminal","contact"].forEach(function(id){
+    ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","readme","terminal","contact"].forEach(function(id){
       items.push({label:appName(id), sub:"", kind:t("os.spot.app"), icon:iconOf(id), keys:(id + " " + KW[id]).toLowerCase(), go:function(){ open(id); }});
     });
     EXP.forEach(function(e){
