@@ -399,6 +399,8 @@
   .t-out .grn{color:#7EE787}
   .t-out .key{color:#79C0FF}
   .t-out .b{color:#fff;font-weight:600}
+  .t-out .hl{display:grid;grid-template-columns:19ch 1fr}
+  @media (max-width:768px){ .t-out .hl{grid-template-columns:17ch 1fr} }
 
   /* ---------- phones ---------- */
   @media (max-width:768px){
@@ -706,7 +708,7 @@
               spec:[["spec.build",null,"React 19 · TypeScript · Vite"], ["spec.deploy","w3.s2"], ["spec.note","w3.s3"]], w:1080, h:720},
     activity:{w:780, h:430},
     readme:  {w:680, h:660},
-    terminal:{w:640, h:400, cls:"term-win"},
+    terminal:{w:700, h:560, cls:"term-win"},
     contact: {w:440, h:450}
   };
 
@@ -1061,7 +1063,7 @@
     ["whoami",           "who runs this machine"],
     ["neofetch",         "system info, the classic way"],
     ["ls",               "list what's here"],
-    ["open <app>",       "fukuoka · busan · yangmingshan · averlyn · activity · readme · contact"],
+    ["open <app>",       "open an app (press Tab to list them)"],
     ["git log [repo]",   "latest commits, live from GitHub"],
     ["kubectl get pods", "every site as a pod, health-checked live"],
     ["top",              "open Activity Monitor"],
@@ -1110,6 +1112,18 @@
         d.appendChild(s);
       });
       out.appendChild(d);
+      scroll();
+    }
+
+    // Two-column list so long descriptions wrap inside their own column on phones.
+    function helpList(){
+      HELP.forEach(function(h){
+        var d = document.createElement("div"), a = document.createElement("span"), b = document.createElement("span");
+        d.className = "hl"; a.className = "grn";
+        a.textContent = h[0]; b.textContent = h[1];
+        d.appendChild(a); d.appendChild(b);
+        out.appendChild(d);
+      });
       scroll();
     }
 
@@ -1164,12 +1178,25 @@
       });
     }
 
+    // Easter eggs: Chinese first, English underneath.
+    function egg(zh, en, cls){ line(zh, cls); line(en, "dim"); }
+    var FORTUNE = [
+      ["在我電腦上是好的啊。", "Works on my machine."],
+      ["能跑就不要動它。", "If it runs, don't touch it."],
+      ["改一行，壞三個。", "Fix one line, break three things."],
+      ["這個需求很簡單，明天可以上嗎？—— PM", "\"It's a small change, can it ship tomorrow?\" — the PM"],
+      ["先求有，再求好，然後就沒有然後了。", "Make it work, then make it good. Narrator: it never got good."],
+      ["上線前一天，老闆說按鈕想換個顏色。", "The day before launch, the boss wants the button in a different color."],
+      ["那不是 bug，是 feature。", "That's not a bug, it's a feature."],
+      ["註解寫『暫時這樣』的，通常活得比公司久。", "Code marked 'temporary' usually outlives the company."]
+    ];
+
     function run(raw){
       var args = raw.split(/\s+/), cmd = args.shift(), rest = args.join(" ");
       switch (cmd) {
         case "": return;
         case "help":
-          HELP.forEach(function(h){ line(pad(h[0], 19) + h[1]); });
+          helpList();
           return;
         case "whoami":
           line("Tank Yang — Backend Senior Associate Manager @ XREX");
@@ -1199,8 +1226,36 @@
           else line("usage: kubectl get pods", "err");
           return;
         case "sudo":
-          if (/rm\s+-rf/.test(rest)) line("Nice try. This OS is read-only, and so is my production database.", "err");
-          else line("tank is not in the sudoers file. This incident will be reported.", "err");
+          if (/rm\s+-rf/.test(rest)) egg("這台是正式機欸，你是想害我禮拜五晚上加班嗎？🙃", "This is prod. Are you trying to get me paged on a Friday night?", "err");
+          else egg("你又不是我老婆，sudo 什麼？這個家只有她有 root 權限。", "You're not my wife. In this house, only she has root.", "err");
+          return;
+        case "rm":
+          egg("刪不掉啦，跟我手機裡的女兒照片一樣，一張都不准刪。", "Can't delete anything here. Same rule as the baby photos on my phone.", "err");
+          return;
+        case "deploy":
+          if (new Date().getDay() === 5) egg("今天禮拜五，不部署。這是祖訓。", "It's Friday. We don't deploy on Fridays. Ancestral rule.", "err");
+          else egg("部署前，先去拜一下綠色乖乖。（輸入 乖乖）", "Before you deploy, pay respects to the green Kuai Kuai. (try: 乖乖)", "yel");
+          return;
+        case "乖乖": case "kuaikuai":
+          line("🟩 綠色乖乖（椰子口味）已放上機櫃", "grn");
+          line("🙏 伺服器已加持，今日不當機。只能綠色，黃色紅色是在觸霉頭。", "grn");
+          line("Green Kuai Kuai placed on the rack. Servers are blessed, no outages today. Only green works; yellow and red are bad luck.", "dim");
+          return;
+        case "vim": case "vi":
+          egg("進得去，出不來。這裡沒有 vim，你安全了。", "Easy to get in, impossible to get out. No vim here, you're safe.", "yel");
+          return;
+        case "coffee": case "咖啡":
+          egg("去 7-11 了，第二杯半價，要幫你買嗎？☕", "Gone to 7-Eleven. Second cup half price, want one? ☕", "yel");
+          return;
+        case "hi": case "hello": case "你好": case "哈囉":
+          egg("呷飽未？", "Eaten yet? (How Taiwanese say hello.)", "grn");
+          return;
+        case "fortune":
+          var f = FORTUNE[Math.floor(Math.random() * FORTUNE.length)];
+          egg("🥠 " + f[0], f[1], "yel");
+          return;
+        case "bug":
+          egg("不要叫，我在修。（其實在開會）", "Shh, I'm fixing it. (I'm in a meeting.)", "err");
           return;
         case "cat":
           if (/^readme(\.md)?$/i.test(rest)) line(t("hero.lede"));
@@ -1241,7 +1296,10 @@
     }
 
     line("Last login: " + new Date().toString().slice(0, 24) + " on ttys000", "dim");
-    line("Welcome to TankOS. Type 'help' to see what's here. Tab completes.");
+    line("Welcome to TankOS. Commands you can run:");
+    helpList();
+    line("Tab completes · ↑↓ history · 'help' shows this again · 還有幾個彩蛋，自己找 🥚", "dim");
+    line(" ");
 
     body.addEventListener("click", function(){
       if (!String(window.getSelection())) input.focus();
