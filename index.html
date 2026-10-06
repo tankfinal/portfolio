@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a1238">
 <title>TankOS · Tank Yang</title>
-<meta name="description" content="Tank Yang 的桌面版作品集。福岡自駕、釜山清單、陽明山慶生、Averlyn 疫苗追蹤四個作品直接在視窗裡跑，另有經歷與聯絡方式。">
+<meta name="description" content="Tank Yang 的桌面版作品集。福岡自駕、釜山清單、陽明山慶生、Averlyn 疫苗追蹤四個作品直接在視窗裡跑，另有即時監控各站狀態的活動監視器、Spotlight 搜尋、經歷與聯絡方式。">
 <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23D62828'/><text x='16' y='23' font-size='19' font-family='Helvetica,Arial,sans-serif' font-weight='700' text-anchor='middle' fill='%23fff'>T</text></svg>">
 <style>
   :root{
@@ -295,6 +295,111 @@
 
   .nojs{position:fixed;top:40%;left:0;right:0;z-index:9999;text-align:center;color:#fff;font-size:15px}
 
+
+  /* ---------- menu bar: Spotlight button ---------- */
+  .mb-spot{width:26px;height:22px;border-radius:5px;display:grid;place-items:center;color:#fff}
+  .mb-spot:hover{background:rgba(255,255,255,.18)}
+  .mb-spot svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+
+  /* ---------- lock screen (shown on every visit) ---------- */
+  #lock{
+    position:fixed;inset:0;z-index:9800;overflow:hidden;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;color:#fff;text-align:center;
+    padding:calc(11vh + env(safe-area-inset-top)) 20px calc(9vh + env(safe-area-inset-bottom));
+    transition:transform .55s cubic-bezier(.6,0,.2,1),opacity .55s;
+  }
+  #lock[hidden]{display:none}
+  #lock::before{
+    content:"";position:absolute;inset:-40px;z-index:-1;
+    background:url(images/wallpaper-komezuka.jpg) 54% 58% / cover no-repeat;
+    filter:blur(22px) saturate(1.1) brightness(.78);
+  }
+  #lock::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(10,18,56,.28),rgba(10,18,56,.05) 40%,rgba(10,18,56,.45))}
+  #lock.out{transform:translateY(-100%);opacity:.4}
+  .lk-date{font-size:clamp(15px,2vw,20px);font-weight:600;text-shadow:0 1px 8px rgba(0,0,0,.3)}
+  .lk-time{font-size:clamp(76px,13vw,128px);font-weight:600;line-height:1;letter-spacing:-.02em;margin-top:4px;text-shadow:0 2px 20px rgba(0,0,0,.25);font-variant-numeric:tabular-nums}
+  .lk-user{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:10px}
+  .lk-av{
+    width:76px;height:76px;border-radius:50%;display:grid;place-items:center;
+    font:700 38px/1 "Helvetica Neue",Arial,sans-serif;color:#fff;background:#D62828;
+    box-shadow:0 0 0 3px rgba(255,255,255,.35),0 8px 24px rgba(0,0,0,.3);
+  }
+  .lk-user b{font-size:17px;font-weight:600;text-shadow:0 1px 6px rgba(0,0,0,.35)}
+  .lk-hint{
+    font-size:13px;padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.18);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    animation:lk-pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes lk-pulse{0%,100%{opacity:.65}50%{opacity:1}}
+
+  /* ---------- Spotlight ---------- */
+  #spot{position:fixed;inset:0;z-index:9600;display:flex;justify-content:center;align-items:flex-start;padding:16vh 12px 0;background:rgba(0,0,0,.12)}
+  #spot[hidden]{display:none}
+  .sp-box{
+    width:min(640px,100%);border-radius:16px;overflow:hidden;
+    background:rgba(246,246,248,.86);color:#1C1C1E;
+    backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);
+    box-shadow:0 30px 80px rgba(0,0,0,.35),0 0 0 .5px rgba(0,0,0,.2);
+    animation:sp-in .16s cubic-bezier(.2,.8,.3,1);
+  }
+  @keyframes sp-in{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+  .sp-in{display:flex;align-items:center;gap:12px;padding:0 18px;height:58px}
+  .sp-in svg{width:22px;height:22px;flex:none;fill:none;stroke:#8A8A90;stroke-width:2;stroke-linecap:round}
+  .sp-in input{flex:1;min-width:0;border:0;outline:0;background:none;font:400 22px/1.2 var(--sys);color:inherit}
+  .sp-in kbd{font:11px var(--mono);color:#8A8A90;border:.5px solid #C8C8CE;border-radius:5px;padding:2px 6px}
+  .sp-list{list-style:none;max-height:min(420px,52vh);overflow:auto;border-top:.5px solid rgba(0,0,0,.12);padding:6px}
+  .sp-list:empty{display:none}
+  .sp-list li{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:12px;padding:7px 10px;border-radius:9px;cursor:default}
+  .sp-list li .ic{--s:30px}
+  .sp-list li .ic.ic-readme svg{width:80%;height:96%}
+  .sp-list li b{display:block;font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sp-list li small{display:block;font-size:12px;color:#6E6E73;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sp-list li em{font-style:normal;font-size:11.5px;color:#8A8A90}
+  .sp-list li.on{background:#0A64D8;color:#fff}
+  .sp-list li.on small,.sp-list li.on em{color:rgba(255,255,255,.8)}
+  .sp-none{padding:14px 18px;font-size:13px;color:#8A8A90;border-top:.5px solid rgba(0,0,0,.12)}
+  .sp-none[hidden]{display:none}
+  .ic-glyph{background:linear-gradient(160deg,#9AA0AE,#5E6472);font:700 13px/1 var(--sys)}
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]) .sp-box{background:rgba(40,40,44,.86);color:#F2F2F4}
+    :root:not([data-theme="light"]) .sp-list li small{color:#A0A0A6}
+  }
+
+  /* ---------- Activity Monitor ---------- */
+  .ic-activity{background:linear-gradient(160deg,#4A4A52,#17171B);color:#5BE37D;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
+  .act{display:flex;flex-direction:column;font-size:13px}
+  .act-head{display:flex;align-items:center;gap:14px;padding:12px 16px;border-bottom:.5px solid var(--win-line);background:var(--win-side)}
+  .act-sum{font-weight:600}
+  .act-sum i{font-style:normal;font-family:var(--mono);font-size:12px;color:var(--win-mute);font-weight:400;margin-left:8px}
+  .act-head button{margin-left:auto;padding:4px 12px;border-radius:6px;border:.5px solid var(--win-line);background:var(--win-bg);font-size:12px;cursor:pointer}
+  .act-wrap{flex:1;overflow:auto}
+  .act table{width:100%;border-collapse:collapse;min-width:620px}
+  .act th{position:sticky;top:0;background:var(--win-bg);text-align:left;font-size:11.5px;font-weight:600;color:var(--win-mute);padding:8px 12px;border-bottom:.5px solid var(--win-line);white-space:nowrap}
+  .act td{padding:9px 12px;border-bottom:.5px solid var(--win-line);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .act tr:nth-child(even) td{background:rgba(127,127,127,.05)}
+  .act td.n{font-family:var(--mono);font-size:12.5px;color:var(--win-fg)}
+  .act td.m{font-family:var(--mono);font-size:12px;color:var(--win-soft);text-align:right}
+  .act th.r{text-align:right}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;background:#B9B9BE;vertical-align:1px}
+  .dot.up{background:#30D158;box-shadow:0 0 0 3px rgba(48,209,88,.18)}
+  .dot.down{background:#FF453A;box-shadow:0 0 0 3px rgba(255,69,58,.18)}
+  .spark{width:90px;height:22px;display:block}
+  .spark polyline{fill:none;stroke:#30D158;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+  @media (max-width:768px){
+    .act table{min-width:0}
+    .act .c-x{display:none}
+    .act th,.act td{padding-left:10px;padding-right:8px}
+    .act-head{padding:10px 12px}
+  }
+  .act-foot{padding:9px 16px;font-size:11.5px;color:var(--win-mute);border-top:.5px solid var(--win-line)}
+
+  /* Terminal colours used by neofetch / git log / kubectl */
+  .t-out .red{color:#FF6B5E}
+  .t-out .yel{color:#E3B341}
+  .t-out .grn{color:#7EE787}
+  .t-out .key{color:#79C0FF}
+  .t-out .b{color:#fff;font-weight:600}
+
   /* ---------- phones ---------- */
   @media (max-width:768px){
     :root{--ds:clamp(28px,calc((100vw - 104px) / 8),52px)}
@@ -324,6 +429,8 @@
   <symbol id="g-wave" viewBox="0 0 24 24"><path d="M7 12.5a5 5 0 0 1 10 0"/><path d="M12 4.5v1.8M6.3 6.8l1.2 1.2M17.7 6.8l-1.2 1.2"/><path d="M2.5 16c1.6 0 1.6-1.4 3.2-1.4s1.6 1.4 3.2 1.4 1.6-1.4 3.1-1.4 1.6 1.4 3.2 1.4 1.6-1.4 3.2-1.4 1.6 1.4 3.1 1.4"/><path d="M2.5 20c1.6 0 1.6-1.4 3.2-1.4s1.6 1.4 3.2 1.4 1.6-1.4 3.1-1.4 1.6 1.4 3.2 1.4 1.6-1.4 3.2-1.4 1.6 1.4 3.1 1.4"/></symbol>
   <symbol id="g-mountain" viewBox="0 0 24 24"><path d="M2.5 19.5 9 9.5l3.6 5.4 2.6-3.6 6.3 8.2Z"/><circle cx="17" cy="6" r="2.2"/></symbol>
   <symbol id="g-syringe" viewBox="0 0 24 24"><path d="M13 3l8 8"/><path d="M15 5l-8.5 8.5a1.5 1.5 0 0 0 0 2.1l1.9 1.9a1.5 1.5 0 0 0 2.1 0L19 9"/><path d="M17 7l3.5-3.5M19 2l3 3"/><path d="M7.4 16.6L3 21"/><path d="M12.2 7.8l1.6 1.6M10 10l1.6 1.6"/></symbol>
+  <symbol id="g-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></symbol>
+  <symbol id="g-pulse" viewBox="0 0 24 24"><path d="M2.5 12.5h4l2.2-5.5 4 11 2.6-7 1.6 1.5h4.6"/></symbol>
   <symbol id="g-term" viewBox="0 0 24 24"><path d="M5 7l5 5-5 5"/><path d="M12.5 17.5H19"/></symbol>
   <symbol id="g-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.2"/><path d="M3.8 7.2l8.2 6 8.2-6"/></symbol>
   <symbol id="g-doc" viewBox="0 0 48 60">
@@ -349,6 +456,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
+    <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
     <span id="clock"></span>
   </div>
@@ -361,6 +469,7 @@
     <li><button class="dicon" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="lbl" data-i18n="app.busan">釜山清單</span></button></li>
     <li><button class="dicon" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="lbl" data-i18n="app.yangmingshan">陽明山慶生</span></button></li>
     <li><button class="dicon" type="button" data-open="averlyn"><span class="ic ic-averlyn"><svg><use href="#g-syringe"/></svg></span><span class="lbl" data-i18n="app.averlyn">Averlyn 疫苗</span></button></li>
+    <li><button class="dicon" type="button" data-open="activity"><span class="ic ic-activity"><svg><use href="#g-pulse"/></svg></span><span class="lbl" data-i18n="app.activity">活動監視器</span></button></li>
     <li><button class="dicon" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="lbl">README.md</span></button></li>
     <li><button class="dicon" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="lbl" data-i18n="app.terminal">終端機</span></button></li>
     <li><button class="dicon" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="lbl" data-i18n="app.contact">聯絡我</span></button></li>
@@ -368,6 +477,28 @@
 </main>
 
 <div id="windows"></div>
+
+<div id="lock" hidden>
+  <div class="lk-date" id="lkDate"></div>
+  <div class="lk-time" id="lkTime"></div>
+  <div class="lk-user">
+    <span class="lk-av" aria-hidden="true">T</span>
+    <b>Tank Yang</b>
+    <span class="lk-hint" data-i18n="os.lock.hint">點一下或按任意鍵解鎖</span>
+  </div>
+</div>
+
+<div id="spot" hidden>
+  <div class="sp-box" role="dialog" aria-modal="true" aria-label="Spotlight">
+    <div class="sp-in">
+      <svg><use href="#g-search"/></svg>
+      <input id="spIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-controls="spList">
+      <kbd>esc</kbd>
+    </div>
+    <ul class="sp-list" id="spList" role="listbox"></ul>
+    <p class="sp-none" id="spNone" data-i18n="os.spot.none" hidden></p>
+  </div>
+</div>
 
 <nav class="dock" id="dock" aria-label="Dock">
   <button class="dk" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="tip" data-i18n="app.fukuoka">福岡自駕</span></button>
@@ -429,6 +560,26 @@
       <a href="https://gitlab.com/aaa2003.loveyou" target="_blank" rel="noopener"><span>GitLab</span><span class="v">gitlab.com/aaa2003.loveyou</span><svg><use href="#g-ext"/></svg></a>
       <a href="https://tankfinal.notion.site/Tank-Yang-s-Avenue-508a9a2578e64faf840fecb0fa8cd485" target="_blank" rel="noopener"><span data-i18n="c.resume"></span><span class="v">tankfinal.notion.site</span><svg><use href="#g-ext"/></svg></a>
     </div>
+  </div>
+</template>
+
+<template id="tpl-activity">
+  <div class="body act">
+    <div class="act-head">
+      <span class="act-sum"><span class="act-count"></span><i class="act-when"></i></span>
+      <button type="button" class="act-refresh" data-i18n="os.act.refresh"></button>
+    </div>
+    <div class="act-wrap">
+      <table>
+        <thead><tr>
+          <th data-i18n="os.act.svc"></th><th data-i18n="os.act.status"></th>
+          <th class="r" data-i18n="os.act.lat"></th><th class="c-x" data-i18n="os.act.trend"></th>
+          <th class="r c-x">HTML</th><th data-i18n="os.act.deploy"></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="act-foot" data-i18n="os.act.foot"></p>
   </div>
 </template>
 
@@ -517,7 +668,30 @@
     "os.side":     {zh:"顯示或隱藏簡介", en:"Show or hide details"},
     "os.newtab":   {zh:"在新分頁開啟", en:"Open in new tab"},
     "os.c.p":      {zh:"對這幾個作品有興趣，或想聊後端跟團隊管理，都可以找我。",
-                    en:"If any of this is interesting to you, or you want to talk backend and engineering management, get in touch."}
+                    en:"If any of this is interesting to you, or you want to talk backend and engineering management, get in touch."},
+    "app.activity":{zh:"活動監視器", en:"Activity Monitor"},
+    "os.lock.hint":{zh:"點一下或按任意鍵解鎖", en:"Click or press any key to unlock"},
+    "os.spot.btn": {zh:"Spotlight 搜尋（⌘K）", en:"Spotlight search (⌘K)"},
+    "os.spot.ph":  {zh:"搜尋 App、經歷、技術…", en:"Search apps, experience, skills…"},
+    "os.spot.none":{zh:"找不到結果", en:"No results"},
+    "os.spot.app": {zh:"App", en:"App"},
+    "os.spot.exp": {zh:"經歷", en:"Experience"},
+    "os.spot.stack":{zh:"技術", en:"Skill"},
+    "os.spot.act": {zh:"動作", en:"Action"},
+    "os.spot.lang":{zh:"切換成 English", en:"Switch to 中文"},
+    "os.spot.classic":{zh:"開啟經典版", en:"Open classic site"},
+    "os.act.svc":  {zh:"服務", en:"Service"},
+    "os.act.status":{zh:"狀態", en:"Status"},
+    "os.act.lat":  {zh:"延遲", en:"Latency"},
+    "os.act.trend":{zh:"趨勢", en:"Trend"},
+    "os.act.deploy":{zh:"最後部署", en:"Last deploy"},
+    "os.act.refresh":{zh:"重新檢查", en:"Check now"},
+    "os.act.up":   {zh:"正常", en:"Up"},
+    "os.act.down": {zh:"無回應", en:"Down"},
+    "os.act.wait": {zh:"檢查中", en:"Checking"},
+    "os.act.count":{zh:"{n} 個服務 · {u} 個正常", en:"{n} services · {u} up"},
+    "os.act.when": {zh:"更新於 {t}", en:"updated {t}"},
+    "os.act.foot": {zh:"從你的瀏覽器直接向每個站發請求，每 15 秒自動更新。全部都是靜態站，沒有後端。", en:"Requests go straight from your browser to each site and refresh every 15 seconds. All static sites, no backend."}
   };
 
   // Site apps run the live page in an iframe; the rest clone a <template id="tpl-{id}">.
@@ -530,6 +704,7 @@
               spec:[["spec.build","w4.s1"], ["spec.feat","w4.s2"], ["spec.size",null,"28 KB"]], w:1080, h:720},
     averlyn: {k:"w3", url:"https://tankfinal.github.io/averlyn-vaccine/", src:"https://github.com/tankfinal/averlyn-vaccine",
               spec:[["spec.build",null,"React 19 · TypeScript · Vite"], ["spec.deploy","w3.s2"], ["spec.note","w3.s3"]], w:1080, h:720},
+    activity:{w:780, h:430},
     readme:  {w:680, h:660},
     terminal:{w:640, h:400, cls:"term-win"},
     contact: {w:440, h:450}
@@ -594,6 +769,7 @@
     try { localStorage.setItem("lang", l); } catch (e) {}
     showApp();
     tick();
+    langHooks.forEach(function(f){ f(); });
   }
 
   /* ---------- window manager ---------- */
@@ -656,6 +832,7 @@
       el.querySelector(".mail-text").textContent = MAIL;
     }
     if (id === "terminal") initTerm(el);
+    if (id === "activity") initActivity(el);
     wire(el, id);
     return el;
   }
@@ -745,7 +922,7 @@
     el.style.left = clamp(Math.round((L - w) / 2) - 70 + off, 12, Math.max(12, L - w - 12)) + "px";
     el.style.top  = clamp(Math.round((T - h) / 2) - 20 + off, 8, Math.max(8, T - h)) + "px";
     layer.appendChild(el);
-    wins[id] = {el: el};
+    wins[id] = {el: el, stop: el._stop};
     setRunning(id, true);
     focus(id);
     if (id === "terminal") el.querySelector("input").focus();
@@ -754,6 +931,7 @@
   function close(id){
     var w = wins[id];
     if (!w) return;
+    if (w.stop) w.stop();
     delete wins[id];
     setRunning(id, false);
     if (focused === id) focusTop();
@@ -765,7 +943,8 @@
   // Shrink toward the window's own Dock icon.
   function minimize(id){
     var el = wins[id].el, r = el.getBoundingClientRect();
-    var d = dock.querySelector('[data-open="' + id + '"]').getBoundingClientRect();
+    // Apps without a Dock icon (Activity Monitor) shrink toward the middle of the Dock.
+    var d = (dock.querySelector('[data-open="' + id + '"]') || dock).getBoundingClientRect();
     el.style.setProperty("--dx", (d.left + d.width / 2 - r.left - r.width / 2) + "px");
     el.style.setProperty("--dy", (d.top + d.height / 2 - r.top - r.height / 2) + "px");
     el.classList.add("minimized");
@@ -782,20 +961,129 @@
     el.classList.toggle("max");
   }
 
+  /* ---------- live services (Activity Monitor, kubectl) ---------- */
+  // Every site is static on GitHub Pages; the browser probes them directly, nothing in between.
+  var SERVICES = [
+    {app:"portfolio",    repo:"portfolio",          url:"https://tankfinal.github.io/portfolio/"},
+    {app:"fukuoka",      repo:"fukuoka-trip",       url:"https://tankfinal.github.io/fukuoka-trip/"},
+    {app:"busan",        repo:"busan-trip",         url:"https://tankfinal.github.io/busan-trip/"},
+    {app:"yangmingshan", repo:"yangmingshan-trip",  url:"https://tankfinal.github.io/yangmingshan-trip/"},
+    {app:"averlyn",      repo:"averlyn-vaccine",    url:"https://tankfinal.github.io/averlyn-vaccine/"}
+  ];
+  var langHooks = [];
+
+  function now(){ return (window.performance && performance.now) ? performance.now() : Date.now(); }
+
+  // Same origin on github.io; GitHub Pages also sends ACAO:* for the Cloudflare mirror.
+  // If CORS is ever refused, fall back to an opaque request that still proves the site is up.
+  function probe(svc){
+    var url = svc.url + "?probe=" + Date.now(), t0 = now();
+    return fetch(url, {cache:"no-store"}).then(function(r){
+      var ms = Math.round(now() - t0), mod = r.headers.get("last-modified");
+      return r.text().then(function(txt){
+        return {ok:r.ok, ms:ms, size:new Blob([txt]).size, mod:mod ? new Date(mod) : null};
+      });
+    }).catch(function(){
+      var t1 = now();
+      return fetch(url, {mode:"no-cors", cache:"no-store"}).then(function(){
+        return {ok:true, ms:Math.round(now() - t1), size:null, mod:null};
+      }, function(){ return {ok:false, ms:null, size:null, mod:null}; });
+    });
+  }
+
+  function ago(d){
+    if (!d) return "—";
+    var s = (d - Date.now()) / 1000, a = Math.abs(s);
+    var rtf = new Intl.RelativeTimeFormat(lang === "en" ? "en" : "zh-TW", {numeric:"auto"});
+    if (a < 60) return rtf.format(Math.round(s), "second");
+    if (a < 3600) return rtf.format(Math.round(s / 60), "minute");
+    if (a < 86400) return rtf.format(Math.round(s / 3600), "hour");
+    return rtf.format(Math.round(s / 86400), "day");
+  }
+  function kb(n){ return n == null ? "—" : (n / 1024).toFixed(n < 10240 ? 1 : 0) + " KB"; }
+  function fill(str, o){ return str.replace(/\{(\w+)\}/g, function(_, k){ return o[k]; }); }
+
+  function spark(vals){
+    var v = vals.filter(function(x){ return x != null; });
+    if (v.length < 2) return '<svg class="spark" viewBox="0 0 90 22"></svg>';
+    var max = Math.max.apply(null, v) * 1.15 || 1, step = 90 / (vals.length - 1), pts = [];
+    vals.forEach(function(x, i){ if (x != null) pts.push((i * step).toFixed(1) + "," + (21 - x / max * 19).toFixed(1)); });
+    return '<svg class="spark" viewBox="0 0 90 22"><polyline points="' + pts.join(" ") + '"/></svg>';
+  }
+
+  function initActivity(el){
+    var tbody = el.querySelector("tbody"), count = el.querySelector(".act-count"), when = el.querySelector(".act-when");
+    var state = SERVICES.map(function(){ return {res:null, hist:[]}; }), last = null, timer;
+
+    function render(){
+      var up = 0;
+      tbody.innerHTML = SERVICES.map(function(svc, i){
+        var r = state[i].res, cls = r ? (r.ok ? "up" : "down") : "", label = t(r ? (r.ok ? "os.act.up" : "os.act.down") : "os.act.wait");
+        if (r && r.ok) up++;
+        return '<tr><td class="n">' + svc.repo + '</td>' +
+          '<td><span class="dot ' + cls + '"></span>' + label + '</td>' +
+          '<td class="m">' + (r && r.ms != null ? r.ms + " ms" : "—") + '</td>' +
+          '<td class="c-x">' + spark(state[i].hist) + '</td>' +
+          '<td class="m c-x">' + kb(r && r.size) + '</td>' +
+          '<td>' + ago(r && r.mod) + '</td></tr>';
+      }).join("");
+      count.textContent = fill(t("os.act.count"), {n:SERVICES.length, u:up});
+      when.textContent = last ? fill(t("os.act.when"), {t:last.toLocaleTimeString(lang === "en" ? "en-US" : "zh-TW")}) : "";
+    }
+
+    function check(){
+      Promise.all(SERVICES.map(function(svc, i){
+        return probe(svc).then(function(r){
+          state[i].res = r;
+          state[i].hist.push(r.ms);
+          if (state[i].hist.length > 20) state[i].hist.shift();
+        });
+      })).then(function(){ last = new Date(); render(); });
+    }
+
+    render();
+    check();
+    // Two early samples so the trend line has a shape before the 15-second cadence kicks in.
+    var early = [setTimeout(check, 1500), setTimeout(check, 4000)];
+    timer = setInterval(check, 15000);
+    el.querySelector(".act-refresh").addEventListener("click", check);
+    langHooks.push(render);
+    el._stop = function(){
+      clearInterval(timer);
+      early.forEach(clearTimeout);
+      langHooks.splice(langHooks.indexOf(render), 1);
+    };
+  }
+
   /* ---------- terminal ---------- */
   var HELP = [
-    ["help",          "show this list"],
-    ["whoami",        "who runs this machine"],
-    ["ls",            "list what's here"],
-    ["open <app>",    "fukuoka · busan · yangmingshan · averlyn · readme · contact"],
-    ["cat README.md", "a short bio"],
-    ["contact",       "how to reach me"],
-    ["date",          "current date and time"],
-    ["clear",         "clear the screen"],
-    ["exit",          "close this window"]
+    ["help",             "show this list"],
+    ["whoami",           "who runs this machine"],
+    ["neofetch",         "system info, the classic way"],
+    ["ls",               "list what's here"],
+    ["open <app>",       "fukuoka · busan · yangmingshan · averlyn · activity · readme · contact"],
+    ["git log [repo]",   "latest commits, live from GitHub"],
+    ["kubectl get pods", "every site as a pod, health-checked live"],
+    ["top",              "open Activity Monitor"],
+    ["cat README.md",    "a short bio"],
+    ["contact",          "how to reach me"],
+    ["date",             "current date and time"],
+    ["clear",            "clear the screen"],
+    ["exit",             "close this window"]
   ];
+  var CMDS = ["help","whoami","neofetch","ls","open","git","kubectl","top","cat","contact","date","clear","exit","sudo"];
+  var OPENABLE = ["fukuoka","busan","yangmingshan","averlyn","activity","readme","contact"];
+  var REPOS = SERVICES.map(function(s){ return s.repo; });
 
-  function pad(s, n){ while (s.length < n) s += " "; return s; }
+  function pad(s, n){ s = String(s); while (s.length < n) s += " "; return s; }
+
+  // `git log busan` and `git log busan-trip` both work.
+  function repoOf(name){
+    if (!name) return "portfolio";
+    name = name.toLowerCase();
+    var hit = SERVICES.filter(function(s){ return s.repo === name || s.app === name; })[0];
+    return hit ? hit.repo : null;
+  }
 
   function initTerm(el){
     var body = el.querySelector(".term");
@@ -803,11 +1091,77 @@
     var input = el.querySelector("input");
     var hist = [], hi = 0;
 
+    function scroll(){ body.scrollTop = body.scrollHeight; }
     function line(text, cls){
       var d = document.createElement("div");
       d.textContent = text;
       if (cls) d.className = cls;
       out.appendChild(d);
+      scroll();
+      return d;
+    }
+    // Coloured segments: [["text","cls"], "plain", ...]
+    function rich(parts){
+      var d = document.createElement("div");
+      parts.forEach(function(p){
+        var s = document.createElement("span");
+        if (typeof p === "string") s.textContent = p;
+        else { s.textContent = p[0]; s.className = p[1]; }
+        d.appendChild(s);
+      });
+      out.appendChild(d);
+      scroll();
+    }
+
+    function neofetch(){
+      var start = new Date(2014, 1, 1), m = (new Date().getFullYear() - start.getFullYear()) * 12 + new Date().getMonth() - start.getMonth();
+      var art = ["████████████ ", "████████████ ", "    ████     ", "    ████     ", "    ████     ", "    ████     ", "    ████     ", "    ████     ", "             ", "             ", "             "];
+      var info = [
+        [["tank","b"], "@", ["TankOS","b"]],
+        ["-----------"],
+        [["OS","key"], ": TankOS (web) on " + (navigator.platform || "a browser")],
+        [["Host","key"], ": tankfinal.github.io"],
+        [["Kernel","key"], ": HTML · CSS · vanilla JS, no build step"],
+        [["Uptime","key"], ": " + Math.floor(m / 12) + " yrs " + (m % 12) + " mos writing Java (since 2014)"],
+        [["Shell","key"], ": zsh (pretend)"],
+        [["Role","key"], ": Backend Senior Associate Manager @ XREX"],
+        [["Stack","key"], ": Java · Spring · Kafka · Redis · MySQL · AWS"],
+        [["Apps","key"], ": " + (SERVICES.length - 1) + " live sites · 0 backends"],
+        [["Resolution","key"], ": " + window.innerWidth + "x" + window.innerHeight]
+      ];
+      info.forEach(function(row, i){ rich([[art[i] + "  ", "red"]].concat(row)); });
+    }
+
+    function gitLog(arg){
+      var repo = repoOf(arg);
+      if (!repo) { line("fatal: '" + arg + "' does not appear to be a git repository", "err"); line("repos: " + REPOS.join(" · "), "dim"); return; }
+      var wait = line("Fetching tankfinal/" + repo + "…", "dim");
+      fetch("https://api.github.com/repos/tankfinal/" + repo + "/commits?per_page=6").then(function(r){
+        if (!r.ok) throw new Error(r.status === 403 ? "GitHub API rate limit hit, try again later" : "HTTP " + r.status);
+        return r.json();
+      }).then(function(list){
+        wait.remove();
+        list.forEach(function(c){
+          var msg = (c.commit.message || "").split("\n")[0];
+          rich([[c.sha.slice(0, 7), "yel"], " " + (c.commit.author.date || "").slice(0, 10) + "  " + msg]);
+        });
+      }).catch(function(e){ wait.remove(); line("git log: " + e.message, "err"); });
+    }
+
+    function pods(){
+      var wait = line("Probing " + (SERVICES.length) + " sites…", "dim");
+      Promise.all(SERVICES.map(probe)).then(function(rs){
+        wait.remove();
+        line(pad("NAME", 26) + pad("READY", 8) + pad("STATUS", 12) + pad("RESTARTS", 10) + pad("LATENCY", 10) + "AGE", "dim");
+        rs.forEach(function(r, i){
+          var age = r.mod ? Math.max(0, Math.round((Date.now() - r.mod) / 864e5)) + "d" : "—";
+          rich([
+            pad(SERVICES[i].repo, 26) + pad(r.ok ? "1/1" : "0/1", 8),
+            [pad(r.ok ? "Running" : "CrashLoop", 12), r.ok ? "grn" : "red"],
+            pad("0", 10) + pad(r.ms != null ? r.ms + "ms" : "—", 10) + age
+          ]);
+        });
+      });
     }
 
     function run(raw){
@@ -815,19 +1169,38 @@
       switch (cmd) {
         case "": return;
         case "help":
-          HELP.forEach(function(h){ line(pad(h[0], 16) + h[1]); });
+          HELP.forEach(function(h){ line(pad(h[0], 19) + h[1]); });
           return;
         case "whoami":
           line("Tank Yang — Backend Senior Associate Manager @ XREX");
           return;
+        case "neofetch":
+          neofetch();
+          return;
         case "ls":
-          line("fukuoka/   busan/   yangmingshan/   averlyn/   README.md   contact");
+          line("fukuoka/   busan/   yangmingshan/   averlyn/   activity   README.md   contact");
           return;
         case "open":
           var id = rest.toLowerCase().replace(/\/$/, "").replace(/\.md$/, "");
           if (APPS[id] && id !== "terminal") { line("Opening " + appName(id) + "…", "dim"); open(id); }
           else if (rest) line("open: " + rest + ": no such app", "err");
-          else line("usage: open <fukuoka | busan | yangmingshan | averlyn | readme | contact>", "err");
+          else line("usage: open <" + OPENABLE.join(" | ") + ">", "err");
+          return;
+        case "top":
+          line("Opening " + appName("activity") + "…", "dim");
+          open("activity");
+          return;
+        case "git":
+          if (args[0] === "log") gitLog(args[1]);
+          else line("usage: git log [" + REPOS.join(" | ") + "]", "err");
+          return;
+        case "kubectl":
+          if (args[0] === "get" && /^(pods?|po)$/.test(args[1] || "")) pods();
+          else line("usage: kubectl get pods", "err");
+          return;
+        case "sudo":
+          if (/rm\s+-rf/.test(rest)) line("Nice try. This OS is read-only, and so is my production database.", "err");
+          else line("tank is not in the sudoers file. This incident will be reported.", "err");
           return;
         case "cat":
           if (/^readme(\.md)?$/i.test(rest)) line(t("hero.lede"));
@@ -853,13 +1226,28 @@
       }
     }
 
+    // Tab completes the command, then `open <app>` / `git log <repo>` arguments.
+    function complete(){
+      var v = input.value, m, pool, head;
+      if ((m = /^(\S*)$/.exec(v))) { pool = CMDS; head = ""; }
+      else if ((m = /^(open\s+)(\S*)$/.exec(v))) { pool = OPENABLE; head = m[1]; m = [0, m[2]]; }
+      else if ((m = /^(git\s+log\s+)(\S*)$/.exec(v))) { pool = REPOS; head = m[1]; m = [0, m[2]]; }
+      else if ((m = /^(git\s+)(\S*)$/.exec(v))) { pool = ["log"]; head = m[1]; m = [0, m[2]]; }
+      else if ((m = /^(kubectl\s+)(\S*)$/.exec(v))) { pool = ["get pods"]; head = m[1]; m = [0, m[2]]; }
+      else return;
+      var hits = pool.filter(function(c){ return c.indexOf(m[1]) === 0; });
+      if (hits.length === 1) input.value = head + hits[0] + (pool === OPENABLE || pool === REPOS ? "" : " ");
+      else if (hits.length > 1) line(hits.join("   "), "dim");
+    }
+
     line("Last login: " + new Date().toString().slice(0, 24) + " on ttys000", "dim");
-    line("Welcome to TankOS. Type 'help' to see what's here.");
+    line("Welcome to TankOS. Type 'help' to see what's here. Tab completes.");
 
     body.addEventListener("click", function(){
       if (!String(window.getSelection())) input.focus();
     });
     input.addEventListener("keydown", function(e){
+      if (e.key === "Tab") { e.preventDefault(); complete(); return; }
       if (e.key === "ArrowUp" || e.key === "ArrowDown") {
         e.preventDefault();
         if (!hist.length) return;
@@ -921,7 +1309,155 @@
   try { saved = localStorage.getItem("lang"); } catch (e) {}
   if (!saved) saved = /^zh/i.test(navigator.language || "") ? "zh" : "en";
   setLang(saved === "en" ? "en" : "zh");
-  setInterval(tick, 1000);
+  setInterval(function(){ tick(); lockTick(); }, 1000);
+
+  /* ---------- lock screen ---------- */
+  var lock = document.getElementById("lock");
+  var lkTime = document.getElementById("lkTime"), lkDate = document.getElementById("lkDate");
+  var locked = true;
+
+  function lockTick(){
+    if (!locked) return;
+    var d = new Date(), loc = lang === "en" ? "en-US" : "zh-TW";
+    lkTime.textContent = new Intl.DateTimeFormat(loc, {hour:"numeric", minute:"2-digit", hour12:false}).format(d);
+    lkDate.textContent = new Intl.DateTimeFormat(loc, {weekday:"long", month:"long", day:"numeric"}).format(d);
+  }
+
+  function unlock(){
+    if (!locked) return;
+    locked = false;
+    if (still.matches) { lock.remove(); return; }
+    lock.classList.add("out");
+    setTimeout(function(){ lock.remove(); }, 560);
+  }
+
+  lock.hidden = false;
+  lockTick();
+  lock.addEventListener("click", unlock);
+  lock.addEventListener("touchend", function(e){ e.preventDefault(); unlock(); });
+  langHooks.push(lockTick);
+
+  /* ---------- Spotlight ---------- */
+  var spot = document.getElementById("spot");
+  var spIn = document.getElementById("spIn"), spList = document.getElementById("spList"), spNone = document.getElementById("spNone");
+  var spItems = [], spSel = 0;
+  var btnSpot = document.getElementById("btnSpot");
+
+  // Extra words each app should answer to, in both languages.
+  var KW = {
+    fukuoka:"福岡 九州 日本 自駕 熊本 別府 阿蘇 japan kyushu road trip",
+    busan:"釜山 韓國 korea checklist 海",
+    yangmingshan:"陽明山 慶生 生日 芒草 溫泉 birthday taipei",
+    averlyn:"疫苗 女兒 寶寶 vaccine baby react vite",
+    activity:"活動監視器 監控 狀態 延遲 uptime monitor status health top",
+    readme:"關於 經歷 履歷 about bio resume experience",
+    terminal:"終端機 shell cli zsh command",
+    contact:"聯絡 email mail linkedin github"
+  };
+  var EXP = [["XREX","e1"],["Binance","e2"],["CIMFORCE 上博科技","e3"],["Chiying Information Corp.","e4"],["Zyxel","e5"],["ARES International Corp.","e6"]];
+  var STACK = ["Java","Spring Boot","Spring Cloud","Kafka","RabbitMQ","Redis","MySQL","Elasticsearch","StarRocks","Airflow","Spark","Flink","Docker","Kubernetes","AWS","TypeScript","React","Python","MCP"];
+
+  function iconOf(id){
+    var src = document.querySelector('.icons [data-open="' + id + '"] .ic');
+    return src ? src.outerHTML : '<span class="ic ic-glyph">·</span>';
+  }
+
+  function index(){
+    var items = [];
+    ["fukuoka","busan","yangmingshan","averlyn","activity","readme","terminal","contact"].forEach(function(id){
+      items.push({label:appName(id), sub:"", kind:t("os.spot.app"), icon:iconOf(id), keys:(id + " " + KW[id]).toLowerCase(), go:function(){ open(id); }});
+    });
+    EXP.forEach(function(e){
+      items.push({label:e[0], sub:t(e[1] + ".role") + " · " + t(e[1] + ".dur"), kind:t("os.spot.exp"), icon:iconOf("readme"), keys:e[0].toLowerCase(), go:function(){ open("readme"); }});
+    });
+    STACK.forEach(function(s){
+      items.push({label:s, sub:"README.md", kind:t("os.spot.stack"), icon:'<span class="ic ic-glyph">' + s.charAt(0) + '</span>', keys:s.toLowerCase(), go:function(){ open("readme"); }});
+    });
+    items.push({label:t("os.spot.lang"), sub:"中 / EN", kind:t("os.spot.act"), icon:'<span class="ic ic-glyph">文</span>', keys:"language lang english 中文 語言 切換", go:function(){ setLang(lang === "zh" ? "en" : "zh"); }});
+    items.push({label:t("os.spot.classic"), sub:"/classic/", kind:t("os.spot.act"), icon:'<span class="ic ic-classic">T</span>', keys:"classic 經典版 swiss", go:function(){ location.href = "classic/"; }});
+    items.push({label:"GitHub", sub:"github.com/tankfinal", kind:t("os.spot.act"), icon:'<span class="ic ic-glyph">G</span>', keys:"github source code repo", go:function(){ window.open("https://github.com/tankfinal", "_blank", "noopener"); }});
+    return items;
+  }
+
+  function score(it, q){
+    var l = it.label.toLowerCase();
+    if (l.indexOf(q) === 0) return 3;
+    if (l.indexOf(q) > -1) return 2;
+    return it.keys.indexOf(q) > -1 ? 1 : 0;
+  }
+
+  function search(){
+    var q = spIn.value.trim().toLowerCase(), all = index();
+    spItems = q
+      ? all.map(function(it, i){ return {it:it, s:score(it, q), i:i}; })
+           .filter(function(x){ return x.s; })
+           .sort(function(a, b){ return b.s - a.s || a.i - b.i; })
+           .slice(0, 8).map(function(x){ return x.it; })
+      : all.slice(0, 8);
+    spSel = 0;
+    spList.innerHTML = spItems.map(function(it, i){
+      return '<li role="option" data-i="' + i + '"' + (i === 0 ? ' class="on" aria-selected="true"' : '') + '>' + it.icon +
+        '<span><b></b>' + (it.sub ? '<small></small>' : '') + '</span><em></em></li>';
+    }).join("");
+    // Labels go in as text, never as markup.
+    spList.querySelectorAll("li").forEach(function(li, i){
+      li.querySelector("b").textContent = spItems[i].label;
+      if (spItems[i].sub) li.querySelector("small").textContent = spItems[i].sub;
+      li.querySelector("em").textContent = spItems[i].kind;
+    });
+    spNone.hidden = !!spItems.length || !q;
+  }
+
+  function mark(i){
+    var lis = spList.querySelectorAll("li");
+    if (!lis.length) return;
+    spSel = (i + lis.length) % lis.length;
+    lis.forEach(function(li, k){ li.classList.toggle("on", k === spSel); li.setAttribute("aria-selected", k === spSel); });
+    lis[spSel].scrollIntoView({block:"nearest"});
+  }
+
+  function spotOpen(){
+    if (locked) unlock();
+    spot.hidden = false;
+    spIn.placeholder = t("os.spot.ph");
+    spIn.value = "";
+    search();
+    spIn.focus();
+  }
+  function spotClose(){ spot.hidden = true; }
+  function spotGo(i){ var it = spItems[i]; if (!it) return; spotClose(); it.go(); }
+
+  spIn.addEventListener("input", search);
+  spIn.addEventListener("keydown", function(e){
+    if (e.key === "ArrowDown") { e.preventDefault(); mark(spSel + 1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); mark(spSel - 1); }
+    else if (e.key === "Enter") { e.preventDefault(); spotGo(spSel); }
+  });
+  spList.addEventListener("click", function(e){
+    var li = e.target.closest("li");
+    if (li) spotGo(+li.dataset.i);
+  });
+  spList.addEventListener("pointermove", function(e){
+    var li = e.target.closest("li");
+    if (li && +li.dataset.i !== spSel) mark(+li.dataset.i);
+  });
+  spot.addEventListener("pointerdown", function(e){ if (e.target === spot) spotClose(); });
+  btnSpot.addEventListener("click", spotOpen);
+
+  document.addEventListener("keydown", function(e){
+    if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
+      e.preventDefault();
+      if (spot.hidden) spotOpen(); else spotClose();
+      return;
+    }
+    if (locked) {
+      if (!e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); unlock(); }
+      return;
+    }
+    if (e.key === "Escape" && !spot.hidden) { spotClose(); return; }
+    var typing = /^(INPUT|TEXTAREA)$/.test((document.activeElement || {}).tagName || "");
+    if (e.key === "/" && !typing && spot.hidden) { e.preventDefault(); spotOpen(); }
+  });
 
   if (!narrow.matches) open("readme");
 })();
