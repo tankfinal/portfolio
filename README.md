@@ -1,6 +1,6 @@
 # portfolio
 
-Tank Yang（楊政宇）的個人網站 — 經歷、個人專案與開源工具的集合。
+Tank Yang 的個人網站 — 經歷、個人專案與開源工具的集合。
 
 > Live: [tankfinal.github.io/portfolio](https://tankfinal.github.io/portfolio/)
 
