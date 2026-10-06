@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1238">
+<title>TankOS · Tank Yang</title>
+<meta name="description" content="Tank Yang（楊政宇）的桌面版作品集。福岡自駕、釜山清單、Averlyn 疫苗追蹤三個作品直接在視窗裡跑，另有經歷與聯絡方式。">
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23D62828'/><text x='16' y='23' font-size='19' font-family='Helvetica,Arial,sans-serif' font-weight='700' text-anchor='middle' fill='%23fff'>T</text></svg>">
+<style>
+  :root{
+    --menu-h:28px;
+    --ds:52px;
+    --dock-space:calc(var(--ds) + 30px + env(safe-area-inset-bottom));
+    --win-bg:#FFFFFF;
+    --win-bar:#ECECEE;
+    --win-side:#F4F4F6;
+    --win-fg:#1D1D1F;
+    --win-soft:#4F4F55;
+    --win-mute:#8A8A90;
+    --win-line:#DEDEE2;
+    --accent:#D62828;
+    --sel:#0A64D8;
+    --tl-off:#CFCFD3;
+    --win-shadow:0 24px 70px rgba(0,0,0,.38),0 0 0 .5px rgba(0,0,0,.22);
+    --wall-dim:0;
+    --sys:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","PingFang TC","Noto Sans TC",sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --win-bg:#1F1F22;
+      --win-bar:#2B2B2F;
+      --win-side:#26262A;
+      --win-fg:#F2F2F4;
+      --win-soft:#B8B8BE;
+      --win-mute:#7D7D84;
+      --win-line:#38383D;
+      --accent:#FF4B3E;
+      --tl-off:#4B4B50;
+      --win-shadow:0 24px 70px rgba(0,0,0,.65),0 0 0 .5px rgba(255,255,255,.14);
+      --wall-dim:.18;
+    }
+  }
+  :root[data-theme="dark"]{
+    --win-bg:#1F1F22;
+    --win-bar:#2B2B2F;
+    --win-side:#26262A;
+    --win-fg:#F2F2F4;
+    --win-soft:#B8B8BE;
+    --win-mute:#7D7D84;
+    --win-line:#38383D;
+    --accent:#FF4B3E;
+    --tl-off:#4B4B50;
+    --win-shadow:0 24px 70px rgba(0,0,0,.65),0 0 0 .5px rgba(255,255,255,.14);
+    --wall-dim:.18;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  body{
+    font-family:var(--sys);
+    color:var(--win-fg);
+    background:#0A1238;
+    -webkit-font-smoothing:antialiased;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  button{font:inherit;color:inherit;background:none;border:0;cursor:default}
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .ic svg,.bar-btn svg,.group svg{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
+
+  /* ---------- wallpaper ---------- */
+  .wall{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+  .wall-dim{position:fixed;inset:0;background:#000;opacity:var(--wall-dim);pointer-events:none;z-index:0}
+
+  /* ---------- menu bar ---------- */
+  .menubar{
+    position:fixed;top:0;left:0;right:0;height:var(--menu-h);z-index:9000;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:0 14px;font-size:13px;color:#fff;
+    background:rgba(14,16,40,.38);
+    backdrop-filter:blur(30px) saturate(180%);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);
+  }
+  .mb-l,.mb-r{display:flex;align-items:center;gap:18px;min-width:0}
+  .mb-logo{
+    width:16px;height:16px;border-radius:4px;flex:none;
+    background:#D62828;color:#fff;text-align:center;
+    font:700 11px/16px "Helvetica Neue",Arial,sans-serif;
+  }
+  #mbApp{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mb-item{text-decoration:none;opacity:.88;white-space:nowrap}
+  .mb-item:hover{opacity:1}
+  .lang{display:flex;gap:2px}
+  .lang button{padding:1px 7px;border-radius:5px;font-size:12px;opacity:.6}
+  .lang button.on{opacity:1;font-weight:600;background:rgba(255,255,255,.18)}
+  #clock{white-space:nowrap;font-variant-numeric:tabular-nums}
+
+  /* ---------- desktop icons ---------- */
+  .desktop{position:fixed;top:var(--menu-h);left:0;right:0;bottom:0;z-index:1}
+  .icons{
+    position:absolute;top:14px;right:14px;list-style:none;
+    display:grid;grid-template-rows:repeat(3,auto);grid-auto-flow:column;gap:6px 2px;
+    direction:rtl;
+  }
+  .icons li{direction:ltr}
+  .dicon{width:96px;padding:6px 4px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;border-radius:8px}
+  .dicon .ic{--s:60px}
+  .lbl{
+    max-width:100%;padding:1px 6px;border-radius:4px;
+    font-size:12px;font-weight:500;line-height:1.3;text-align:center;color:#fff;
+    text-shadow:0 1px 3px rgba(0,0,0,.6);
+  }
+  .dicon.sel .ic{filter:brightness(.78)}
+  .dicon.sel .lbl{background:var(--sel);text-shadow:none}
+
+  /* ---------- app icons ---------- */
+  .ic{
+    --s:52px;width:var(--s);height:var(--s);flex:none;position:relative;
+    display:grid;place-items:center;color:#fff;
+    border-radius:calc(var(--s) * .225);
+    box-shadow:inset 0 0 0 .5px rgba(255,255,255,.28),0 2px 6px rgba(0,0,0,.28);
+  }
+  .ic svg{width:58%;height:58%;stroke-width:1.8}
+  .ic-fukuoka{background:linear-gradient(160deg,#FF7A50,#D62828 68%,#A3141E)}
+  .ic-busan{background:linear-gradient(160deg,#4FE0D0,#1593C9 60%,#0D5FA8)}
+  .ic-averlyn{background:linear-gradient(160deg,#FFB0C8,#F0628E 60%,#C93C6C)}
+  .ic-terminal{background:linear-gradient(180deg,#3A3A3E,#151517);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
+  .ic-contact{background:linear-gradient(160deg,#8AA4FF,#4A5CF0 60%,#3241C4)}
+  .ic-readme{background:none;box-shadow:none}
+  .ic-readme svg{width:78%;height:96%;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+  .ic-classic{
+    background:#fff;color:#D62828;
+    font:700 calc(var(--s) * .52)/1 "Helvetica Neue",Arial,sans-serif;
+  }
+
+  /* ---------- dock ---------- */
+  .dock{
+    position:fixed;left:50%;bottom:calc(8px + env(safe-area-inset-bottom));z-index:8000;
+    transform:translateX(-50%);
+    display:flex;align-items:flex-end;gap:6px;padding:6px;border-radius:20px;
+    background:rgba(255,255,255,.2);
+    border:.5px solid rgba(255,255,255,.4);
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+    backdrop-filter:blur(28px) saturate(170%);
+    -webkit-backdrop-filter:blur(28px) saturate(170%);
+  }
+  .dk{position:relative;display:block;text-decoration:none;transition:margin .16s ease}
+  .dk .ic{--s:var(--ds);transition:transform .16s ease;transform-origin:50% 100%}
+  .dk.run::after{
+    content:"";position:absolute;left:50%;bottom:-5px;width:4px;height:4px;margin-left:-2px;
+    border-radius:50%;background:rgba(255,255,255,.9);
+  }
+  .tip{
+    position:absolute;left:50%;bottom:calc(100% + 20px);transform:translateX(-50%);
+    padding:3px 10px;border-radius:6px;white-space:nowrap;
+    font-size:12px;color:#fff;background:rgba(20,20,26,.78);
+    opacity:0;pointer-events:none;transition:opacity .12s;
+  }
+  .dk-sep{width:1px;align-self:stretch;margin:4px 3px;background:rgba(255,255,255,.4)}
+  @media (hover:hover){
+    .dk:hover{margin:0 10px}
+    .dk:hover .ic{transform:scale(1.32) translateY(-4px)}
+    .dk:hover + .dk,.dk:has(+ .dk:hover){margin:0 4px}
+    .dk:hover + .dk .ic,.dk:has(+ .dk:hover) .ic{transform:scale(1.14) translateY(-2px)}
+    .dk:hover .tip{opacity:1}
+  }
+
+  /* ---------- windows ---------- */
+  #windows{position:fixed;top:var(--menu-h);left:0;right:0;bottom:0;z-index:10;pointer-events:none}
+  .win{
+    position:absolute;pointer-events:auto;
+    display:flex;flex-direction:column;
+    min-width:320px;min-height:220px;
+    background:var(--win-bg);color:var(--win-fg);
+    border-radius:12px;box-shadow:var(--win-shadow);
+    overflow:hidden;resize:both;
+    animation:win-in .2s cubic-bezier(.2,.8,.3,1);
+    transition:transform .32s cubic-bezier(.5,0,.3,1),opacity .32s;
+  }
+  @keyframes win-in{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+  @keyframes win-out{to{opacity:0;transform:scale(.94)}}
+  .win.closing{animation:win-out .16s ease-in forwards}
+  .win.minimized{transform:translate(var(--dx),var(--dy)) scale(.06);opacity:0;pointer-events:none}
+  .win.max{left:0!important;top:0!important;width:100%!important;height:calc(100% - var(--dock-space))!important;border-radius:0;resize:none}
+  .win.zooming{transition:left .25s,top .25s,width .25s,height .25s,border-radius .25s}
+
+  .bar{
+    flex:none;height:40px;padding:0 12px;
+    display:grid;grid-template-columns:76px 1fr 76px;align-items:center;gap:8px;
+    background:var(--win-bar);border-bottom:.5px solid var(--win-line);
+    touch-action:none;
+  }
+  .title{font-size:13px;font-weight:600;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .win:not(.focused) .title{color:var(--win-mute)}
+  .lights{display:flex;gap:8px}
+  .tl{width:12px;height:12px;border-radius:50%;position:relative;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.2)}
+  .tl-close{background:#FF5F57}
+  .tl-min{background:#FEBC2E}
+  .tl-max{background:#28C840}
+  .win:not(.focused) .lights:not(:hover) .tl{background:var(--tl-off)}
+  .tl svg{position:absolute;left:2px;top:2px;width:8px;height:8px;fill:none;stroke:rgba(0,0,0,.6);stroke-width:1.3;stroke-linecap:round;opacity:0}
+  .lights:hover .tl svg{opacity:1}
+  .bar-r{display:flex;justify-content:flex-end;gap:2px}
+  .bar-btn{width:30px;height:26px;border-radius:6px;display:grid;place-items:center;color:var(--win-soft)}
+  .bar-btn:hover{background:rgba(127,127,127,.16)}
+  .bar-btn svg{width:16px;height:16px;stroke-width:1.7}
+
+  .body{flex:1;min-height:0;position:relative;overflow:auto;user-select:text;-webkit-user-select:text}
+  body.dragging iframe{pointer-events:none}
+
+  /* site window: sidebar + live iframe */
+  .site-body{display:flex;overflow:hidden}
+  .side{
+    width:270px;flex:none;overflow:auto;padding:18px 18px 22px;
+    background:var(--win-side);border-right:.5px solid var(--win-line);
+    font-size:13px;line-height:1.65;color:var(--win-soft);
+  }
+  .win.noside .side{display:none}
+  .side .yr{font-family:var(--mono);font-size:11px;color:var(--win-mute)}
+  .side h2{font-size:16px;line-height:1.35;color:var(--win-fg);margin:2px 0 10px}
+  .side dl{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;margin:16px 0 18px;font-size:12px;line-height:1.5}
+  .side dt{font-family:var(--mono);color:var(--win-mute)}
+  .side dd{color:var(--win-fg)}
+  .links{display:flex;flex-direction:column;gap:8px}
+  .links a{padding:7px 12px;border-radius:7px;text-align:center;text-decoration:none;font-weight:500;border:.5px solid var(--win-line);color:var(--win-fg);background:var(--win-bg)}
+  .links a.primary{background:var(--accent);border-color:transparent;color:#fff}
+  /* The spinner is the iframe's own background, so it shows until the page paints over it. */
+  .site-body iframe{
+    flex:1;min-width:0;height:100%;border:0;
+    background:var(--win-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3a9 9 0 1 0 9 9' fill='none' stroke='%238A8A90' stroke-width='2' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 12 12' to='360 12 12' dur='.9s' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E") center / 28px no-repeat;
+  }
+  .shield{position:absolute;inset:0;display:none}
+  .win.site:not(.focused) .shield{display:block}
+
+  /* README.md */
+  .doc{padding:28px 36px 44px;font-size:14px;line-height:1.75;color:var(--win-soft)}
+  .doc > *{max-width:640px}
+  .doc h2{font-size:24px;line-height:1.3;color:var(--win-fg)}
+  .doc h3{font-size:15px;color:var(--win-fg);margin:30px 0 10px}
+  .md{font-family:var(--mono);font-weight:400;color:var(--accent);margin-right:8px}
+  .doc .sub{font-family:var(--mono);font-size:12px;color:var(--win-mute);margin:4px 0 16px}
+  .doc p + p{margin-top:10px}
+  .doc b{color:var(--win-fg)}
+  .jobs{list-style:none;border-top:.5px solid var(--win-line)}
+  .jobs li{display:grid;grid-template-columns:132px 1fr;gap:12px;padding:10px 0;border-bottom:.5px solid var(--win-line)}
+  .jobs time{font-family:var(--mono);font-size:12px;color:var(--win-mute);padding-top:2px}
+  .jobs .now{font-style:normal;font-size:11px;font-weight:600;color:var(--accent);margin-left:6px}
+  .jobs .meta{display:block;font-size:13px}
+  .doc .more{margin-top:12px;font-size:13px}
+  .doc .more a{color:var(--accent);text-decoration:none}
+  .stack{display:grid;grid-template-columns:120px 1fr;gap:8px 14px;font-size:13px;line-height:1.6}
+  .stack dt{color:var(--win-mute)}
+  .stack dd{color:var(--win-fg)}
+
+  /* Contact */
+  .contact{padding:26px 22px 28px;font-size:13px}
+  .c-head{text-align:center;margin-bottom:20px}
+  .c-head .ic{--s:58px;margin:0 auto 12px}
+  .c-head h2{font-size:18px;color:var(--win-fg)}
+  .c-head p{color:var(--win-soft);margin-top:6px;line-height:1.6}
+  .group{border-radius:10px;overflow:hidden;background:var(--win-side);border:.5px solid var(--win-line)}
+  .group a{display:grid;grid-template-columns:80px 1fr 14px;align-items:center;gap:10px;padding:11px 14px;text-decoration:none;color:var(--win-fg)}
+  .group a + a{border-top:.5px solid var(--win-line)}
+  .group a:hover{background:rgba(127,127,127,.1)}
+  .group .v{font-family:var(--mono);font-size:12px;color:var(--win-soft);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .group svg{width:14px;height:14px;stroke:var(--win-mute);stroke-width:2}
+
+  /* Terminal */
+  .win.term-win{background:#1B1B1D}
+  .win.term-win .bar{background:#2A2A2C;border-color:#000}
+  .win.term-win .title{color:#D0D0D4}
+  .win.term-win:not(.focused) .title{color:#7D7D84}
+  .term{padding:10px 12px 16px;font:13px/1.55 var(--mono);color:#E8E8E8;cursor:text}
+  .t-out div{white-space:pre-wrap;word-break:break-word}
+  .t-out .dim{color:#8B8B90}
+  .t-out .err{color:#FF7B72}
+  .t-ln{display:flex;gap:8px}
+  .ps{color:#7EE787;white-space:nowrap}
+  .t-ln input{flex:1;min-width:0;border:0;outline:0;background:none;color:inherit;font:inherit;caret-color:#E8E8E8}
+
+  .nojs{position:fixed;top:40%;left:0;right:0;z-index:9999;text-align:center;color:#fff;font-size:15px}
+
+  /* ---------- phones ---------- */
+  @media (max-width:768px){
+    :root{--ds:clamp(34px,calc((100vw - 96px) / 7),52px)}
+    .icons{left:0;right:0;top:14px;padding:0 6px;grid-template-columns:repeat(4,1fr);grid-template-rows:none;grid-auto-flow:row;direction:ltr;justify-items:center}
+    .dicon{width:84px}
+    .dicon .ic{--s:56px}
+    .win{left:0!important;top:0!important;width:100%!important;height:calc(100% - var(--dock-space))!important;border-radius:0 0 14px 14px;resize:none}
+    .side{position:absolute;top:0;bottom:0;left:0;z-index:2;width:min(320px,88%);box-shadow:8px 0 30px rgba(0,0,0,.25)}
+    .doc{padding:22px 20px 36px}
+    .jobs li{grid-template-columns:1fr;gap:2px}
+    .stack{grid-template-columns:1fr;gap:2px}
+    .stack dd{margin-bottom:8px}
+  }
+  @media (max-width:600px){
+    .mb-item{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .win,.win.closing{animation:none}
+    .win,.dk,.dk .ic{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="g-torii" viewBox="0 0 24 24"><path d="M3 6.2c5.6 1.3 12.4 1.3 18 0"/><path d="M5 10.2h14"/><path d="M7.4 7.3v13.2M16.6 7.3v13.2"/><path d="M12 7.6v2.6"/></symbol>
+  <symbol id="g-wave" viewBox="0 0 24 24"><path d="M7 12.5a5 5 0 0 1 10 0"/><path d="M12 4.5v1.8M6.3 6.8l1.2 1.2M17.7 6.8l-1.2 1.2"/><path d="M2.5 16c1.6 0 1.6-1.4 3.2-1.4s1.6 1.4 3.2 1.4 1.6-1.4 3.1-1.4 1.6 1.4 3.2 1.4 1.6-1.4 3.2-1.4 1.6 1.4 3.1 1.4"/><path d="M2.5 20c1.6 0 1.6-1.4 3.2-1.4s1.6 1.4 3.2 1.4 1.6-1.4 3.1-1.4 1.6 1.4 3.2 1.4 1.6-1.4 3.2-1.4 1.6 1.4 3.1 1.4"/></symbol>
+  <symbol id="g-syringe" viewBox="0 0 24 24"><path d="M13 3l8 8"/><path d="M15 5l-8.5 8.5a1.5 1.5 0 0 0 0 2.1l1.9 1.9a1.5 1.5 0 0 0 2.1 0L19 9"/><path d="M17 7l3.5-3.5M19 2l3 3"/><path d="M7.4 16.6L3 21"/><path d="M12.2 7.8l1.6 1.6M10 10l1.6 1.6"/></symbol>
+  <symbol id="g-term" viewBox="0 0 24 24"><path d="M5 7l5 5-5 5"/><path d="M12.5 17.5H19"/></symbol>
+  <symbol id="g-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.2"/><path d="M3.8 7.2l8.2 6 8.2-6"/></symbol>
+  <symbol id="g-doc" viewBox="0 0 48 60">
+    <path d="M6.5 1.5H31L44.5 15V56a2.5 2.5 0 0 1-2.5 2.5H6.5A2.5 2.5 0 0 1 4 56V4a2.5 2.5 0 0 1 2.5-2.5z" fill="#FDFDFD" stroke="none"/>
+    <path d="M31 1.5V12.5a2.5 2.5 0 0 0 2.5 2.5h11" fill="#DCDCE2" stroke="none"/>
+    <path d="M11 24h20M11 30h26M11 36h22" stroke="#C4C4CC" stroke-width="2"/>
+    <rect x="10" y="42" width="28" height="11" rx="2" fill="#D62828" stroke="none"/>
+    <text x="24" y="50.6" fill="#FFFFFF" stroke="none" font-size="8.5" font-weight="700" font-family="Helvetica Neue,Arial,sans-serif" text-anchor="middle">MD</text>
+  </symbol>
+  <symbol id="g-ext" viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="g-side" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.2"/><path d="M9.5 5v14"/></symbol>
+</svg>
+
+<svg class="wall" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0A1238"/>
+      <stop offset=".45" stop-color="#2B1A5E"/>
+      <stop offset=".8" stop-color="#B8436E"/>
+      <stop offset="1" stop-color="#FF8A5C"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="1120" cy="560" r="520" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFC58A" stop-opacity=".9"/>
+      <stop offset=".35" stop-color="#FF7A59" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#FF7A59" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wa" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6D28D9"/>
+      <stop offset="1" stop-color="#F0507A"/>
+    </linearGradient>
+    <linearGradient id="wb" x1="0" y1="0" x2="1" y2=".4">
+      <stop offset="0" stop-color="#FF7448"/>
+      <stop offset=".6" stop-color="#D62828"/>
+      <stop offset="1" stop-color="#7A1238"/>
+    </linearGradient>
+    <linearGradient id="wc" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1A2A6C"/>
+      <stop offset="1" stop-color="#070B24"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <rect width="1600" height="1000" fill="url(#sun)"/>
+  <path fill="url(#wa)" opacity=".85" d="M0 600C220 540 420 520 640 590S1060 700 1300 610 1520 520 1600 540V1000H0Z"/>
+  <path fill="url(#wb)" d="M0 720C260 650 470 700 720 760S1180 800 1400 720 1560 660 1600 670V1000H0Z"/>
+  <path fill="url(#wc)" d="M0 850C300 790 560 860 860 880S1360 830 1600 800V1000H0Z"/>
+</svg>
+<div class="wall-dim"></div>
+
+<noscript><p class="nojs">TankOS 需要 JavaScript 才能執行。<a href="../">改看經典版</a></p></noscript>
+
+<header class="menubar">
+  <div class="mb-l">
+    <span class="mb-logo" aria-hidden="true">T</span>
+    <b id="mbApp">TankOS</b>
+    <a class="mb-item" href="../" data-i18n="mb.classic">經典版</a>
+  </div>
+  <div class="mb-r">
+    <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
+    <span id="clock"></span>
+  </div>
+</header>
+
+<main class="desktop" id="desktop">
+  <h1 class="sr">Tank Yang — TankOS</h1>
+  <ul class="icons">
+    <li><button class="dicon" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="lbl" data-i18n="app.fukuoka">福岡自駕</span></button></li>
+    <li><button class="dicon" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="lbl" data-i18n="app.busan">釜山清單</span></button></li>
+    <li><button class="dicon" type="button" data-open="averlyn"><span class="ic ic-averlyn"><svg><use href="#g-syringe"/></svg></span><span class="lbl" data-i18n="app.averlyn">Averlyn 疫苗</span></button></li>
+    <li><button class="dicon" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="lbl">README.md</span></button></li>
+    <li><button class="dicon" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="lbl" data-i18n="app.terminal">終端機</span></button></li>
+    <li><button class="dicon" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="lbl" data-i18n="app.contact">聯絡我</span></button></li>
+  </ul>
+</main>
+
+<div id="windows"></div>
+
+<nav class="dock" id="dock" aria-label="Dock">
+  <button class="dk" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="tip" data-i18n="app.fukuoka">福岡自駕</span></button>
+  <button class="dk" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="tip" data-i18n="app.busan">釜山清單</span></button>
+  <button class="dk" type="button" data-open="averlyn"><span class="ic ic-averlyn"><svg><use href="#g-syringe"/></svg></span><span class="tip" data-i18n="app.averlyn">Averlyn 疫苗</span></button>
+  <button class="dk" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="tip">README.md</span></button>
+  <button class="dk" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="tip" data-i18n="app.terminal">終端機</span></button>
+  <button class="dk" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="tip" data-i18n="app.contact">聯絡我</span></button>
+  <span class="dk-sep" aria-hidden="true"></span>
+  <a class="dk" href="../"><span class="ic ic-classic" aria-hidden="true">T</span><span class="tip" data-i18n="app.classic">經典版首頁</span></a>
+</nav>
+
+<!-- ============ WINDOW CONTENT ============ -->
+<template id="tpl-readme">
+  <div class="body doc">
+    <h2><span class="md">#</span>Tank Yang</h2>
+    <p class="sub">Backend Senior Associate Manager · XREX Inc. · Taipei</p>
+    <p data-i18n="hero.lede"></p>
+
+    <h3><span class="md">##</span><span data-i18n="os.about"></span></h3>
+    <p data-i18n-html="about.p1"></p>
+    <p data-i18n-html="about.p2"></p>
+    <p data-i18n-html="about.p3"></p>
+    <p data-i18n-html="about.p4"></p>
+
+    <h3><span class="md">##</span><span data-i18n="os.exp"></span></h3>
+    <ol class="jobs">
+      <li><time>2023.12 →</time><div><b>XREX Inc.</b><em class="now" data-i18n="exp.now"></em><span class="meta"><span data-i18n="e1.role"></span> · <span data-i18n="e1.dur"></span></span></div></li>
+      <li><time>2022.11 – 2023.11</time><div><b>Binance</b><span class="meta"><span data-i18n="e2.role"></span> · <span data-i18n="e2.dur"></span></span></div></li>
+      <li><time>2020.04 – 2022.10</time><div><b data-i18n="e3.co"></b><span class="meta"><span data-i18n="e3.role"></span> · <span data-i18n="e3.dur"></span></span></div></li>
+      <li><time>2019.08 – 2020.03</time><div><b>Chiying Information Corp.</b><span class="meta"><span data-i18n="e4.role"></span> · <span data-i18n="e4.dur"></span></span></div></li>
+      <li><time>2017.08 – 2019.07</time><div><b>Zyxel</b><span class="meta"><span data-i18n="e5.role"></span> · <span data-i18n="e5.dur"></span></span></div></li>
+      <li><time>2014.02 – 2017.08</time><div><b>ARES International Corp.</b><span class="meta"><span data-i18n="e6.role"></span> · <span data-i18n="e6.dur"></span></span></div></li>
+    </ol>
+    <p class="more"><a href="../#experience"><span data-i18n="os.more"></span> →</a></p>
+
+    <h3><span class="md">##</span><span data-i18n="os.stack"></span></h3>
+    <dl class="stack">
+      <dt data-i18n="st.1"></dt><dd>Java · Spring Boot · Spring Cloud · MyBatis · Kafka · RabbitMQ · Redis</dd>
+      <dt data-i18n="st.2"></dt><dd>MySQL · Elasticsearch · HBase · StarRocks · Airflow · Spark · Flink · Docker · Kubernetes · AWS</dd>
+      <dt data-i18n="st.3"></dt><dd>TypeScript · React · Vite · Python · MCP</dd>
+      <dt data-i18n="st.4"></dt><dd data-i18n="st.4v"></dd>
+    </dl>
+  </div>
+</template>
+
+<template id="tpl-contact">
+  <div class="body contact">
+    <div class="c-head">
+      <span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span>
+      <h2 data-i18n="c.h"></h2>
+      <p data-i18n="os.c.p"></p>
+    </div>
+    <div class="group">
+      <a class="mail" href="#"><span>Email</span><span class="v mail-text"></span><svg><use href="#g-ext"/></svg></a>
+      <a href="https://www.linkedin.com/in/zheng-yu-yang-807a5281/" target="_blank" rel="noopener"><span>LinkedIn</span><span class="v">zheng-yu-yang</span><svg><use href="#g-ext"/></svg></a>
+      <a href="https://github.com/tankfinal" target="_blank" rel="noopener"><span>GitHub</span><span class="v">github.com/tankfinal</span><svg><use href="#g-ext"/></svg></a>
+      <a href="https://gitlab.com/aaa2003.loveyou" target="_blank" rel="noopener"><span>GitLab</span><span class="v">gitlab.com/aaa2003.loveyou</span><svg><use href="#g-ext"/></svg></a>
+      <a href="https://tankfinal.notion.site/Tank-Yang-s-Avenue-508a9a2578e64faf840fecb0fa8cd485" target="_blank" rel="noopener"><span data-i18n="c.resume"></span><span class="v">tankfinal.notion.site</span><svg><use href="#g-ext"/></svg></a>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-terminal">
+  <div class="body term">
+    <div class="t-out"></div>
+    <div class="t-ln"><span class="ps">tank@TankOS ~ %</span><input type="text" aria-label="Terminal input" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+  </div>
+</template>
+
+<script>
+(function(){
+  var I18N = {
+    // Shared with ../index.html — same keys, copied verbatim. See README for the drift check.
+    "link.visit": {zh:"開啟網站", en:"Visit site"},
+    "spec.build": {zh:"Build",  en:"Build"},
+    "spec.feat": {zh:"Feature",en:"Feature"},
+    "spec.size": {zh:"Size",   en:"Size"},
+    "spec.deploy": {zh:"Deploy", en:"Deploy"},
+    "spec.note": {zh:"Note",   en:"Note"},
+    "w1.t": {zh:"福岡九州 7 日自駕行程", en:"Fukuoka: 7-Day Kyushu Road Trip"},
+    "w1.d": {zh:"九州自駕的完整手冊。八個分頁裝了每日行程、美食地圖、開車須知跟緊急聯絡，另外內建即時匯率換算和「今天是 Day N」的倒數。日本 9/1 上路的生活道路速限新制、白銀週五連休會造成的塞車，都寫進去了。",
+             en:"A full field manual for driving around Kyushu. Eight tabs hold the daily route, a food map, Japanese driving rules and emergency contacts, plus a live currency converter and a “you are on Day N” countdown. Japan’s new 30 km/h residential speed limit and the traffic from the five-day Silver Week holiday are both covered."},
+    "w1.s1": {zh:"單一 index.html，無框架無 build step", en:"One index.html. No framework, no build step."},
+    "w1.s2": {zh:"即時匯率 API、行程倒數、手機優先版面", en:"Live FX API, trip countdown, mobile-first layout"},
+    "w2.t": {zh:"五天釜山旅遊清單", en:"Busan: Five-Day Checklist"},
+    "w2.d": {zh:"釜山五天四夜的逐日清單，走海景優先、低消費的路線。深色主題配一個可切換的清新模式，裡面有地鐵路線圖、機場交通比較、行李寄放點，還有每個景點實際怎麼走。",
+             en:"A day-by-day checklist for five days in Busan, weighted toward sea views and low spend. Dark theme with a light mode you can switch to, plus the metro map, an airport transfer comparison, luggage storage points, and the actual walking route for every stop."},
+    "w2.s1": {zh:"單一 index.html，無框架無 build step", en:"One index.html. No framework, no build step."},
+    "w2.s2": {zh:"深淺色主題切換、離線可讀", en:"Dark / light theme, readable offline"},
+    "w3.t": {zh:"Averlyn 疫苗接種追蹤", en:"Averlyn Vaccine Tracker"},
+    "w3.d": {zh:"追蹤女兒對照台灣公費與自費時程的 36 針接種進度。時間軸依日期分組，可以篩已完成、待施打、逾期，並顯示下一劑倒數。中間曾經長出 FastAPI + Supabase 後端讓任何裝置都能改，後來刻意砍掉退回純靜態，資料在 build 時烘進 bundle，瀏覽器一支 API 都不打。",
+             en:"Tracks my daughter through 36 shots against Taiwan’s public and self-paid vaccine schedule. The timeline groups by date, filters to done, upcoming or overdue, and counts down to the next shot. It grew a FastAPI and Supabase backend for a while so it could be edited from any device, then I tore that out and went back to pure static. Data is baked into the bundle at build time and the browser calls no API at all."},
+    "w3.s2": {zh:"GitHub Actions 自動建置發佈", en:"GitHub Actions builds and publishes"},
+    "w3.s3": {zh:"從有後端退回純靜態", en:"Deliberately reverted from a backend to static"},
+    "hero.lede": {zh:"我帶 XREX 的後端團隊，做區塊鏈合規與 AML 風控系統。在這之前是 Binance 的微服務跟資料管線。晚上寫一些自己會用的小網站。",
+                   en:"I lead the backend team at XREX, building blockchain compliance and AML risk systems. Before that, microservices and data pipelines at Binance. At night I write small websites I actually use."},
+    "exp.now": {zh:"現職", en:"Current"},
+    "e1.dur": {zh:"2 年 9 個月", en:"2 yrs 9 mos"},
+    "e1.role": {zh:"Backend Senior Associate Manager", en:"Backend Senior Associate Manager"},
+    "e2.dur": {zh:"1 年 1 個月", en:"1 yr 1 mo"},
+    "e2.role": {zh:"Senior Software Engineer", en:"Senior Software Engineer"},
+    "e3.co": {zh:"CIMFORCE 上博科技", en:"CIMFORCE"},
+    "e3.dur": {zh:"2 年 7 個月", en:"2 yrs 7 mos"},
+    "e3.role": {zh:"Software Deputy Manager", en:"Software Deputy Manager"},
+    "e4.dur": {zh:"8 個月", en:"8 mos"},
+    "e4.role": {zh:"Senior Java Software Engineer", en:"Senior Java Software Engineer"},
+    "e5.dur": {zh:"2 年", en:"2 yrs"},
+    "e5.role": {zh:"Java Developer", en:"Java Developer"},
+    "e6.dur": {zh:"3 年 7 個月", en:"3 yrs 7 mos"},
+    "e6.role": {zh:"Senior Java Software Engineer", en:"Senior Java Software Engineer"},
+    "about.p1": {zh:"我 2023 年底加入 <b>XREX</b>，一開始做 AML 區塊鏈風控跟合規鑑識的系統，2025 年轉管理職，現在帶後端團隊。在這之前在 <b>Binance</b> 寫微服務跟資料管線，同時擔任 Scrum Master。更早則在遊戲產業處理高併發金流，在系統整合商交付政府標案。Java 跟 Spring 是這十二年的主軸。",
+                en:"I joined <b>XREX</b> at the end of 2023, first building AML blockchain risk and compliance forensics systems, then moving into management in 2025. I lead the backend team now. Before that I wrote microservices and data pipelines at <b>Binance</b> while serving as Scrum Master, and earlier worked on high-concurrency payment systems in gaming and delivered government contracts at a systems integrator. Java and Spring have been the through-line for twelve years."},
+    "about.p2": {zh:"當了主管之後，判斷事情的標準變成兩件：這個設計三年後還撐不撐得住，還有團隊的人這一季有沒有真的長出東西。技術決策我要求留下記錄，為什麼選 A 不選 B，比選了什麼更重要。",
+                en:"Becoming a manager changed what I measure. Two things now: will this design still hold up in three years, and did the people on my team actually grow something this quarter. I ask for technical decisions to leave a written trace. Why A instead of B matters more than what got picked."},
+    "about.p3": {zh:"下班寫的東西通常很小，而且都是自己會用的。出國前想要一份離線也能翻的行程，就做了一個；女兒出生後要追 36 針疫苗，也做了一個。共同點是沒有後端、不用登入、開網址就能用，因為要給家人用，不能有學習成本。另一條線是把重複的工作做成工具，MCP server、Claude Code 的 agent 模板、可分享的 skill 集合都屬於這類。",
+                en:"What I write after hours is small, and it is always something I use. I wanted an itinerary I could read without signal, so I made one. My daughter was born with 36 shots to track, so I made that too. They have the same shape: no backend, no login, one URL and it works, because my family uses them and there is no room for a learning curve. The other thread is turning repetitive work into tooling. The MCP server, the agent templates for Claude Code and the shareable skill pack all come from that."},
+    "about.p4": {zh:"學歷是朝陽科技大學資訊工程，2012 年畢業。",
+                en:"I studied Information Engineering at Chaoyang University of Technology, graduating in 2012."},
+    "st.1": {zh:"後端主力", en:"Core backend"},
+    "st.2": {zh:"資料與基礎設施", en:"Data & infrastructure"},
+    "st.3": {zh:"業餘專案", en:"Side projects"},
+    "st.4": {zh:"工作方法", en:"Ways of working"},
+    "st.4v": {zh:"系統設計 · Code Review · 團隊管理 · Scrum · 跨團隊協作",
+             en:"System design · Code review · People management · Scrum · Cross-team delivery"},
+    "c.h": {zh:"想聊聊的話", en:"Say hello"},
+    "c.resume": {zh:"完整履歷", en:"Full résumé"},
+    "mb.classic":  {zh:"經典版", en:"Classic site"},
+    "app.fukuoka": {zh:"福岡自駕", en:"Fukuoka"},
+    "app.busan":   {zh:"釜山清單", en:"Busan"},
+    "app.averlyn": {zh:"Averlyn 疫苗", en:"Averlyn"},
+    "app.readme":  {zh:"README.md", en:"README.md"},
+    "app.terminal":{zh:"終端機", en:"Terminal"},
+    "app.contact": {zh:"聯絡我", en:"Contact"},
+    "app.classic": {zh:"經典版首頁", en:"Classic site"},
+    "os.about":    {zh:"關於", en:"About"},
+    "os.exp":      {zh:"經歷", en:"Experience"},
+    "os.stack":    {zh:"技術", en:"Stack"},
+    "os.more":     {zh:"每段經歷的細節在經典版首頁", en:"Full details for every role are on the classic site"},
+    "os.side":     {zh:"顯示或隱藏簡介", en:"Show or hide details"},
+    "os.newtab":   {zh:"在新分頁開啟", en:"Open in new tab"},
+    "os.c.p":      {zh:"對這幾個作品有興趣，或想聊後端跟團隊管理，都可以找我。",
+                    en:"If any of this is interesting to you, or you want to talk backend and engineering management, get in touch."}
+  };
+
+  // Site apps run the live page in an iframe; the rest clone a <template id="tpl-{id}">.
+  var APPS = {
+    fukuoka: {k:"w1", url:"https://tankfinal.github.io/fukuoka-trip/", src:"https://github.com/tankfinal/fukuoka-trip",
+              spec:[["spec.build","w1.s1"], ["spec.feat","w1.s2"], ["spec.size",null,"113 KB"]], w:1080, h:720},
+    busan:   {k:"w2", url:"https://tankfinal.github.io/busan-trip/", src:"https://github.com/tankfinal/busan-trip",
+              spec:[["spec.build","w2.s1"], ["spec.feat","w2.s2"], ["spec.size",null,"136 KB"]], w:1080, h:720},
+    averlyn: {k:"w3", url:"https://tankfinal.github.io/averlyn-vaccine/", src:"https://github.com/tankfinal/averlyn-vaccine",
+              spec:[["spec.build",null,"React 19 · TypeScript · Vite"], ["spec.deploy","w3.s2"], ["spec.note","w3.s3"]], w:1080, h:720},
+    readme:  {w:680, h:660},
+    terminal:{w:640, h:400, cls:"term-win"},
+    contact: {w:440, h:450}
+  };
+
+  // Email is assembled at runtime so scrapers cannot lift it straight out of the markup.
+  var USER = "aaa2003.loveyou";
+  var HOST = "gmail.com";
+  var MAIL = USER + "@" + HOST;
+
+  var layer  = document.getElementById("windows");
+  var desk   = document.getElementById("desktop");
+  var dock   = document.getElementById("dock");
+  var mbApp  = document.getElementById("mbApp");
+  var clock  = document.getElementById("clock");
+  var btnZh  = document.getElementById("btnZh");
+  var btnEn  = document.getElementById("btnEn");
+  var narrow = window.matchMedia("(max-width: 768px)");
+  var coarse = window.matchMedia("(pointer: coarse)");
+  var still  = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  var lang = "zh";
+  var wins = {};
+  var focused = null;
+  var topZ = 10;
+  var cascade = 0;
+
+  function t(key){ var e = I18N[key]; return e ? e[lang] : key; }
+  function clamp(v, lo, hi){ return Math.max(lo, Math.min(v, hi)); }
+
+  function applyI18n(root){
+    root.querySelectorAll("[data-i18n]").forEach(function(el){
+      var e = I18N[el.getAttribute("data-i18n")];
+      if (e) el.textContent = e[lang];
+    });
+    root.querySelectorAll("[data-i18n-html]").forEach(function(el){
+      var e = I18N[el.getAttribute("data-i18n-html")];
+      if (e) el.innerHTML = e[lang];
+    });
+    root.querySelectorAll("[data-i18n-title]").forEach(function(el){
+      var e = I18N[el.getAttribute("data-i18n-title")];
+      if (e) { el.title = e[lang]; el.setAttribute("aria-label", e[lang]); }
+    });
+  }
+
+  function appName(id){ return APPS[id].k ? t(APPS[id].k + ".t") : t("app." + id); }
+  function showApp(){ mbApp.textContent = focused ? appName(focused) : "TankOS"; }
+
+  function tick(){
+    var o = narrow.matches
+      ? {hour:"numeric", minute:"2-digit"}
+      : {month:"short", day:"numeric", weekday:"short", hour:"numeric", minute:"2-digit"};
+    clock.textContent = new Intl.DateTimeFormat(lang === "en" ? "en-US" : "zh-TW", o).format(new Date());
+  }
+
+  function setLang(l){
+    lang = l;
+    document.documentElement.lang = (l === "en") ? "en" : "zh-Hant";
+    applyI18n(document);
+    btnZh.classList.toggle("on", l === "zh");
+    btnEn.classList.toggle("on", l === "en");
+    try { localStorage.setItem("lang", l); } catch (e) {}
+    showApp();
+    tick();
+  }
+
+  /* ---------- window manager ---------- */
+  var BAR =
+    '<div class="bar">' +
+      '<div class="lights">' +
+        '<button class="tl tl-close" type="button" aria-label="Close"><svg viewBox="0 0 8 8"><path d="M2 2l4 4M6 2L2 6"/></svg></button>' +
+        '<button class="tl tl-min" type="button" aria-label="Minimize"><svg viewBox="0 0 8 8"><path d="M1.5 4h5"/></svg></button>' +
+        '<button class="tl tl-max" type="button" aria-label="Zoom"><svg viewBox="0 0 8 8"><path d="M4 1.5v5M1.5 4h5"/></svg></button>' +
+      '</div>' +
+      '<div class="title"></div>' +
+      '<div class="bar-r"></div>' +
+    '</div>';
+
+  function build(id){
+    var a = APPS[id];
+    var el = document.createElement("section");
+    el.className = "win" + (a.url ? " site" : "") + (a.cls ? " " + a.cls : "");
+    el.setAttribute("role", "dialog");
+    el.setAttribute("aria-labelledby", "wt-" + id);
+    el.innerHTML = BAR;
+    var title = el.querySelector(".title");
+    title.id = "wt-" + id;
+    title.setAttribute("data-i18n", a.k ? a.k + ".t" : "app." + id);
+
+    var body;
+    if (a.url) {
+      el.querySelector(".bar-r").innerHTML =
+        '<button class="bar-btn" type="button" data-act="side" data-i18n-title="os.side"><svg><use href="#g-side"/></svg></button>' +
+        '<a class="bar-btn" href="' + a.url + '" target="_blank" rel="noopener" data-i18n-title="os.newtab"><svg><use href="#g-ext"/></svg></a>';
+      var spec = a.spec.map(function(s){
+        return '<dt data-i18n="' + s[0] + '"></dt>' +
+               (s[1] ? '<dd data-i18n="' + s[1] + '"></dd>' : '<dd>' + s[2] + '</dd>');
+      }).join("");
+      body = document.createElement("div");
+      body.className = "body site-body";
+      body.innerHTML =
+        '<aside class="side">' +
+          '<p class="yr">2026</p>' +
+          '<h2 data-i18n="' + a.k + '.t"></h2>' +
+          '<p data-i18n="' + a.k + '.d"></p>' +
+          '<dl>' + spec + '</dl>' +
+          '<div class="links">' +
+            '<a class="primary" href="' + a.url + '" target="_blank" rel="noopener" data-i18n="link.visit"></a>' +
+            '<a href="' + a.src + '" target="_blank" rel="noopener">Source</a>' +
+          '</div>' +
+        '</aside>' +
+        '<iframe src="' + a.url + '"></iframe>' +
+        '<div class="shield"></div>';
+      if (narrow.matches) el.classList.add("noside");
+    } else {
+      body = document.getElementById("tpl-" + id).content.firstElementChild.cloneNode(true);
+    }
+    el.appendChild(body);
+    applyI18n(el);
+
+    if (a.url) el.querySelector("iframe").title = t(a.k + ".t");
+    if (id === "contact") {
+      el.querySelector(".mail").setAttribute("href", "mailto:" + MAIL);
+      el.querySelector(".mail-text").textContent = MAIL;
+    }
+    if (id === "terminal") initTerm(el);
+    wire(el, id);
+    return el;
+  }
+
+  // Keep a grab-able strip of the title bar on screen.
+  function place(el, x, y){
+    el.style.left = clamp(x, 80 - el.offsetWidth, layer.clientWidth - 80) + "px";
+    el.style.top  = clamp(y, 0, layer.clientHeight - 48) + "px";
+  }
+
+  function wire(el, id){
+    var bar = el.querySelector(".bar");
+    el.addEventListener("pointerdown", function(){ focus(id); }, true);
+    el.querySelector(".tl-close").addEventListener("click", function(){ close(id); });
+    el.querySelector(".tl-min").addEventListener("click", function(){ minimize(id); });
+    el.querySelector(".tl-max").addEventListener("click", function(){ zoom(id); });
+    var side = el.querySelector('[data-act="side"]');
+    if (side) side.addEventListener("click", function(){ el.classList.toggle("noside"); });
+
+    bar.addEventListener("dblclick", function(e){
+      if (!e.target.closest("button, a")) zoom(id);
+    });
+    bar.addEventListener("pointerdown", function(e){
+      if (e.button !== 0 || e.target.closest("button, a")) return;
+      if (narrow.matches || el.classList.contains("max")) return;
+      var sx = e.clientX, sy = e.clientY, ox = el.offsetLeft, oy = el.offsetTop;
+      bar.setPointerCapture(e.pointerId);
+      // Iframes swallow pointer events, so mute them while a window is being dragged over them.
+      document.body.classList.add("dragging");
+      function move(ev){ place(el, ox + ev.clientX - sx, oy + ev.clientY - sy); }
+      function up(){
+        bar.removeEventListener("pointermove", move);
+        bar.removeEventListener("pointerup", up);
+        bar.removeEventListener("pointercancel", up);
+        document.body.classList.remove("dragging");
+      }
+      bar.addEventListener("pointermove", move);
+      bar.addEventListener("pointerup", up);
+      bar.addEventListener("pointercancel", up);
+    });
+  }
+
+  function focus(id){
+    if (!wins[id] || focused === id) return;
+    Object.keys(wins).forEach(function(k){ wins[k].el.classList.toggle("focused", k === id); });
+    wins[id].el.style.zIndex = ++topZ;
+    focused = id;
+    showApp();
+  }
+
+  function blurAll(){
+    Object.keys(wins).forEach(function(k){ wins[k].el.classList.remove("focused"); });
+    focused = null;
+    showApp();
+  }
+
+  function focusTop(){
+    var best = null, z = -1;
+    Object.keys(wins).forEach(function(k){
+      var el = wins[k].el, zi = +el.style.zIndex;
+      if (!el.classList.contains("minimized") && zi > z) { z = zi; best = k; }
+    });
+    focused = null;
+    if (best) focus(best); else blurAll();
+  }
+
+  function setRunning(id, on){
+    var b = dock.querySelector('[data-open="' + id + '"]');
+    if (b) b.classList.toggle("run", on);
+  }
+
+  function open(id){
+    if (!APPS[id]) return;
+    if (wins[id]) {
+      wins[id].el.classList.remove("minimized");
+      focused = null;
+      focus(id);
+      return;
+    }
+    var a = APPS[id], el = build(id);
+    var dockSpace = window.innerHeight - dock.getBoundingClientRect().top + 8;
+    var L = layer.clientWidth, T = layer.clientHeight - dockSpace;
+    var w = Math.min(a.w, L - 32), h = Math.min(a.h, T - 16);
+    var off = (cascade++ % 6) * 26;
+    el.style.width  = w + "px";
+    el.style.height = h + "px";
+    el.style.left = clamp(Math.round((L - w) / 2) - 70 + off, 12, Math.max(12, L - w - 12)) + "px";
+    el.style.top  = clamp(Math.round((T - h) / 2) - 20 + off, 8, Math.max(8, T - h)) + "px";
+    layer.appendChild(el);
+    wins[id] = {el: el};
+    setRunning(id, true);
+    focus(id);
+    if (id === "terminal") el.querySelector("input").focus();
+  }
+
+  function close(id){
+    var w = wins[id];
+    if (!w) return;
+    delete wins[id];
+    setRunning(id, false);
+    if (focused === id) focusTop();
+    if (still.matches) { w.el.remove(); return; }
+    w.el.classList.add("closing");
+    setTimeout(function(){ w.el.remove(); }, 180);
+  }
+
+  // Shrink toward the window's own Dock icon.
+  function minimize(id){
+    var el = wins[id].el, r = el.getBoundingClientRect();
+    var d = dock.querySelector('[data-open="' + id + '"]').getBoundingClientRect();
+    el.style.setProperty("--dx", (d.left + d.width / 2 - r.left - r.width / 2) + "px");
+    el.style.setProperty("--dy", (d.top + d.height / 2 - r.top - r.height / 2) + "px");
+    el.classList.add("minimized");
+    if (focused === id) focusTop();
+  }
+
+  function zoom(id){
+    var el = wins[id].el;
+    if (narrow.matches) return;
+    if (!still.matches) {
+      el.classList.add("zooming");
+      setTimeout(function(){ el.classList.remove("zooming"); }, 260);
+    }
+    el.classList.toggle("max");
+  }
+
+  /* ---------- terminal ---------- */
+  var HELP = [
+    ["help",          "show this list"],
+    ["whoami",        "who runs this machine"],
+    ["ls",            "list what's here"],
+    ["open <app>",    "fukuoka · busan · averlyn · readme · contact"],
+    ["cat README.md", "a short bio"],
+    ["contact",       "how to reach me"],
+    ["date",          "current date and time"],
+    ["clear",         "clear the screen"],
+    ["exit",          "close this window"]
+  ];
+
+  function pad(s, n){ while (s.length < n) s += " "; return s; }
+
+  function initTerm(el){
+    var body = el.querySelector(".term");
+    var out = el.querySelector(".t-out");
+    var input = el.querySelector("input");
+    var hist = [], hi = 0;
+
+    function line(text, cls){
+      var d = document.createElement("div");
+      d.textContent = text;
+      if (cls) d.className = cls;
+      out.appendChild(d);
+    }
+
+    function run(raw){
+      var args = raw.split(/\s+/), cmd = args.shift(), rest = args.join(" ");
+      switch (cmd) {
+        case "": return;
+        case "help":
+          HELP.forEach(function(h){ line(pad(h[0], 16) + h[1]); });
+          return;
+        case "whoami":
+          line("Tank Yang — Backend Senior Associate Manager @ XREX");
+          return;
+        case "ls":
+          line("fukuoka/   busan/   averlyn/   README.md   contact");
+          return;
+        case "open":
+          var id = rest.toLowerCase().replace(/\/$/, "").replace(/\.md$/, "");
+          if (APPS[id] && id !== "terminal") { line("Opening " + appName(id) + "…", "dim"); open(id); }
+          else if (rest) line("open: " + rest + ": no such app", "err");
+          else line("usage: open <fukuoka | busan | averlyn | readme | contact>", "err");
+          return;
+        case "cat":
+          if (/^readme(\.md)?$/i.test(rest)) line(t("hero.lede"));
+          else if (rest) line("cat: " + rest + ": No such file or directory", "err");
+          else line("usage: cat README.md", "err");
+          return;
+        case "contact":
+          line("email     " + MAIL);
+          line("github    github.com/tankfinal");
+          line("linkedin  linkedin.com/in/zheng-yu-yang-807a5281");
+          return;
+        case "date":
+          line(new Date().toString());
+          return;
+        case "clear":
+          out.textContent = "";
+          return;
+        case "exit":
+          close("terminal");
+          return;
+        default:
+          line("zsh: command not found: " + cmd, "err");
+      }
+    }
+
+    line("Last login: " + new Date().toString().slice(0, 24) + " on ttys000", "dim");
+    line("Welcome to TankOS. Type 'help' to see what's here.");
+
+    body.addEventListener("click", function(){
+      if (!String(window.getSelection())) input.focus();
+    });
+    input.addEventListener("keydown", function(e){
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        e.preventDefault();
+        if (!hist.length) return;
+        hi = clamp(hi + (e.key === "ArrowUp" ? -1 : 1), 0, hist.length);
+        input.value = hist[hi] || "";
+        return;
+      }
+      if (e.key !== "Enter") return;
+      var raw = input.value.trim();
+      input.value = "";
+      if (raw) hist.push(raw);
+      hi = hist.length;
+      var echo = document.createElement("div");
+      echo.innerHTML = '<span class="ps">tank@TankOS ~ %</span> ';
+      echo.appendChild(document.createTextNode(raw));
+      out.appendChild(echo);
+      run(raw);
+      body.scrollTop = body.scrollHeight;
+    });
+  }
+
+  /* ---------- desktop + dock ---------- */
+  function select(b){
+    document.querySelectorAll(".dicon.sel").forEach(function(x){ x.classList.remove("sel"); });
+    if (b) b.classList.add("sel");
+  }
+
+  document.querySelectorAll(".dicon").forEach(function(b){
+    b.addEventListener("click", function(e){
+      // Touch screens and keyboard activation (detail 0) open right away; a mouse selects first and opens on double-click.
+      if (coarse.matches || narrow.matches || e.detail === 0) { open(b.dataset.open); return; }
+      select(b);
+    });
+    b.addEventListener("dblclick", function(){ open(b.dataset.open); });
+  });
+
+  dock.querySelectorAll("[data-open]").forEach(function(b){
+    b.addEventListener("click", function(){ open(b.dataset.open); });
+  });
+
+  desk.addEventListener("pointerdown", function(e){
+    if (e.target.closest(".dicon")) return;
+    select(null);
+    blurAll();
+  });
+
+  window.addEventListener("resize", function(){
+    Object.keys(wins).forEach(function(k){
+      var el = wins[k].el;
+      place(el, el.offsetLeft, el.offsetTop);
+    });
+    tick();
+  });
+
+  btnZh.addEventListener("click", function(){ setLang("zh"); });
+  btnEn.addEventListener("click", function(){ setLang("en"); });
+
+  var saved = null;
+  try { saved = localStorage.getItem("lang"); } catch (e) {}
+  if (!saved) saved = /^zh/i.test(navigator.language || "") ? "zh" : "en";
+  setLang(saved === "en" ? "en" : "zh");
+  setInterval(tick, 1000);
+
+  if (!narrow.matches) open("readme");
+})();
+</script>
+</body>
+</html>
