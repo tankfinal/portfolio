@@ -405,6 +405,7 @@
 
   /* ---------- Block Puzzle ---------- */
   .ic-blocks{background:linear-gradient(160deg,#FFD84D,#F2A20C 55%,#C46A00)}
+  .ic-private{background:linear-gradient(160deg,#4B5568,#1E2533 60%,#0E121B);box-shadow:inset 0 0 0 1px rgba(255,255,255,.16),0 2px 6px rgba(0,0,0,.28)}
   .blocks{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px 14px 10px;background:radial-gradient(120% 80% at 50% 0%,#4A2A1E,#1E100B);color:#F6E7D8;user-select:none;-webkit-user-select:none;overflow:hidden}
   .bk-top{width:min(100%,368px);display:flex;align-items:center;gap:16px;font-size:12px;color:#C9AE98}
   .bk-top b{display:block;font:700 20px var(--mono);color:#FFE27A;font-variant-numeric:tabular-nums;line-height:1.1}
@@ -510,6 +511,7 @@
     <rect x="10" y="42" width="28" height="11" rx="2" fill="#D62828" stroke="none"/>
     <text x="24" y="50.6" fill="#FFFFFF" stroke="none" font-size="8.5" font-weight="700" font-family="Helvetica Neue,Arial,sans-serif" text-anchor="middle">MD</text>
   </symbol>
+  <symbol id="g-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/><path d="M12 14.5v2.5"/></symbol>
   <symbol id="g-ext" viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
   <symbol id="g-side" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.2"/><path d="M9.5 5v14"/></symbol>
 </svg>
@@ -544,6 +546,7 @@
     <li><button class="dicon" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="lbl">README.md</span></button></li>
     <li><button class="dicon" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="lbl" data-i18n="app.terminal">終端機</span></button></li>
     <li><button class="dicon" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="lbl" data-i18n="app.contact">聯絡我</span></button></li>
+    <li><button class="dicon" type="button" data-open="private"><span class="ic ic-private"><svg><use href="#g-lock"/></svg></span><span class="lbl" data-i18n="app.private">私人桌面</span></button></li>
   </ul>
 </main>
 
@@ -579,6 +582,8 @@
   <button class="dk" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="tip">README.md</span></button>
   <button class="dk" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="tip" data-i18n="app.terminal">終端機</span></button>
   <button class="dk" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="tip" data-i18n="app.contact">聯絡我</span></button>
+  <span class="dk-sep" aria-hidden="true"></span>
+  <button class="dk" type="button" data-open="private"><span class="ic ic-private"><svg><use href="#g-lock"/></svg></span><span class="tip" data-i18n="app.private">私人桌面</span></button>
   <span class="dk-sep" aria-hidden="true"></span>
   <a class="dk" href="classic/"><span class="ic ic-classic" aria-hidden="true">T</span><span class="tip" data-i18n="app.classic">經典版</span></a>
 </nav>
@@ -760,6 +765,7 @@
     "app.readme":  {zh:"README.md", en:"README.md"},
     "app.terminal":{zh:"終端機", en:"Terminal"},
     "app.contact": {zh:"聯絡我", en:"Contact"},
+    "app.private": {zh:"私人桌面", en:"Private"},
     "app.classic": {zh:"經典版", en:"Classic site"},
     "os.about":    {zh:"關於", en:"About"},
     "os.exp":      {zh:"經歷", en:"Experience"},
@@ -822,7 +828,10 @@
     blocks:  {w:420, h:660},
     readme:  {w:680, h:660},
     terminal:{w:700, h:560, cls:"term-win"},
-    contact: {w:440, h:450}
+    contact: {w:440, h:450},
+    // The private TankOS (tankfinal/portfolio-private) sits behind Cloudflare Access, whose sign-in page
+    // cannot run in an iframe, so this one opens in a new tab instead of a window.
+    private: {link:"PRIVATE_URL"}
   };
 
   // Email is assembled at runtime so scrapers cannot lift it straight out of the markup.
@@ -1022,6 +1031,7 @@
 
   function open(id){
     if (!APPS[id]) return;
+    if (APPS[id].link) { window.open(APPS[id].link, "_blank", "noopener"); return; }
     if (wins[id]) {
       wins[id].el.classList.remove("minimized");
       focused = null;
@@ -1446,7 +1456,7 @@
     ["exit",             "close this window"]
   ];
   var CMDS = ["help","whoami","neofetch","ls","open","git","kubectl","top","cat","contact","date","clear","exit","sudo"];
-  var OPENABLE = ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","readme","contact"];
+  var OPENABLE = ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","readme","contact","private"];
   var REPOS = SERVICES.map(function(s){ return s.repo; });
 
   function pad(s, n){ s = String(s); while (s.length < n) s += " "; return s; }
@@ -1595,7 +1605,7 @@
           neofetch();
           return;
         case "ls":
-          line("fukuoka/   busan/   yangmingshan/   averlyn/   activity   blocks   README.md   contact");
+          line("fukuoka/   busan/   yangmingshan/   averlyn/   activity   blocks   README.md   contact   private/ 🔒");
           return;
         case "open":
           var id = resolveApp(rest);
@@ -1802,7 +1812,8 @@
     blocks:"方塊 消除 遊戲 小遊戲 益智 俄羅斯方塊 block puzzle game 1010",
     readme:"關於 經歷 履歷 about bio resume experience",
     terminal:"終端機 shell cli zsh command",
-    contact:"聯絡 email mail linkedin github"
+    contact:"聯絡 email mail linkedin github",
+    private:"私人 私密 登入 鎖 private login lock"
   };
   var EXP = [["XREX","e1"],["Binance","e2"],["CIMFORCE 上博科技","e3"],["Chiying Information Corp.","e4"],["Zyxel","e5"],["ARES International Corp.","e6"]];
   var STACK = ["Java","Spring Boot","Spring Cloud","Kafka","RabbitMQ","Redis","MySQL","Elasticsearch","StarRocks","Airflow","Spark","Flink","Docker","Kubernetes","AWS","TypeScript","React","Python","MCP"];
@@ -1814,7 +1825,7 @@
 
   function index(){
     var items = [];
-    ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","readme","terminal","contact"].forEach(function(id){
+    ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","readme","terminal","contact","private"].forEach(function(id){
       items.push({label:appName(id), sub:"", kind:t("os.spot.app"), icon:iconOf(id), keys:(id + " " + KW[id]).toLowerCase(), go:function(){ open(id); }});
     });
     EXP.forEach(function(e){
