@@ -546,7 +546,6 @@
     <li><button class="dicon" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="lbl">README.md</span></button></li>
     <li><button class="dicon" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="lbl" data-i18n="app.terminal">終端機</span></button></li>
     <li><button class="dicon" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="lbl" data-i18n="app.contact">聯絡我</span></button></li>
-    <li><button class="dicon" type="button" data-open="private"><span class="ic ic-private"><svg><use href="#g-lock"/></svg></span><span class="lbl" data-i18n="app.private">私人桌面</span></button></li>
   </ul>
 </main>
 
@@ -583,9 +582,8 @@
   <button class="dk" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="tip" data-i18n="app.terminal">終端機</span></button>
   <button class="dk" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="tip" data-i18n="app.contact">聯絡我</span></button>
   <span class="dk-sep" aria-hidden="true"></span>
-  <button class="dk" type="button" data-open="private"><span class="ic ic-private"><svg><use href="#g-lock"/></svg></span><span class="tip" data-i18n="app.private">私人桌面</span></button>
-  <span class="dk-sep" aria-hidden="true"></span>
   <a class="dk" href="classic/"><span class="ic ic-classic" aria-hidden="true">T</span><span class="tip" data-i18n="app.classic">經典版</span></a>
+  <button class="dk" type="button" data-open="private"><span class="ic ic-private"><svg><use href="#g-lock"/></svg></span><span class="tip" data-i18n="app.private">私人桌面</span></button>
 </nav>
 
 <!-- ============ WINDOW CONTENT ============ -->
@@ -1819,7 +1817,7 @@
   var STACK = ["Java","Spring Boot","Spring Cloud","Kafka","RabbitMQ","Redis","MySQL","Elasticsearch","StarRocks","Airflow","Spark","Flink","Docker","Kubernetes","AWS","TypeScript","React","Python","MCP"];
 
   function iconOf(id){
-    var src = document.querySelector('.icons [data-open="' + id + '"] .ic');
+    var src = document.querySelector('.icons [data-open="' + id + '"] .ic, .dock [data-open="' + id + '"] .ic');
     return src ? src.outerHTML : '<span class="ic ic-glyph">·</span>';
   }
 
