@@ -113,10 +113,21 @@
 
   /* ---------- desktop icons ---------- */
   .desktop{position:fixed;top:var(--menu-h);left:0;right:0;bottom:0;z-index:1}
-  .icons{
-    position:absolute;top:14px;left:14px;list-style:none;
-    display:grid;grid-template-rows:repeat(3,auto);grid-auto-flow:column;gap:6px 2px;
+  /* Icons are grouped into labelled zones: projects and lab down the left, about-me bottom right. */
+  .zones-l{position:absolute;top:14px;left:14px;display:flex;flex-direction:column;gap:20px}
+  .zone-about{position:absolute;right:14px;bottom:calc(var(--dock-space) + 8px)}
+  .zh{
+    display:flex;align-items:center;gap:7px;margin:0 0 6px 8px;
+    font:700 11px/1 var(--sys);letter-spacing:.14em;text-transform:uppercase;color:#fff;
+    text-shadow:0 1px 3px rgba(0,0,0,.55);
   }
+  .zh::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--zc,#fff);box-shadow:0 0 0 2px rgba(255,255,255,.35)}
+  .zone-proj{--zc:#FF7A50}
+  .zone-lab{--zc:#5BE37D}
+  .zone-about{--zc:#8AA4FF}
+  .zone-about .zh{justify-content:flex-end;margin:0 8px 6px 0}
+  .icons{list-style:none;display:grid;grid-template-columns:repeat(2,96px);gap:6px 2px}
+  .zone-about .icons{grid-template-columns:96px}
   .dicon{width:96px;padding:6px 4px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;border-radius:8px}
   .dicon .ic{--s:60px}
   .lbl{
@@ -473,7 +484,12 @@
   /* ---------- phones ---------- */
   @media (max-width:768px){
     :root{--ds:clamp(28px,calc((100vw - 104px) / 8),52px)}
-    .icons{left:0;right:0;top:14px;padding:0 6px;grid-template-columns:repeat(4,1fr);grid-template-rows:none;grid-auto-flow:row;justify-items:center}
+    .desktop{overflow-y:auto;padding:14px 6px calc(var(--dock-space) + 8px)}
+    .zones-l,.zone-about{position:static}
+    .zones-l{gap:16px}
+    .zone-about{margin-top:16px}
+    .zone-about .zh{justify-content:flex-start;margin:0 0 6px 8px}
+    .icons,.zone-about .icons{grid-template-columns:repeat(4,1fr);justify-items:center}
     .dicon{width:84px}
     .dicon .ic{--s:56px}
     .win{left:0!important;top:0!important;width:100%!important;height:calc(100% - var(--dock-space))!important;border-radius:0 0 14px 14px;resize:none}
@@ -536,17 +552,32 @@
 
 <main class="desktop" id="desktop">
   <h1 class="sr">Tank Yang — TankOS</h1>
-  <ul class="icons">
-    <li><button class="dicon" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="lbl" data-i18n="app.fukuoka">福岡自駕</span></button></li>
-    <li><button class="dicon" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="lbl" data-i18n="app.busan">釜山清單</span></button></li>
-    <li><button class="dicon" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="lbl" data-i18n="app.yangmingshan">陽明山慶生</span></button></li>
-    <li><button class="dicon" type="button" data-open="averlyn"><span class="ic ic-averlyn"><svg><use href="#g-syringe"/></svg></span><span class="lbl" data-i18n="app.averlyn">Averlyn 疫苗</span></button></li>
-    <li><button class="dicon" type="button" data-open="activity"><span class="ic ic-activity"><svg><use href="#g-pulse"/></svg></span><span class="lbl" data-i18n="app.activity">活動監視器</span></button></li>
-    <li><button class="dicon" type="button" data-open="blocks"><span class="ic ic-blocks"><svg><use href="#g-blocks"/></svg></span><span class="lbl" data-i18n="app.blocks">方塊消除</span></button></li>
-    <li><button class="dicon" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="lbl">README.md</span></button></li>
-    <li><button class="dicon" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="lbl" data-i18n="app.terminal">終端機</span></button></li>
-    <li><button class="dicon" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="lbl" data-i18n="app.contact">聯絡我</span></button></li>
-  </ul>
+  <div class="zones-l">
+    <section class="zone zone-proj" aria-labelledby="zProj">
+      <h2 class="zh" id="zProj" data-i18n="os.zone.proj">作品</h2>
+      <ul class="icons">
+        <li><button class="dicon" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="lbl" data-i18n="app.fukuoka">福岡自駕</span></button></li>
+        <li><button class="dicon" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="lbl" data-i18n="app.busan">釜山清單</span></button></li>
+        <li><button class="dicon" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="lbl" data-i18n="app.yangmingshan">陽明山慶生</span></button></li>
+        <li><button class="dicon" type="button" data-open="averlyn"><span class="ic ic-averlyn"><svg><use href="#g-syringe"/></svg></span><span class="lbl" data-i18n="app.averlyn">Averlyn 疫苗</span></button></li>
+      </ul>
+    </section>
+    <section class="zone zone-lab" aria-labelledby="zLab">
+      <h2 class="zh" id="zLab" data-i18n="os.zone.lab">實驗區</h2>
+      <ul class="icons">
+        <li><button class="dicon" type="button" data-open="activity"><span class="ic ic-activity"><svg><use href="#g-pulse"/></svg></span><span class="lbl" data-i18n="app.activity">活動監視器</span></button></li>
+        <li><button class="dicon" type="button" data-open="blocks"><span class="ic ic-blocks"><svg><use href="#g-blocks"/></svg></span><span class="lbl" data-i18n="app.blocks">方塊消除</span></button></li>
+      </ul>
+    </section>
+  </div>
+  <section class="zone zone-about" aria-labelledby="zAbout">
+    <h2 class="zh" id="zAbout" data-i18n="os.zone.about">關於我</h2>
+      <ul class="icons">
+        <li><button class="dicon" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="lbl">README.md</span></button></li>
+        <li><button class="dicon" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="lbl" data-i18n="app.terminal">終端機</span></button></li>
+        <li><button class="dicon" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="lbl" data-i18n="app.contact">聯絡我</span></button></li>
+      </ul>
+  </section>
 </main>
 
 <div id="windows"></div>
@@ -788,6 +819,9 @@
     "os.bk.over":  {zh:"沒地方放了！", en:"No room left!"},
     "os.bk.final": {zh:"這局得分 {s}", en:"You scored {s}"},
     "os.bk.again": {zh:"再玩一次", en:"Play again"},
+    "os.zone.proj":{zh:"作品", en:"Projects"},
+    "os.zone.lab": {zh:"實驗區", en:"Lab"},
+    "os.zone.about":{zh:"關於我", en:"About me"},
     "os.lock.hint":{zh:"點一下或按任意鍵解鎖", en:"Click or press any key to unlock"},
     "os.spot.btn": {zh:"Spotlight 搜尋（⌘K）", en:"Spotlight search (⌘K)"},
     "os.spot.ph":  {zh:"搜尋 App、經歷、技術…", en:"Search apps, experience, skills…"},
