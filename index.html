@@ -113,9 +113,9 @@
 
   /* ---------- desktop icons ---------- */
   .desktop{position:fixed;top:var(--menu-h);left:0;right:0;bottom:0;z-index:1}
-  /* Icons are grouped into labelled zones: projects and lab down the left, about-me bottom right. */
+  /* Icons are grouped into labelled zones: projects and lab top left, about-me bottom left. */
   .zones-l{position:absolute;top:14px;left:14px;display:flex;flex-direction:column;gap:20px}
-  .zone-about{position:absolute;right:14px;bottom:calc(var(--dock-space) + 8px)}
+  .zone-about{position:absolute;left:14px;bottom:calc(var(--dock-space) + 8px)}
   .zh{
     display:flex;align-items:center;gap:7px;margin:0 0 6px 8px;
     font:700 11px/1 var(--sys);letter-spacing:.14em;text-transform:uppercase;color:#fff;
@@ -125,9 +125,7 @@
   .zone-proj{--zc:#FF7A50}
   .zone-lab{--zc:#5BE37D}
   .zone-about{--zc:#8AA4FF}
-  .zone-about .zh{justify-content:flex-end;margin:0 8px 6px 0}
   .icons{list-style:none;display:grid;grid-template-columns:repeat(2,96px);gap:6px 2px}
-  .zone-about .icons{grid-template-columns:96px}
   .dicon{width:96px;padding:6px 4px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;border-radius:8px}
   .dicon .ic{--s:60px}
   .lbl{
@@ -488,7 +486,6 @@
     .zones-l,.zone-about{position:static}
     .zones-l{gap:16px}
     .zone-about{margin-top:16px}
-    .zone-about .zh{justify-content:flex-start;margin:0 0 6px 8px}
     .icons,.zone-about .icons{grid-template-columns:repeat(4,1fr);justify-items:center}
     .dicon{width:84px}
     .dicon .ic{--s:56px}

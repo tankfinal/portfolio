@@ -74,7 +74,7 @@ macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.htm
 
 - **設計語彙跟經典版相反**：漸層桌布、毛玻璃選單列與 Dock、圓角、陰影都在這裡用。桌布是九州自駕時拍的阿蘇米塚（`images/wallpaper-komezuka.jpg`，手機版吃 `-sm`），`background-size:cover` 滿版，上面疊一層白色漸層淡化，讓 icon 和視窗字好讀。
 - **視窗**：紅黃綠三顆鈕分別是關閉、縮到 Dock、放大（雙擊標題列也是放大）。標題列可拖曳，右下角可縮放。768px 以下視窗一律全螢幕、不可拖曳，桌面 icon 改成點一下就開。
-- **桌面分區**：icon 依類型分三區，各區有小標（`os.zone.*`，中英雙語）：左上「作品」放 live 站、其下「實驗區」放活動監視器與方塊消除、右下「關於我」放 README、終端機、聯絡我。新增 App 時放進對應區塊的 `<ul class="icons">`。768px 以下三區改成由上往下排，每列四顆。
+- **桌面分區**：icon 依類型分三區，各區有小標（`os.zone.*`，中英雙語）：左上「作品」放 live 站、其下「實驗區」放活動監視器與方塊消除、左下「關於我」放 README、終端機、聯絡我。三區都是兩欄，不會伸進預設開啟的 README 視窗底下。新增 App 時放進對應區塊的 `<ul class="icons">`。768px 以下三區改成由上往下排，每列四顆。
 - **App 視窗用 iframe 直接跑 live 站**，左側欄是經典版同一份作品介紹。新增 App：在 `APPS` 加一筆（`k` 指向經典版的作品 key、`url`、`src`、`spec`），再補桌面 icon 和 Dock 各一顆按鈕；要讓活動監視器和 `kubectl` 看得到，`SERVICES` 也加一筆；Spotlight 的別名寫在 `KW`。被嵌的站不能送 `X-Frame-Options` / `frame-ancestors`，GitHub Pages 預設沒有。
 - **私人桌面**（`private`，只放 Dock 右側、經典版旁邊，跟私人版 Dock 放公開版入口的位置對稱；Spotlight 與 `open private` 也能開）：唯一不開視窗的 App，`APPS` 裡用 `link` 標記，`open()` 直接開新分頁到 [portfolio-private](https://github.com/tankfinal/portfolio-private)（Cloudflare Access 保護）。Access 登入頁不能放進 iframe，所以不嵌。私人內容一律不進這個 repo，這裡只有入口。
 - **鎖定畫面**：每次進站都會出現（米塚模糊背景、時鐘、Tank Yang），點一下或按任意鍵解鎖。markup 帶 `hidden`，由 JS 打開，所以沒有 JS 時不會擋住頁面。
