@@ -76,7 +76,7 @@ macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.htm
 - **視窗**：紅黃綠三顆鈕分別是關閉、縮到 Dock、放大（雙擊標題列也是放大）。標題列可拖曳，右下角可縮放。768px 以下視窗一律全螢幕、不可拖曳，桌面 icon 改成點一下就開。
 - **桌面分區**：icon 依類型分三區，各區有小標（`os.zone.*`，中英雙語）：左上「作品」放 live 站、其下「實驗區」放活動監視器與方塊消除、左下「關於我」放 README、終端機、聯絡我。三區都是兩欄，不會伸進預設開啟的 README 視窗底下。新增 App 時放進對應區塊的 `<ul class="icons">`。768px 以下三區改成由上往下排，每列四顆。
 - **App 視窗用 iframe 直接跑 live 站**，左側欄是經典版同一份作品介紹。新增 App：在 `APPS` 加一筆（`k` 指向經典版的作品 key、`url`、`src`、`spec`），再補桌面 icon 和 Dock 各一顆按鈕；要讓活動監視器和 `kubectl` 看得到，`SERVICES` 也加一筆；Spotlight 的別名寫在 `KW`。被嵌的站不能送 `X-Frame-Options` / `frame-ancestors`，GitHub Pages 預設沒有。
-- **私人桌面**（`private`，只放 Dock 右側、經典版旁邊，跟私人版 Dock 放公開版入口的位置對稱；Spotlight 與 `open private` 也能開）：唯一不開視窗的 App，`APPS` 裡用 `link` 標記，`open()` 直接開新分頁到 [portfolio-private](https://github.com/tankfinal/portfolio-private)（Cloudflare Access 保護）。Access 登入頁不能放進 iframe，所以不嵌。私人內容一律不進這個 repo，這裡只有入口。
+- **私人版入口**：選單列右側的 🔒「私人版」，開新分頁到 [portfolio-private](https://github.com/tankfinal/portfolio-private)（Cloudflare Access 保護），跟私人版選單列的「公開版」對稱。手機只剩鎖頭。Spotlight 與 `open private` 也能開（`APPS.private` 用 `link` 標記，`open()` 直接開新分頁）。Access 登入頁不能放進 iframe，所以不開視窗。私人內容一律不進這個 repo，這裡只有入口。
 - **鎖定畫面**：每次進站都會出現（米塚模糊背景、時鐘、Tank Yang），點一下或按任意鍵解鎖。markup 帶 `hidden`，由 JS 打開，所以沒有 JS 時不會擋住頁面。
 - **Spotlight**：⌘K / Ctrl+K、`/`，或選單列的放大鏡。索引在 `index()`：App、經歷（`e1`–`e6`）、技術名詞、動作（切語言、經典版、GitHub）。
 - **活動監視器**（`activity`，只在桌面和 Spotlight，不放 Dock）：瀏覽器直接對 `SERVICES` 每個站發 `fetch(no-store)`，顯示狀態、延遲、趨勢線、HTML 大小、`Last-Modified` 當作最後部署時間，每 15 秒更新，關視窗就停。CORS 被擋時退回 `no-cors`，只能判斷有沒有活著。
