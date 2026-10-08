@@ -110,6 +110,7 @@
   .lang button{padding:1px 7px;border-radius:5px;font-size:12px;opacity:.6}
   .lang button.on{opacity:1;font-weight:600;background:rgba(255,255,255,.18)}
   #clock{white-space:nowrap;font-variant-numeric:tabular-nums}
+  .mb-ver{font-family:var(--mono);font-size:11px;opacity:.6;white-space:nowrap}
 
   /* ---------- desktop icons ---------- */
   .desktop{position:fixed;top:var(--menu-h);left:0;right:0;bottom:0;z-index:1}
@@ -501,6 +502,7 @@
     .stack dd{margin-bottom:8px}
   }
   @media (max-width:600px){
+    .mb-l,.mb-r{gap:12px}
     .mb-item{display:none}
     .mb-priv{padding:3px 6px}
     .mb-priv span{display:none}
@@ -547,6 +549,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
+    <span class="mb-ver">v1.0.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
