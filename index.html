@@ -574,17 +574,41 @@
   .bk-hint{font-size:11.5px;color:#A88C77;text-align:center}
   .bk-over,.bk-intro{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(20,10,6,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
   .bk-over[hidden],.bk-intro[hidden]{display:none}
-  .bk-intro{gap:0;padding:20px;text-align:center}
-  .bk-intro .ic{--s:64px;margin-bottom:12px}
-  .bk-intro h3{font-size:22px;color:#fff;margin-bottom:14px}
-  .bk-intro ol{list-style:none;display:flex;flex-direction:column;gap:9px;text-align:left;font-size:14px;line-height:1.5;color:#F6E7D8;max-width:300px}
-  .bk-intro li{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start}
-  .bk-intro li b{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;color:#2A1408;background:#FFD54A}
-  .bk-intro .bk-go{margin-top:20px}
+  /* Centred while it fits, scrolls from the top once the leaderboard makes it taller than the window. */
+  .bk-over,.bk-intro{justify-content:flex-start;overflow-y:auto}
+  .bk-over>:first-child,.bk-intro>:first-child{margin-top:auto}
+  .bk-over>:last-child,.bk-intro>:last-child{margin-bottom:auto}
+  .bk-intro{gap:0;padding:16px 20px;text-align:center}
+  .bk-intro .ic{--s:48px;margin-bottom:10px;flex:none}
+  .bk-intro h3{font-size:22px;color:#fff;margin-bottom:12px}
+  .bk-intro>ol{list-style:none;display:flex;flex-direction:column;gap:7px;text-align:left;font-size:13.5px;line-height:1.5;color:#F6E7D8;max-width:300px}
+  .bk-intro>ol>li{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start}
+  .bk-intro>ol b{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;color:#2A1408;background:#FFD54A}
+  .bk-over{padding:20px}
   .bk-over h3{font-size:22px;color:#fff}
   .bk-over p{font-size:15px;color:#FFE27A}
   .bk-again,.bk-go{margin-top:6px;padding:10px 26px;border-radius:999px;background:#D62828;color:#fff;font-weight:700;cursor:pointer}
   .bk-again:hover,.bk-go:hover{background:#E43B3B}
+  .bk-go:disabled{opacity:.45;cursor:default;background:#D62828}
+  .bk-lb{width:100%;max-width:300px;flex:none;margin-top:14px;text-align:left}
+  .bk-over .bk-lb{margin:4px 0 8px}
+  .bk-lb h4{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:12px;letter-spacing:.06em;color:#FFD54A}
+  .bk-lb small{font-size:11px;letter-spacing:0;font-weight:400;color:#A88C77}
+  .bk-rank{list-style:none;display:flex;flex-direction:column;gap:1px;padding:4px;border-radius:10px;background:rgba(0,0,0,.25);font-size:13px}
+  .bk-rank li{display:grid;grid-template-columns:22px 1fr auto;gap:8px;padding:2px 8px;border-radius:6px;line-height:1.4}
+  .bk-rank li span:first-child{font:600 12px/1.5 var(--mono);color:#A88C77;text-align:right}
+  .bk-rank li:nth-child(-n+3) span:first-child{color:#FFD54A}
+  .bk-rank li span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#F6E7D8}
+  .bk-rank li span:last-child{font:600 13px/1.4 var(--mono);color:#FFE27A;font-variant-numeric:tabular-nums}
+  .bk-rank li.me{background:rgba(255,226,122,.16);box-shadow:inset 0 0 0 1px rgba(255,226,122,.45)}
+  .bk-rank li.bk-msg,.bk-rank li.bk-gap{display:block;color:#A88C77;text-align:center}
+  .bk-rank li.bk-gap{line-height:1}
+  .bk-join{display:flex;gap:8px;width:100%;max-width:300px;flex:none;margin-top:14px}
+  .bk-join .bk-go{margin-top:0;flex:none}
+  /* 16px keeps iOS from zooming in on focus; the game body is user-select:none, which would block typing on iOS. */
+  .bk-name{flex:1;min-width:0;padding:9px 14px;border-radius:999px;background:rgba(255,255,255,.1);border:.5px solid rgba(255,255,255,.25);color:#fff;font:inherit;font-size:16px;user-select:text;-webkit-user-select:text}
+  .bk-name::placeholder{color:#A88C77}
+  .bk-name:focus{outline:none;border-color:#FFD54A;box-shadow:0 0 0 3px rgba(255,213,74,.25)}
 
   /* ---------- phones ---------- */
   @media (max-width:768px){
@@ -654,7 +678,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v1.5.2</span>
+    <span class="mb-ver">v1.6.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -834,11 +858,16 @@
         <li><b>3</b><span data-i18n="os.bk.r3"></span></li>
         <li><b>4</b><span data-i18n="os.bk.r4"></span></li>
       </ol>
-      <button type="button" class="bk-go" data-i18n="os.bk.go"></button>
+      <div class="bk-lb"><h4><span data-i18n="os.bk.lb"></span><small data-i18n="os.bk.lbRule"></small></h4><ol class="bk-rank"></ol></div>
+      <form class="bk-join">
+        <input type="text" class="bk-name" maxlength="12" autocomplete="nickname" enterkeyhint="go" spellcheck="false">
+        <button type="submit" class="bk-go" data-i18n="os.bk.go" disabled></button>
+      </form>
     </div>
     <div class="bk-over" hidden>
       <h3 data-i18n="os.bk.over"></h3>
       <p class="bk-final"></p>
+      <div class="bk-lb"><h4><span data-i18n="os.bk.lb"></span></h4><ol class="bk-rank"></ol></div>
       <button type="button" class="bk-again" data-i18n="os.bk.again"></button>
     </div>
   </div>
@@ -1009,6 +1038,14 @@
     "os.bk.over":  {zh:"沒地方放了！", en:"No room left!"},
     "os.bk.final": {zh:"這局得分 {s}", en:"You scored {s}"},
     "os.bk.again": {zh:"再玩一次", en:"Play again"},
+    "os.bk.name":  {zh:"輸入名字才能開始", en:"Enter your name to start"},
+    "os.bk.lb":    {zh:"排行榜", en:"Leaderboard"},
+    "os.bk.lbRule":{zh:"同一個名字只留最高分", en:"Best score per name"},
+    "os.bk.lbLoad":{zh:"載入排行榜…", en:"Loading leaderboard…"},
+    "os.bk.lbErr": {zh:"排行榜暫時連不上", en:"Leaderboard is unavailable right now"},
+    "os.bk.lbNone":{zh:"還沒有人上榜，搶第一個", en:"No scores yet. Be the first."},
+    "os.bk.lbSave":{zh:"分數存進排行榜中…", en:"Saving your score…"},
+    "os.bk.lbFail":{zh:"沒存到排行榜，連線失敗", en:"Couldn't save your score"},
     "os.zone.proj":{zh:"作品", en:"Projects"},
     "os.zone.lab": {zh:"實驗區", en:"Lab"},
     "os.zone.about":{zh:"關於我", en:"About me"},
@@ -1768,6 +1805,8 @@
   // 8x8 board, three pieces at a time. Drag a piece onto the board; a full row or column clears.
   // The game ends when none of the pieces left in the tray fits anywhere.
   var BK_N = 8;
+  // Leaderboard Worker (api/ in this repo), backed by Cloudflare D1.
+  var BK_API = "https://blocks-leaderboard.xarenvich.workers.dev/scores";
   var BK_COLORS = ["gold","red","blue","green","purple","orange","cyan"];
   var BK_SHAPES = [
     [[0,0]],
@@ -1789,6 +1828,7 @@
     var scoreEl = el.querySelector(".bk-score"), bestEl = el.querySelector(".bk-best");
     var over = el.querySelector(".bk-over"), pop = el.querySelector(".bk-pop");
     var grid, cells = [], pieces = [], score = 0, best = 0, combo = 0, drag = null, press = null;
+    var player = "", game = 0;
     try { best = +localStorage.getItem("blocks.best") || 0; } catch (e) {}
 
     for (var i = 0; i < BK_N * BK_N; i++) {
@@ -2021,6 +2061,7 @@
       if (pieces.every(function(p){ return p.used; })) deal(); else renderTray();
       var left = pieces.filter(function(p){ return !p.used; });
       if (left.length && !left.some(function(p){ return fitsSomeWay(p.shape); })) {
+        save();
         setTimeout(function(){
           over.querySelector(".bk-final").textContent = fill(t("os.bk.final"), {s:score});
           over.hidden = false;
@@ -2031,17 +2072,82 @@
     function reset(){
       grid = [];
       for (var y = 0; y < BK_N; y++) { grid.push([]); for (var x = 0; x < BK_N; x++) grid[y].push(0); }
-      score = 0; combo = 0;
+      score = 0; combo = 0; game++;
       over.hidden = true;
       el.querySelector(".bk-intro").hidden = true;
       paint(); stats(); deal();
     }
 
-    var intro = el.querySelector(".bk-intro");
-    el.querySelector(".bk-go").addEventListener("click", function(){ intro.hidden = true; reset(); });
+    /* Leaderboard: shown on the welcome card when the window opens, and on the game-over card with this run's
+       result. `res` is the API reply ({top, me?}), or the i18n key of a status line while loading or on failure. */
+    function drawRank(ol, res){
+      ol._res = res;
+      ol.textContent = "";
+      if (typeof res === "string" || !res.top.length) {
+        var msg = document.createElement("li");
+        msg.className = "bk-msg";
+        msg.textContent = t(typeof res === "string" ? res : "os.bk.lbNone");
+        ol.appendChild(msg);
+        return;
+      }
+      var me = res.me, rows = res.top.map(function(r, i){ return {rank:i + 1, name:r.name, score:r.score}; });
+      // Below the top list, still show where this run's name stands.
+      if (me && me.rank > rows.length) {
+        if (me.rank > rows.length + 1) rows.push(null);
+        rows.push(me);
+      }
+      rows.forEach(function(r){
+        var li = document.createElement("li");
+        if (!r) { li.className = "bk-gap"; li.textContent = "⋯"; ol.appendChild(li); return; }
+        if (me && r.rank === me.rank) li.className = "me";
+        [r.rank, r.name, r.score].forEach(function(v){
+          var s = document.createElement("span");
+          s.textContent = v;
+          li.appendChild(s);
+        });
+        ol.appendChild(li);
+      });
+    }
+    function api(opts){
+      return fetch(BK_API, opts).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); });
+    }
+    function loadRank(){
+      drawRank(introRank, "os.bk.lbLoad");
+      api({cache:"no-store"}).then(function(res){ drawRank(introRank, res); }, function(){ drawRank(introRank, "os.bk.lbErr"); });
+    }
+    // Sent as soon as the game ends. A reply that arrives after "Play again" belongs to the old run and is dropped.
+    function save(){
+      var g = game;
+      drawRank(overRank, "os.bk.lbSave");
+      api({method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name:player, score:score})})
+        .then(function(res){ if (g === game) drawRank(overRank, res); }, function(){ if (g === game) drawRank(overRank, "os.bk.lbFail"); });
+    }
+
+    var intro = el.querySelector(".bk-intro"), nameIn = el.querySelector(".bk-name"), goBtn = el.querySelector(".bk-go");
+    var introRank = intro.querySelector(".bk-rank"), overRank = over.querySelector(".bk-rank");
+    function cleanName(){ return nameIn.value.replace(/\s+/g, " ").trim(); }
+    try { nameIn.value = localStorage.getItem("blocks.name") || ""; } catch (e) {}
+    goBtn.disabled = !cleanName();
+    nameIn.addEventListener("input", function(){ goBtn.disabled = !cleanName(); });
+    el.querySelector(".bk-join").addEventListener("submit", function(e){
+      e.preventDefault();
+      player = cleanName();
+      if (!player) return;
+      try { localStorage.setItem("blocks.name", player); } catch (e2) {}
+      nameIn.blur();
+      intro.hidden = true;
+      reset();
+    });
     el.querySelector(".bk-again").addEventListener("click", reset);
     el.querySelector(".bk-new").addEventListener("click", reset);
-    function relabel(){ if (!over.hidden) over.querySelector(".bk-final").textContent = fill(t("os.bk.final"), {s:score}); }
+    function relabel(){
+      if (!over.hidden) over.querySelector(".bk-final").textContent = fill(t("os.bk.final"), {s:score});
+      nameIn.placeholder = t("os.bk.name");
+      nameIn.setAttribute("aria-label", t("os.bk.name"));
+      [introRank, overRank].forEach(function(ol){ if (ol._res) drawRank(ol, ol._res); });
+    }
+    relabel();
+    loadRank();
     langHooks.push(relabel);
     el._stop = function(){ end(); langHooks.splice(langHooks.indexOf(relabel), 1); };
     // Empty board behind the welcome card; the first pieces are dealt when Start is pressed.
@@ -2420,7 +2526,7 @@
     yangmingshan:"陽明山 慶生 生日 芒草 溫泉 birthday taipei",
     averlyn:"疫苗 女兒 寶寶 vaccine baby react vite",
     activity:"活動監視器 監控 狀態 延遲 uptime monitor status health top",
-    blocks:"方塊 消除 遊戲 小遊戲 益智 俄羅斯方塊 block puzzle game 1010",
+    blocks:"方塊 消除 遊戲 小遊戲 益智 俄羅斯方塊 排行榜 block puzzle game 1010 leaderboard",
     readme:"關於 經歷 履歷 about bio resume experience",
     terminal:"終端機 shell cli zsh command",
     calc:"計算機 計算 算數 加減乘除 calculator calc math",

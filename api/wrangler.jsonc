@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "blocks-leaderboard",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  // The site calls the workers.dev URL; preview URLs are not needed.
+  "preview_urls": false,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "blocks-leaderboard",
+      "database_id": "0a773ca0-b629-49a2-ad46-5e3940267ae6"
+    }
+  ]
+}

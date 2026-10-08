@@ -39,6 +39,10 @@ images/
 ├── wallpaper-komezuka.jpg     # TankOS 桌布（1920px）
 ├── wallpaper-komezuka-sm.jpg  # 手機版桌布（1200px）
 └── averlyn-vaccine.jpg
+api/                # 方塊消除排行榜的 Worker + D1，獨立部署，見「排行榜 API」
+├── src/index.js
+├── schema.sql
+└── wrangler.jsonc
 ```
 
 ## 雙語切換
@@ -80,7 +84,7 @@ macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.htm
 - **鎖定畫面**：每次進站都會出現（米塚模糊背景、時鐘、Tank Yang），點一下或按任意鍵解鎖。markup 帶 `hidden`，由 JS 打開，所以沒有 JS 時不會擋住頁面。
 - **Spotlight**：⌘K / Ctrl+K、`/`，或選單列的放大鏡。索引在 `index()`：App、經歷（`e1`–`e6`）、技術名詞、動作（切語言、經典版、GitHub）。
 - **活動監視器**（`activity`，只在桌面和 Spotlight，不放 Dock）：瀏覽器直接對 `SERVICES` 每個站發 `fetch(no-store)`，顯示狀態、延遲、趨勢線、HTML 大小、`Last-Modified` 當作最後部署時間，每 15 秒更新，關視窗就停。CORS 被擋時退回 `no-cors`，只能判斷有沒有活著。
-- **方塊消除**（`blocks`，桌面與 Spotlight）：8×8 盤面、一次給三塊，拖曳放置，點一下（指標沒移動超過 6px）方塊順時針轉 90 度；填滿整排或整列就消除，連擊加分，三塊不論轉成哪個方向都放不下才結束（灰掉的方塊也用同一個判斷）。開窗先出現玩法說明卡，按「開始遊戲」才發牌。方塊是純 CSS 的寶石切面（四邊 border 做斜面＋`::after` 高光，顏色在 `.j-*` 的變數）。消除特效：碎片噴散、整排光束掃過、盤面震動（多條或連擊震更大），`prefers-reduced-motion` 時全部關掉。最佳分數存在 `localStorage.blocks.best`。手機拖曳時方塊會浮在手指上方，避免被擋住。
+- **方塊消除**（`blocks`，桌面與 Spotlight）：8×8 盤面、一次給三塊，拖曳放置，點一下（指標沒移動超過 6px）方塊順時針轉 90 度；填滿整排或整列就消除，連擊加分，三塊不論轉成哪個方向都放不下才結束（灰掉的方塊也用同一個判斷）。開窗先出現說明卡：玩法、排行榜前 10 名、名字輸入框，名字填了「開始遊戲」才按得下去（名字記在 `localStorage.blocks.name`，下次預先填好）。遊戲結束當下把名字和分數送到排行榜，結束畫面列出前 10 名並標出這個名字的那一列，不在前 10 名就接在最後面顯示名次。按「重新開始」中途放棄的那局不送。排行榜的後端見「排行榜 API」。方塊是純 CSS 的寶石切面（四邊 border 做斜面＋`::after` 高光，顏色在 `.j-*` 的變數）。消除特效：碎片噴散、整排光束掃過、盤面震動（多條或連擊震更大），`prefers-reduced-motion` 時全部關掉。選單上方的「最佳」是這台瀏覽器自己的紀錄，存在 `localStorage.blocks.best`，跟排行榜無關。手機拖曳時方塊會浮在手指上方，避免被擋住。
 - **計算機**（`calc`，桌面與 Spotlight）：照 macOS 基本計算機的算法，運算子套用到目前的累計值，`=` 連按會重複上一步。結果取 12 位有效數字（0.1 + 0.2 顯示 0.3），除以 0 顯示「錯誤」。視窗在最前面時吃鍵盤：數字、`+ - * /`、`Enter`、`Backspace`、`Esc`，這時 `/` 是除號、不開 Spotlight。768px 以下鍵盤貼底、按鍵變圓。
 - **日曆**（`calendar`，桌面與 Spotlight）：月曆，週日開頭，今天是紅圈；點日期會在底部顯示完整日期、距今幾天與農曆。月份標題下列出這個月跨到的農曆月份與年（例：農曆 八月 – 九月 · 丙午年），每天日期下方是農曆日（初一那天改寫月份名，紅字）。農曆直接用瀏覽器的 `Intl`（`ca-chinese`），不維護對照表；不支援的瀏覽器就不顯示農曆。放假日（週末與國定假日）日期是紅字；國定假日與補假整格淡紅、農曆那行改寫節日名，底部寫全名。放假資料在 `HOLIDAYS`，照抄人事行政總處「政府行政機關辦公日曆表」（政府資料開放平臺 dataset 14718 的 CSV），目前有 2026、2027 兩年；週末預設放假，所以只列有名稱的假日和平日補假。人事總處每年 6 月 30 日前公告隔年的日曆表，屆時把新的一年加進去；沒列到的年份只會把週末標紅。桌面 icon 顯示今天的星期與日期，每分鐘更新。
 - **下個連假小工具**（`#wgHol`）：連續放假 3 天以上、且其中有 `HOLIDAYS` 裡的日子才算連假。顯示還有幾天（或「明天」「放假中」）、節日名、連休天數與起訖日，每分鐘重算；點一下開日曆並選在連假第一天。`HOLIDAYS` 的資料用完就自動隱藏。
@@ -132,6 +136,41 @@ PY
 sips -Z 900 shot.png                                   # 長邊縮到 900
 sips -s format jpeg -s formatOptions 78 shot.png --out out.jpg
 ```
+
+## 排行榜 API（`api/`）
+
+方塊消除的排行榜。獨立的 Cloudflare Worker `blocks-leaderboard`，資料放 Cloudflare D1（同名資料庫），都在免費額度內。跟靜態站分開部署：GitHub Pages 與 `portfolio` Worker 都只送靜態檔，`api/` 已列進 `.assetsignore`。
+
+```
+GET  https://blocks-leaderboard.xarenvich.workers.dev/scores               → {top}
+POST https://blocks-leaderboard.xarenvich.workers.dev/scores {name, score} → {top, me:{name, score, rank}}
+```
+
+- **一個名字一列，只留最高分**：名字不分大小寫（`Tank` 和 `tank` 算同一人，顯示第一次留下的寫法），新分數比較高才覆蓋。同分時先達到的排前面
+- **名字沒有登入驗證**：任何人打同一個名字都算同一個玩家，分數也是前端送的，這是給作品集玩的榜，不防作弊
+- **輸入檢查**：名字壓掉空白與控制字元後要 1–12 個字，分數是 1 到 10,000,000 的整數，不符合回 400
+- **CORS** 只開給 `tankfinal.github.io`、`portfolio.xarenvich.workers.dev` 和本機 `localhost:4321`。新增網域時改 `src/index.js` 的 `ORIGINS`
+- 要刪掉某一列（例如不雅的名字）：`npx wrangler d1 execute blocks-leaderboard --remote --command "DELETE FROM scores WHERE name = 'xxx'"`，在 `api/` 底下執行
+
+### 部署
+
+```bash
+cd api
+npx wrangler login                                   # 第一次
+npx wrangler deploy
+```
+
+第一次建資料庫時，`npx wrangler d1 create blocks-leaderboard` 把產生的 `database_id` 填進 `wrangler.jsonc`，再跑 `npx wrangler d1 execute blocks-leaderboard --remote --file=schema.sql` 建表。
+
+本機測試：
+
+```bash
+cd api
+npx wrangler d1 execute blocks-leaderboard --local --file=schema.sql
+npx wrangler dev                                     # http://localhost:8787/scores
+```
+
+前端寫死打正式網址（`index.html` 的 `BK_API`），要讓本機頁面打本機 API，暫時把它改成 `http://localhost:8787/scores`。
 
 ## Local
 
