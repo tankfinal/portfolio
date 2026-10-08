@@ -99,7 +99,7 @@
   }
   .mb-l,.mb-r{display:flex;align-items:center;gap:18px;min-width:0}
   .mb-logo{
-    width:16px;height:16px;border-radius:4px;flex:none;
+    width:16px;height:16px;border-radius:4px;flex:none;padding:0;cursor:pointer;
     background:#D62828;color:#fff;text-align:center;
     font:700 11px/16px "Helvetica Neue",Arial,sans-serif;
   }
@@ -127,7 +127,8 @@
   .zone-lab{--zc:#5BE37D}
   .zone-about{--zc:#8AA4FF}
   /* Utilities sit top right, clear of the README window that opens on load. */
-  .zone-tools{position:absolute;top:14px;right:14px;--zc:#FFC94D}
+  .zones-r{position:absolute;top:14px;right:14px;display:flex;flex-direction:column;gap:20px}
+  .zone-tools{--zc:#FFC94D}
   .icons{list-style:none;display:grid;grid-template-columns:repeat(2,96px);gap:6px 2px}
   .dicon{width:96px;padding:6px 4px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;border-radius:8px}
   .dicon .ic{--s:60px}
@@ -409,6 +410,45 @@
   }
   .act-foot{padding:9px 16px;font-size:11.5px;color:var(--win-mute);border-top:.5px solid var(--win-line)}
 
+  /* ---------- widget: next long weekend ---------- */
+  .wg{
+    display:block;width:194px;padding:12px 14px 13px;border-radius:18px;text-align:left;color:#fff;cursor:pointer;
+    background:rgba(255,255,255,.2);border:.5px solid rgba(255,255,255,.35);box-shadow:0 8px 24px rgba(0,0,0,.18);
+    backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);
+    text-shadow:0 1px 3px rgba(0,0,0,.35);
+  }
+  .wg[hidden]{display:none}
+  .wg:hover{background:rgba(255,255,255,.27)}
+  .wg > span{display:block}
+  .wg-k{font:700 11px/1 var(--sys);letter-spacing:.12em;text-transform:uppercase;color:#FFE1E1}
+  .wg-n{margin-top:8px;font-size:38px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+  .wg-n small{margin-left:4px;font-size:14px;font-weight:600}
+  .wg-name{margin-top:8px;font-size:15px;font-weight:700}
+  .wg-name small{margin-left:6px;font-size:12px;font-weight:500;opacity:.92}
+  .wg-when{margin-top:3px;font-size:12px;opacity:.92}
+  @media (max-width:768px){ .wg{width:auto;margin:0 8px} }
+
+  /* ---------- About TankOS ---------- */
+  .about{padding:26px 26px 18px;text-align:center}
+  .ab-logo{
+    width:84px;height:84px;margin:0 auto;border-radius:20px;display:grid;place-items:center;
+    background:linear-gradient(160deg,#FF5A4E,#D62828 60%,#A3141E);color:#fff;
+    font:700 46px/1 "Helvetica Neue",Arial,sans-serif;box-shadow:0 8px 24px rgba(214,40,40,.35);
+  }
+  .about h2{margin-top:14px;font-size:24px;font-weight:700}
+  .ab-ver{margin-top:2px;font-size:13px;color:var(--win-mute)}
+  .ab-spec{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;max-width:300px;margin:18px auto 0;text-align:left;font-size:12.5px}
+  .ab-spec dt{color:var(--win-mute);text-align:right}
+  .ab-spec a{color:var(--sel);text-decoration:none}
+  .about h3{margin:22px 0 4px;padding-top:14px;border-top:.5px solid var(--win-line);text-align:left;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--win-mute)}
+  .ab-log{list-style:none;text-align:left;font-size:12.5px}
+  .ab-log li{display:grid;grid-template-columns:54px 1fr;gap:2px 10px;padding:8px 0;border-bottom:.5px solid var(--win-line)}
+  .ab-log b{font:600 12px/1.5 var(--mono);color:var(--accent)}
+  .ab-log a{color:inherit;text-decoration:none;line-height:1.5}
+  .ab-log a:hover{text-decoration:underline}
+  .ab-log time{grid-column:2;font:11px var(--mono);color:var(--win-mute)}
+  .ab-log .ab-note{display:block;color:var(--win-mute)}
+
   /* ---------- Calculator ---------- */
   .ic-calc{background:linear-gradient(160deg,#5A5A60,#232325);color:#FF9F0A;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
   .ic-calc svg{stroke-width:2.2}
@@ -542,9 +582,10 @@
   @media (max-width:768px){
     :root{--ds:clamp(28px,calc((100vw - 104px) / 8),52px)}
     .desktop{overflow-y:auto;padding:14px 6px calc(var(--dock-space) + 8px)}
-    .zones-l,.zone-tools,.zone-about{position:static}
+    .zones-l,.zones-r,.zone-about{position:static}
     .zones-l{gap:16px}
-    .zone-tools,.zone-about{margin-top:16px}
+    .zones-r,.zone-about{margin-top:16px}
+    .zones-r{gap:16px}
     .icons,.zone-about .icons{grid-template-columns:repeat(4,1fr);justify-items:center}
     .dicon{width:84px}
     .dicon .ic{--s:56px}
@@ -599,12 +640,12 @@
 
 <header class="menubar">
   <div class="mb-l">
-    <span class="mb-logo" aria-hidden="true">T</span>
+    <button class="mb-logo" id="btnAbout" type="button" data-i18n-title="app.about">T</button>
     <b id="mbApp">TankOS</b>
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v1.3.0</span>
+    <span class="mb-ver">v1.4.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -632,6 +673,7 @@
       </ul>
     </section>
   </div>
+  <div class="zones-r">
   <section class="zone zone-tools" aria-labelledby="zTools">
     <h2 class="zh" id="zTools" data-i18n="os.zone.tools">小工具</h2>
       <ul class="icons">
@@ -640,6 +682,13 @@
         <li><button class="dicon" type="button" data-open="calendar"><span class="ic ic-cal" aria-hidden="true"><b class="ci-wd"></b><b class="ci-d"></b></span><span class="lbl" data-i18n="app.calendar">日曆</span></button></li>
       </ul>
   </section>
+    <button class="wg" id="wgHol" type="button" hidden>
+      <span class="wg-k" data-i18n="os.wg.title">下個連假</span>
+      <span class="wg-n"></span>
+      <span class="wg-name"></span>
+      <span class="wg-when"></span>
+    </button>
+  </div>
   <section class="zone zone-about" aria-labelledby="zAbout">
     <h2 class="zh" id="zAbout" data-i18n="os.zone.about">關於我</h2>
       <ul class="icons">
@@ -792,6 +841,22 @@
   </div>
 </template>
 
+<template id="tpl-about">
+  <div class="body about">
+    <span class="ab-logo" aria-hidden="true">T</span>
+    <h2>TankOS</h2>
+    <p class="ab-ver"></p>
+    <dl class="ab-spec">
+      <dt data-i18n="os.ab.updated"></dt><dd class="ab-updated">—</dd>
+      <dt data-i18n="os.ab.host"></dt><dd class="ab-host"></dd>
+      <dt data-i18n="os.ab.build"></dt><dd data-i18n="os.ab.buildv"></dd>
+      <dt data-i18n="os.ab.src"></dt><dd><a href="https://github.com/tankfinal/portfolio" target="_blank" rel="noopener">tankfinal/portfolio</a></dd>
+    </dl>
+    <h3 data-i18n="os.ab.log"></h3>
+    <ol class="ab-log"><li class="ab-note" data-i18n="os.ab.wait"></li></ol>
+  </div>
+</template>
+
 <template id="tpl-calc">
   <div class="body calc">
     <div class="ca-exp" aria-hidden="true"></div>
@@ -920,6 +985,7 @@
     "app.blocks":  {zh:"方塊消除", en:"Block Puzzle"},
     "app.calc":    {zh:"計算機", en:"Calculator"},
     "app.calendar":{zh:"日曆", en:"Calendar"},
+    "app.about":   {zh:"關於 TankOS", en:"About TankOS"},
     "os.bk.score": {zh:"分數", en:"Score"},
     "os.bk.best":  {zh:"最佳", en:"Best"},
     "os.bk.new":   {zh:"重新開始", en:"New game"},
@@ -943,6 +1009,20 @@
     "os.cal.next": {zh:"下個月", en:"Next month"},
     "os.cal.lunar":{zh:"農曆", en:"Lunar"},
     "os.cal.off":  {zh:"放假日", en:"Day off"},
+    "os.wg.title": {zh:"下個連假", en:"Next long weekend"},
+    "os.wg.after": {zh:"天後", en:"days to go"},
+    "os.wg.tmr":   {zh:"明天", en:"Tomorrow"},
+    "os.wg.now":   {zh:"放假中", en:"On break"},
+    "os.wg.len":   {zh:"連休 {n} 天", en:"{n} days off"},
+    "os.ab.ver":   {zh:"版本 {v}", en:"Version {v}"},
+    "os.ab.updated":{zh:"最後更新", en:"Updated"},
+    "os.ab.host":  {zh:"主機", en:"Hosted on"},
+    "os.ab.build": {zh:"建置", en:"Build"},
+    "os.ab.buildv":{zh:"單一 HTML · 無 build step", en:"Single HTML file · no build step"},
+    "os.ab.src":   {zh:"原始碼", en:"Source"},
+    "os.ab.log":   {zh:"更新紀錄", en:"Changelog"},
+    "os.ab.wait":  {zh:"從 GitHub 讀取中…", en:"Loading from GitHub…"},
+    "os.ab.err":   {zh:"暫時讀不到 GitHub（未登入每小時限 60 次），稍後再試。", en:"Couldn't reach GitHub (60 requests an hour without sign-in). Try again later."},
     "os.lock.hint":{zh:"點一下或按任意鍵解鎖", en:"Click or press any key to unlock"},
     "os.spot.btn": {zh:"Spotlight 搜尋（⌘K）", en:"Spotlight search (⌘K)"},
     "os.spot.ph":  {zh:"搜尋 App、經歷、技術…", en:"Search apps, experience, skills…"},
@@ -984,6 +1064,7 @@
     contact: {w:440, h:450},
     calc:    {w:260, h:400, cls:"calc-win"},
     calendar:{w:560, h:520},
+    about:   {w:420, h:580},
     // The private TankOS (tankfinal/portfolio-private) sits behind Cloudflare Access, whose sign-in page
     // cannot run in an iframe, so this one opens in a new tab instead of a window.
     private: {link:"https://portfolio-private.xarenvich.workers.dev/"}
@@ -1115,6 +1196,7 @@
     if (id === "blocks") initBlocks(el);
     if (id === "calc") initCalc(el);
     if (id === "calendar") initCalendar(el);
+    if (id === "about") initAbout(el);
     wire(el, id);
     return el;
   }
@@ -1481,11 +1563,13 @@
     return ["初", "十", "廿"][Math.floor((n - 1) / 10)] + "一二三四五六七八九".charAt((n - 1) % 10);
   }
   function dayStart(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  var calFocus = null;   // a day for the next Calendar window to open on
 
   function initCalendar(el){
     var title = el.querySelector(".cal-title"), grid = el.querySelector(".cal-grid"), foot = el.querySelector(".cal-foot");
     var lunarLine = el.querySelector(".cal-lunar");
-    var sel = dayStart(new Date()), view = new Date(sel.getFullYear(), sel.getMonth(), 1);
+    var sel = dayStart(calFocus || new Date()), view = new Date(sel.getFullYear(), sel.getMonth(), 1);
+    calFocus = null;
 
     function render(){
       var loc = lang === "en" ? "en-US" : "zh-TW", today = dayStart(new Date());
@@ -1557,6 +1641,98 @@
   paintCalIcons();
   langHooks.push(paintCalIcons);
   setInterval(paintCalIcons, 60000);
+
+  /* ---------- widget: next long weekend ---------- */
+  // A long weekend is 3+ days off in a row that include a day from HOLIDAYS. Looks no further than the data goes.
+  var wg = document.getElementById("wgHol"), wgStart = null;
+  function isOff(d){ return !!holidayOf(d) || d.getDay() === 0 || d.getDay() === 6; }
+  function nextBreak(today){
+    var keys = Object.keys(HOLIDAYS).map(Number).sort(), last = keys[keys.length - 1];
+    var end = new Date(Math.floor(last / 10000), Math.floor(last / 100) % 100 - 1, last % 100 + 3);
+    var d = new Date(today);
+    while (isOff(new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1))) d.setDate(d.getDate() - 1);
+    while (d <= end) {
+      if (!isOff(d)) { d.setDate(d.getDate() + 1); continue; }
+      var start = new Date(d), named = false, names = [];
+      while (isOff(d)) {
+        var h = holidayOf(d);
+        if (h) named = true;
+        if (h && h !== "補假" && names.indexOf(h) < 0) names.push(h);
+        d.setDate(d.getDate() + 1);
+      }
+      var last1 = new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1), len = Math.round((d - start) / 864e5);
+      if (len >= 3 && named && last1 >= today) {
+        if (names.indexOf("春節") > -1) names = ["春節"];
+        return {start:start, end:last1, len:len, name:names.length ? names.map(function(n){ return HOL_SHORT[n] || n; }).join("・") : "補假"};
+      }
+    }
+    return null;
+  }
+  function paintWidget(){
+    var today = dayStart(new Date()), b = nextBreak(today);
+    wg.hidden = !b;
+    if (!b) return;
+    wgStart = b.start;
+    var f = new Intl.DateTimeFormat(lang === "en" ? "en-US" : "zh-TW", {month:"numeric", day:"numeric", weekday:"short"});
+    var wait = Math.round((b.start - today) / 864e5), n = wg.querySelector(".wg-n");
+    if (wait <= 0) n.textContent = t("os.wg.now");
+    else if (wait === 1) n.textContent = t("os.wg.tmr");
+    else { n.textContent = wait; var u = document.createElement("small"); u.textContent = t("os.wg.after"); n.appendChild(u); }
+    var nm = wg.querySelector(".wg-name"), ln = document.createElement("small");
+    nm.textContent = b.name;
+    ln.textContent = t("os.wg.len").replace("{n}", b.len);
+    nm.appendChild(ln);
+    wg.querySelector(".wg-when").textContent = f.format(b.start) + " – " + f.format(b.end);
+  }
+  wg.addEventListener("click", function(){
+    if (!wins.calendar) calFocus = wgStart;
+    open("calendar");
+  });
+  paintWidget();
+  langHooks.push(paintWidget);
+  setInterval(paintWidget, 60000);
+
+  /* ---------- About TankOS ---------- */
+  // The version is read from the menu bar (.mb-ver, the only place it is written). The changelog is every
+  // commit whose subject ends with (vX.Y.Z), which is the README's versioning rule.
+  function localDay(iso){
+    var d = new Date(iso);
+    return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+  }
+  function initAbout(el){
+    var ver = document.querySelector(".mb-ver").textContent.replace(/^v/, "");
+    var h = location.hostname;
+    el.querySelector(".ab-host").textContent = /workers\.dev$/.test(h) ? "Cloudflare Workers" : /github\.io$/.test(h) ? "GitHub Pages" : (h || "local");
+    var log = el.querySelector(".ab-log"), upd = el.querySelector(".ab-updated"), commits = null, failed = false;
+    function render(){
+      el.querySelector(".ab-ver").textContent = t("os.ab.ver").replace("{v}", ver);
+      if (failed) { log.innerHTML = '<li class="ab-note"></li>'; log.firstChild.textContent = t("os.ab.err"); return; }
+      if (!commits) return;
+      upd.textContent = new Intl.DateTimeFormat(lang === "en" ? "en-US" : "zh-TW", {dateStyle: lang === "en" ? "medium" : "long"}).format(new Date(commits[0].commit.committer.date));
+      log.textContent = "";
+      commits.forEach(function(c){
+        var subj = (c.commit.message || "").split("\n")[0];
+        var m = /[（(]v(\d+\.\d+\.\d+)[）)]\s*$/.exec(subj);
+        if (!m) return;
+        var li = document.createElement("li");
+        li.innerHTML = '<b></b><a target="_blank" rel="noopener"></a><time></time>';
+        li.querySelector("b").textContent = "v" + m[1];
+        var a = li.querySelector("a");
+        a.href = c.html_url;
+        a.textContent = subj.slice(0, m.index).replace(/^[a-z]+(\([^)]*\))?!?:\s*/i, "").trim();
+        li.querySelector("time").textContent = localDay(c.commit.committer.date);
+        log.appendChild(li);
+      });
+    }
+    fetch("https://api.github.com/repos/tankfinal/portfolio/commits?per_page=100").then(function(r){
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    }).then(function(list){ commits = list; render(); }).catch(function(){ failed = true; render(); });
+    render();
+    langHooks.push(render);
+    el._stop = function(){ langHooks.splice(langHooks.indexOf(render), 1); };
+  }
+  document.getElementById("btnAbout").addEventListener("click", function(){ open("about"); });
 
   /* ---------- Block Puzzle ---------- */
   // 8x8 board, three pieces at a time. Drag a piece onto the board; a full row or column clears.
@@ -1833,7 +2009,7 @@
     ["exit",             "close this window"]
   ];
   var CMDS = ["help","whoami","neofetch","ls","open","git","kubectl","top","cat","contact","date","clear","exit","sudo"];
-  var OPENABLE = ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","calc","calendar","readme","contact","private"];
+  var OPENABLE = ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","calc","calendar","about","readme","contact","private"];
   var REPOS = SERVICES.map(function(s){ return s.repo; });
 
   function pad(s, n){ s = String(s); while (s.length < n) s += " "; return s; }
@@ -1910,7 +2086,7 @@
       var info = [
         [["tank","b"], "@", ["TankOS","b"]],
         ["-----------"],
-        [["OS","key"], ": TankOS (web) on " + (navigator.platform || "a browser")],
+        [["OS","key"], ": TankOS " + document.querySelector(".mb-ver").textContent + " (web) on " + (navigator.platform || "a browser")],
         [["Host","key"], ": tankfinal.github.io"],
         [["Kernel","key"], ": HTML · CSS · vanilla JS, no build step"],
         [["Uptime","key"], ": " + Math.floor(m / 12) + " yrs " + (m % 12) + " mos writing Java (since 2014)"],
@@ -2190,7 +2366,8 @@
     readme:"關於 經歷 履歷 about bio resume experience",
     terminal:"終端機 shell cli zsh command",
     calc:"計算機 計算 算數 加減乘除 calculator calc math",
-    calendar:"日曆 行事曆 月曆 日期 今天 calendar cal date today",
+    calendar:"日曆 行事曆 月曆 日期 今天 農曆 放假 連假 calendar cal date today holiday",
+    about:"關於 版本 版號 更新紀錄 about version changelog release",
     contact:"聯絡 email mail linkedin github",
     private:"私人 私密 登入 鎖 private login lock"
   };
@@ -2205,7 +2382,7 @@
 
   function index(){
     var items = [];
-    ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","terminal","calc","calendar","readme","contact","private"].forEach(function(id){
+    ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","terminal","calc","calendar","about","readme","contact","private"].forEach(function(id){
       items.push({label:appName(id), sub:"", kind:t("os.spot.app"), icon:iconOf(id), keys:(id + " " + KW[id]).toLowerCase(), go:function(){ open(id); }});
     });
     EXP.forEach(function(e){
