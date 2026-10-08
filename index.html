@@ -426,7 +426,8 @@
   .wg-name{margin-top:8px;font-size:15px;font-weight:700}
   .wg-name small{margin-left:6px;font-size:12px;font-weight:500;opacity:.92}
   .wg-when{margin-top:3px;font-size:12px;opacity:.92}
-  @media (max-width:768px){ .wg{width:auto;margin:0 8px} }
+  /* On phones the widget goes last, so the icon zones keep their place on short screens. */
+  @media (max-width:768px){ .wg{order:1;width:auto;margin:16px 8px 0} }
 
   /* ---------- About TankOS ---------- */
   .about{padding:26px 26px 18px;text-align:center}
@@ -584,8 +585,9 @@
     .desktop{overflow-y:auto;padding:14px 6px calc(var(--dock-space) + 8px)}
     .zones-l,.zones-r,.zone-about{position:static}
     .zones-l{gap:16px}
-    .zones-r,.zone-about{margin-top:16px}
-    .zones-r{gap:16px}
+    .desktop{display:flex;flex-direction:column}
+    .zones-r{display:contents}
+    .zone-tools,.zone-about{margin-top:16px}
     .icons,.zone-about .icons{grid-template-columns:repeat(4,1fr);justify-items:center}
     .dicon{width:84px}
     .dicon .ic{--s:56px}
@@ -645,7 +647,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v1.4.0</span>
+    <span class="mb-ver">v1.4.1</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
