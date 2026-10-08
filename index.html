@@ -652,7 +652,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v1.5.0</span>
+    <span class="mb-ver">v1.5.1</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -1536,11 +1536,25 @@
       return f.resolvedOptions().calendar === "chinese" ? f : null;
     } catch (e) { return null; }
   })();
-  function lunarOf(d){
-    if (!LUNAR) return null;
+  function lunarParts(d){
     var o = {};
     LUNAR.formatToParts(d).forEach(function(p){ o[p.type] = p.value; });
-    return {year:o.yearName, month:o.month, day:+o.day};
+    return o;
+  }
+  // Browsers spell the lunar day differently: "28" on desktop Chrome and Safari, but other engines may
+  // give "28日" or "廿八". Read any of those; failing that, count back to the first day of the lunar month.
+  // Without a lunar month name nothing lunar is shown, rather than "undefined".
+  function lunarOf(d){
+    if (!LUNAR) return null;
+    var o = lunarParts(d);
+    if (!o.month) return null;
+    var txt = o.day || "", day = /\d/.test(txt) ? parseInt(txt.replace(/\D/g, ""), 10) : LUNAR_DAYS.indexOf(txt) + 1;
+    if (!(day >= 1 && day <= 30)) {
+      for (day = 1; day < 30; day++) {
+        if (lunarParts(new Date(d.getFullYear(), d.getMonth(), d.getDate() - day)).month !== o.month) break;
+      }
+    }
+    return {year:o.yearName || "", month:o.month, day:day};
   }
   // Days off from the government office calendar (行政院人事行政總處「政府行政機關辦公日曆表」,
   // data.gov.tw dataset 14718), copied verbatim. Weekends are days off by default, so this only lists
@@ -1563,6 +1577,8 @@
   var HOL_SHORT = {"農曆除夕":"除夕", "孔子誕辰紀念日/教師節":"教師節", "臺灣光復暨金門古寧頭大捷紀念日":"光復節"};
   function holidayOf(d){ return HOLIDAYS[d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate()]; }
 
+  var LUNAR_DAYS = [];
+  for (var ld = 1; ld <= 30; ld++) LUNAR_DAYS.push(lunarDayName(ld));
   // 1 → 初一, 15 → 十五, 21 → 廿一, 30 → 三十
   function lunarDayName(n){
     if (n === 10) return "初十";
@@ -1588,9 +1604,9 @@
         var x = lunarOf(n);
         if (!x) break;
         if (lm.indexOf(x.month) < 0) lm.push(x.month);
-        if (ly.indexOf(x.year) < 0) ly.push(x.year);
+        if (x.year && ly.indexOf(x.year) < 0) ly.push(x.year);
       }
-      lunarLine.textContent = lm.length ? t("os.cal.lunar") + " " + lm.join(" – ") + " · " + ly.join(" – ") + "年" : "";
+      lunarLine.textContent = lm.length ? t("os.cal.lunar") + " " + lm.join(" – ") + (ly.length ? " · " + ly.join(" – ") + "年" : "") : "";
       var wd = new Intl.DateTimeFormat(loc, {weekday: lang === "en" ? "short" : "narrow"});
       var html = "";
       // 1970-01-04 was a Sunday.
@@ -1615,7 +1631,7 @@
       foot.textContent = new Intl.DateTimeFormat(loc, {year:"numeric", month:"long", day:"numeric", weekday:"long"}).format(sel) +
         " · " + new Intl.RelativeTimeFormat(loc, {numeric:"auto"}).format(diff, "day") +
         (hs ? " · " + hs : (sel.getDay() === 0 || sel.getDay() === 6) ? " · " + t("os.cal.off") : "") +
-        (ls ? " · " + t("os.cal.lunar") + " " + ls.year + "年" + ls.month + lunarDayName(ls.day) : "");
+        (ls ? " · " + t("os.cal.lunar") + " " + (ls.year ? ls.year + "年" : "") + ls.month + lunarDayName(ls.day) : "");
     }
 
     grid.addEventListener("click", function(e){
