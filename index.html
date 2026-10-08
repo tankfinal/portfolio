@@ -454,6 +454,9 @@
   .cal-day span{width:28px;height:28px;display:grid;place-items:center;border-radius:50%}
   .cal-day:hover span{background:rgba(127,127,127,.14)}
   .cal-day.out{color:var(--win-mute);opacity:.6}
+  .cal-day.off span{color:#D62828}
+  .cal-day.hol{background:rgba(214,40,40,.07)}
+  .cal-day small.hol{color:#D62828;font-weight:600}
   .cal-day.sel span{box-shadow:inset 0 0 0 1.5px #D62828}
   .cal-day.today span{background:#D62828;color:#fff;font-weight:700;box-shadow:none}
   .cal-foot{padding-top:8px;border-top:.5px solid var(--win-line);font-size:12.5px;color:var(--win-soft)}
@@ -601,7 +604,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v1.2.0</span>
+    <span class="mb-ver">v1.3.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -939,6 +942,7 @@
     "os.cal.prev": {zh:"上個月", en:"Previous month"},
     "os.cal.next": {zh:"下個月", en:"Next month"},
     "os.cal.lunar":{zh:"農曆", en:"Lunar"},
+    "os.cal.off":  {zh:"放假日", en:"Day off"},
     "os.lock.hint":{zh:"點一下或按任意鍵解鎖", en:"Click or press any key to unlock"},
     "os.spot.btn": {zh:"Spotlight 搜尋（⌘K）", en:"Spotlight search (⌘K)"},
     "os.spot.ph":  {zh:"搜尋 App、經歷、技術…", en:"Search apps, experience, skills…"},
@@ -1448,6 +1452,27 @@
     LUNAR.formatToParts(d).forEach(function(p){ o[p.type] = p.value; });
     return {year:o.yearName, month:o.month, day:+o.day};
   }
+  // Days off from the government office calendar (行政院人事行政總處「政府行政機關辦公日曆表」,
+  // data.gov.tw dataset 14718), copied verbatim. Weekends are days off by default, so this only lists
+  // named holidays and weekday 補假; neither year has a weekend workday. DGPA publishes next year's
+  // calendar by June 30: add it here then. Years not listed still show weekends in red.
+  var HOLIDAYS = {
+    20260101:"開國紀念日", 20260215:"小年夜", 20260216:"農曆除夕", 20260217:"春節", 20260218:"春節", 20260219:"春節",
+    20260220:"補假", 20260227:"補假", 20260228:"和平紀念日", 20260403:"補假",
+    20260404:"兒童節", 20260405:"清明節", 20260406:"補假", 20260501:"勞動節",
+    20260619:"端午節", 20260925:"中秋節", 20260928:"孔子誕辰紀念日/教師節", 20261009:"補假",
+    20261010:"國慶日", 20261025:"臺灣光復暨金門古寧頭大捷紀念日", 20261026:"補假", 20261225:"行憲紀念日",
+    20270101:"開國紀念日", 20270204:"小年夜", 20270205:"農曆除夕", 20270206:"春節", 20270207:"春節", 20270208:"春節",
+    20270209:"補假", 20270210:"補假", 20270228:"和平紀念日", 20270301:"補假",
+    20270404:"兒童節", 20270405:"清明節", 20270406:"補假", 20270430:"補假",
+    20270501:"勞動節", 20270609:"端午節", 20270915:"中秋節", 20270928:"孔子誕辰紀念日/教師節",
+    20271010:"國慶日", 20271011:"補假", 20271025:"臺灣光復暨金門古寧頭大捷紀念日", 20271224:"補假",
+    20271225:"行憲紀念日", 20271231:"補假"
+  };
+  // Names too long for a day cell; the footer keeps the full name.
+  var HOL_SHORT = {"農曆除夕":"除夕", "孔子誕辰紀念日/教師節":"教師節", "臺灣光復暨金門古寧頭大捷紀念日":"光復節"};
+  function holidayOf(d){ return HOLIDAYS[d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate()]; }
+
   // 1 → 初一, 15 → 十五, 21 → 廿一, 30 → 三十
   function lunarDayName(n){
     if (n === 10) return "初十";
@@ -1485,16 +1510,19 @@
           (d.getMonth() !== view.getMonth() ? " out" : "") +
           (dayKey(d) === dayKey(today) ? " today" : "") +
           (dayKey(d) === dayKey(sel) ? " sel" : "");
-        var lu = lunarOf(d), small = "";
-        // The first day of a lunar month shows the month name instead, as paper calendars do.
-        if (lu) small = lu.day === 1 ? '<small class="m1">' + lu.month + '</small>' : '<small>' + lunarDayName(lu.day) + '</small>';
+        var lu = lunarOf(d), hol = holidayOf(d), small = "";
+        if (hol || d.getDay() === 0 || d.getDay() === 6) cls += " off";
+        // A holiday's name takes the lunar line; the first day of a lunar month shows the month name, as paper calendars do.
+        if (hol) { cls += " hol"; small = '<small class="hol">' + (HOL_SHORT[hol] || hol) + '</small>'; }
+        else if (lu) small = lu.day === 1 ? '<small class="m1">' + lu.month + '</small>' : '<small>' + lunarDayName(lu.day) + '</small>';
         html += '<button type="button" class="' + cls + '" data-t="' + d.getTime() + '"><span>' + d.getDate() + '</span>' + small + '</button>';
       }
       grid.innerHTML = html;
       var diff = Math.round((sel - today) / 864e5);
-      var ls = lunarOf(sel);
+      var ls = lunarOf(sel), hs = holidayOf(sel);
       foot.textContent = new Intl.DateTimeFormat(loc, {year:"numeric", month:"long", day:"numeric", weekday:"long"}).format(sel) +
         " · " + new Intl.RelativeTimeFormat(loc, {numeric:"auto"}).format(diff, "day") +
+        (hs ? " · " + hs : (sel.getDay() === 0 || sel.getDay() === 6) ? " · " + t("os.cal.off") : "") +
         (ls ? " · " + t("os.cal.lunar") + " " + ls.year + "年" + ls.month + lunarDayName(ls.day) : "");
     }
 
