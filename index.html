@@ -440,13 +440,17 @@
   .ci-d{margin-top:calc(var(--s) * .03);font:300 calc(var(--s) * .48)/1 var(--sys);letter-spacing:-.02em}
   .cal{display:flex;flex-direction:column;padding:14px 16px 10px;user-select:none;-webkit-user-select:none}
   .cal-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
-  .cal-title{margin-right:auto;font-size:20px;font-weight:700}
+  .cal-tt{margin-right:auto}
+  .cal-title{font-size:20px;font-weight:700}
+  .cal-lunar{margin-top:2px;font-size:12px;color:var(--win-mute)}
   .cal-nav{display:flex;gap:4px}
   .cal-nav button{height:26px;min-width:30px;padding:0 10px;border-radius:6px;border:.5px solid var(--win-line);background:var(--win-bg);font-size:13px;cursor:pointer}
   .cal-nav button:hover{background:rgba(127,127,127,.14)}
   .cal-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:auto repeat(6,1fr)}
   .cal-wd{padding:6px 0;text-align:center;font-size:11.5px;font-weight:600;color:var(--win-mute)}
-  .cal-day{display:flex;justify-content:center;padding-top:5px;border-top:.5px solid var(--win-line);font-size:14px;font-variant-numeric:tabular-nums;cursor:pointer}
+  .cal-day{display:flex;flex-direction:column;align-items:center;gap:1px;padding-top:4px;border-top:.5px solid var(--win-line);font-size:14px;font-variant-numeric:tabular-nums;cursor:pointer}
+  .cal-day small{font-size:10px;line-height:1.2;color:var(--win-mute);white-space:nowrap}
+  .cal-day small.m1{color:#D62828;font-weight:600}
   .cal-day span{width:28px;height:28px;display:grid;place-items:center;border-radius:50%}
   .cal-day:hover span{background:rgba(127,127,127,.14)}
   .cal-day.out{color:var(--win-mute);opacity:.6}
@@ -597,7 +601,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v1.1.0</span>
+    <span class="mb-ver">v1.2.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -816,7 +820,7 @@
 <template id="tpl-calendar">
   <div class="body cal">
     <div class="cal-head">
-      <h2 class="cal-title"></h2>
+      <div class="cal-tt"><h2 class="cal-title"></h2><p class="cal-lunar"></p></div>
       <div class="cal-nav">
         <button type="button" data-d="-1" data-i18n-title="os.cal.prev">‹</button>
         <button type="button" data-d="0" data-i18n="os.cal.today"></button>
@@ -934,6 +938,7 @@
     "os.cal.today":{zh:"今天", en:"Today"},
     "os.cal.prev": {zh:"上個月", en:"Previous month"},
     "os.cal.next": {zh:"下個月", en:"Next month"},
+    "os.cal.lunar":{zh:"農曆", en:"Lunar"},
     "os.lock.hint":{zh:"點一下或按任意鍵解鎖", en:"Click or press any key to unlock"},
     "os.spot.btn": {zh:"Spotlight 搜尋（⌘K）", en:"Spotlight search (⌘K)"},
     "os.spot.ph":  {zh:"搜尋 App、經歷、技術…", en:"Search apps, experience, skills…"},
@@ -974,7 +979,7 @@
     terminal:{w:700, h:560, cls:"term-win"},
     contact: {w:440, h:450},
     calc:    {w:260, h:400, cls:"calc-win"},
-    calendar:{w:560, h:480},
+    calendar:{w:560, h:520},
     // The private TankOS (tankfinal/portfolio-private) sits behind Cloudflare Access, whose sign-in page
     // cannot run in an iframe, so this one opens in a new tab instead of a window.
     private: {link:"https://portfolio-private.xarenvich.workers.dev/"}
@@ -1428,15 +1433,47 @@
   /* ---------- Calendar ---------- */
   // Month view with weeks starting on Sunday. Today is the red circle; clicking a day selects it.
   function dayKey(d){ return d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate(); }
+
+  // Lunar dates come from the browser's own Chinese calendar (Intl, ca-chinese); no table to maintain.
+  // Browsers without it simply show no lunar line.
+  var LUNAR = (function(){
+    try {
+      var f = new Intl.DateTimeFormat("zh-TW-u-ca-chinese", {year:"numeric", month:"long", day:"numeric"});
+      return f.resolvedOptions().calendar === "chinese" ? f : null;
+    } catch (e) { return null; }
+  })();
+  function lunarOf(d){
+    if (!LUNAR) return null;
+    var o = {};
+    LUNAR.formatToParts(d).forEach(function(p){ o[p.type] = p.value; });
+    return {year:o.yearName, month:o.month, day:+o.day};
+  }
+  // 1 → 初一, 15 → 十五, 21 → 廿一, 30 → 三十
+  function lunarDayName(n){
+    if (n === 10) return "初十";
+    if (n === 20) return "二十";
+    if (n === 30) return "三十";
+    return ["初", "十", "廿"][Math.floor((n - 1) / 10)] + "一二三四五六七八九".charAt((n - 1) % 10);
+  }
   function dayStart(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 
   function initCalendar(el){
     var title = el.querySelector(".cal-title"), grid = el.querySelector(".cal-grid"), foot = el.querySelector(".cal-foot");
+    var lunarLine = el.querySelector(".cal-lunar");
     var sel = dayStart(new Date()), view = new Date(sel.getFullYear(), sel.getMonth(), 1);
 
     function render(){
       var loc = lang === "en" ? "en-US" : "zh-TW", today = dayStart(new Date());
       title.textContent = new Intl.DateTimeFormat(loc, {year:"numeric", month:"long"}).format(view);
+      // Lunar months (and years) this Gregorian month spans, e.g. 農曆 八月 – 九月 · 丙午年
+      var lm = [], ly = [];
+      for (var n = new Date(view); n.getMonth() === view.getMonth(); n.setDate(n.getDate() + 1)) {
+        var x = lunarOf(n);
+        if (!x) break;
+        if (lm.indexOf(x.month) < 0) lm.push(x.month);
+        if (ly.indexOf(x.year) < 0) ly.push(x.year);
+      }
+      lunarLine.textContent = lm.length ? t("os.cal.lunar") + " " + lm.join(" – ") + " · " + ly.join(" – ") + "年" : "";
       var wd = new Intl.DateTimeFormat(loc, {weekday: lang === "en" ? "short" : "narrow"});
       var html = "";
       // 1970-01-04 was a Sunday.
@@ -1448,12 +1485,17 @@
           (d.getMonth() !== view.getMonth() ? " out" : "") +
           (dayKey(d) === dayKey(today) ? " today" : "") +
           (dayKey(d) === dayKey(sel) ? " sel" : "");
-        html += '<button type="button" class="' + cls + '" data-t="' + d.getTime() + '"><span>' + d.getDate() + '</span></button>';
+        var lu = lunarOf(d), small = "";
+        // The first day of a lunar month shows the month name instead, as paper calendars do.
+        if (lu) small = lu.day === 1 ? '<small class="m1">' + lu.month + '</small>' : '<small>' + lunarDayName(lu.day) + '</small>';
+        html += '<button type="button" class="' + cls + '" data-t="' + d.getTime() + '"><span>' + d.getDate() + '</span>' + small + '</button>';
       }
       grid.innerHTML = html;
       var diff = Math.round((sel - today) / 864e5);
+      var ls = lunarOf(sel);
       foot.textContent = new Intl.DateTimeFormat(loc, {year:"numeric", month:"long", day:"numeric", weekday:"long"}).format(sel) +
-        " · " + new Intl.RelativeTimeFormat(loc, {numeric:"auto"}).format(diff, "day");
+        " · " + new Intl.RelativeTimeFormat(loc, {numeric:"auto"}).format(diff, "day") +
+        (ls ? " · " + t("os.cal.lunar") + " " + ls.year + "年" + ls.month + lunarDayName(ls.day) : "");
     }
 
     grid.addEventListener("click", function(e){
