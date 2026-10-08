@@ -139,7 +139,7 @@ sips -s format jpeg -s formatOptions 78 shot.png --out out.jpg
 
 ## 排行榜 API（`api/`）
 
-方塊消除的排行榜。獨立的 Cloudflare Worker `blocks-leaderboard`，資料放 Cloudflare D1（同名資料庫），都在免費額度內。跟靜態站分開部署：GitHub Pages 與 `portfolio` Worker 都只送靜態檔，`api/` 已列進 `.assetsignore`。
+方塊消除的排行榜。獨立的 Cloudflare Worker `blocks-leaderboard`，資料放 Cloudflare D1（同名資料庫），都在免費額度內。跟靜態站分開部署（見下方「部署」）：GitHub Pages 與 `portfolio` Worker 都只送靜態檔，`api/` 已列進 `.assetsignore`。
 
 ```
 GET  https://blocks-leaderboard.xarenvich.workers.dev/scores               → {top}
@@ -154,11 +154,18 @@ POST https://blocks-leaderboard.xarenvich.workers.dev/scores {name, score} → {
 
 ### 部署
 
-```bash
-cd api
-npx wrangler login                                   # 第一次
-npx wrangler deploy
-```
+Push 到 `main` 且改到 `api/` 底下的檔案 → Cloudflare Workers Builds 自動部署 `blocks-leaderboard`。只改網頁的 push 不會觸發它。Dashboard 上的設定（`blocks-leaderboard` → Settings → Build）：
+
+| 設定 | 值 |
+|---|---|
+| Git branch | `main` |
+| Root directory | `/api/` |
+| Build command | 空白 |
+| Deploy command | `npx wrangler deploy` |
+| Build watch paths | Include `api/*` |
+| Enable Preview Builds | 關閉 |
+
+Dashboard 上的 Worker 名稱要跟 `wrangler.jsonc` 的 `name` 一致，不一致建置會失敗。急著上線或 Workers Builds 出狀況時，也可以在 `api/` 底下手動 `npx wrangler login` 再 `npx wrangler deploy`。
 
 第一次建資料庫時，`npx wrangler d1 create blocks-leaderboard` 把產生的 `database_id` 填進 `wrangler.jsonc`，再跑 `npx wrangler d1 execute blocks-leaderboard --remote --file=schema.sql` 建表。
 
