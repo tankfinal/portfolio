@@ -74,13 +74,15 @@ macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.htm
 
 - **設計語彙跟經典版相反**：漸層桌布、毛玻璃選單列與 Dock、圓角、陰影都在這裡用。桌布是九州自駕時拍的阿蘇米塚（`images/wallpaper-komezuka.jpg`，手機版吃 `-sm`），`background-size:cover` 滿版，上面疊一層白色漸層淡化，讓 icon 和視窗字好讀。
 - **視窗**：紅黃綠三顆鈕分別是關閉、縮到 Dock、放大（雙擊標題列也是放大）。標題列可拖曳，右下角可縮放。768px 以下視窗一律全螢幕、不可拖曳，桌面 icon 改成點一下就開。
-- **桌面分區**：icon 依類型分三區，各區有小標（`os.zone.*`，中英雙語）：左上「作品」放 live 站、其下「實驗區」放活動監視器與方塊消除、左下「關於我」放 README、終端機、聯絡我。三區都是兩欄，不會伸進預設開啟的 README 視窗底下。新增 App 時放進對應區塊的 `<ul class="icons">`。768px 以下三區改成由上往下排，每列四顆。
+- **桌面分區**：icon 依類型分四區，各區有小標（`os.zone.*`，中英雙語）：左上「作品」放 live 站、其下「實驗區」放活動監視器與方塊消除、右上「小工具」放終端機、計算機、日曆、左下「關於我」放 README 與聯絡我。四區都是兩欄，不會伸進預設開啟的 README 視窗底下。新增 App 時放進對應區塊的 `<ul class="icons">`。768px 以下四區改成由上往下排，每列四顆。
 - **App 視窗用 iframe 直接跑 live 站**，左側欄是經典版同一份作品介紹。新增 App：在 `APPS` 加一筆（`k` 指向經典版的作品 key、`url`、`src`、`spec`），再補桌面 icon 和 Dock 各一顆按鈕；要讓活動監視器和 `kubectl` 看得到，`SERVICES` 也加一筆；Spotlight 的別名寫在 `KW`。被嵌的站不能送 `X-Frame-Options` / `frame-ancestors`，GitHub Pages 預設沒有。
 - **私人版入口**：選單列右側的 🔒「私人版」，開新分頁到 [portfolio-private](https://github.com/tankfinal/portfolio-private)（Cloudflare Access 保護），跟私人版選單列的「公開版」對稱。手機只剩鎖頭。Spotlight 與 `open private` 也能開（`APPS.private` 用 `link` 標記，`open()` 直接開新分頁）。Access 登入頁不能放進 iframe，所以不開視窗。私人內容一律不進這個 repo，這裡只有入口。
 - **鎖定畫面**：每次進站都會出現（米塚模糊背景、時鐘、Tank Yang），點一下或按任意鍵解鎖。markup 帶 `hidden`，由 JS 打開，所以沒有 JS 時不會擋住頁面。
 - **Spotlight**：⌘K / Ctrl+K、`/`，或選單列的放大鏡。索引在 `index()`：App、經歷（`e1`–`e6`）、技術名詞、動作（切語言、經典版、GitHub）。
 - **活動監視器**（`activity`，只在桌面和 Spotlight，不放 Dock）：瀏覽器直接對 `SERVICES` 每個站發 `fetch(no-store)`，顯示狀態、延遲、趨勢線、HTML 大小、`Last-Modified` 當作最後部署時間，每 15 秒更新，關視窗就停。CORS 被擋時退回 `no-cors`，只能判斷有沒有活著。
 - **方塊消除**（`blocks`，桌面與 Spotlight）：8×8 盤面、一次給三塊，拖曳放置，填滿整排或整列就消除，連擊加分，三塊都放不下就結束。開窗先出現玩法說明卡，按「開始遊戲」才發牌。方塊是純 CSS 的寶石切面（四邊 border 做斜面＋`::after` 高光，顏色在 `.j-*` 的變數）。消除特效：碎片噴散、整排光束掃過、盤面震動（多條或連擊震更大），`prefers-reduced-motion` 時全部關掉。最佳分數存在 `localStorage.blocks.best`。手機拖曳時方塊會浮在手指上方，避免被擋住。
+- **計算機**（`calc`，桌面與 Spotlight）：照 macOS 基本計算機的算法，運算子套用到目前的累計值，`=` 連按會重複上一步。結果取 12 位有效數字（0.1 + 0.2 顯示 0.3），除以 0 顯示「錯誤」。視窗在最前面時吃鍵盤：數字、`+ - * /`、`Enter`、`Backspace`、`Esc`，這時 `/` 是除號、不開 Spotlight。768px 以下鍵盤貼底、按鍵變圓。
+- **日曆**（`calendar`，桌面與 Spotlight）：月曆，週日開頭，今天是紅圈；點日期會在底部顯示完整日期與距今幾天。桌面 icon 顯示今天的星期與日期，每分鐘更新。
 - **Terminal** 是假的，指令寫死在 `run()` 裡；開視窗時會先列出 `HELP`。有幾個吃真資料：`git log [repo]`（GitHub API，未登入每小時 60 次）、`kubectl get pods`（跟活動監視器同一個 `probe()`）、`neofetch`、`top`。Tab 會補指令、`open` 的 App 名稱和 `git log` 的 repo。彩蛋（不列在 help）：`sudo`、`sudo rm -rf /`、`rm`、`deploy`（禮拜五不同）、`乖乖`、`vim`、`咖啡`、`hi`、`fortune`、`bug`，中文在上、英文在下。
 
 ### 文案與經典版同步

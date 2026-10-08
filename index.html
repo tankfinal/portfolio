@@ -126,6 +126,8 @@
   .zone-proj{--zc:#FF7A50}
   .zone-lab{--zc:#5BE37D}
   .zone-about{--zc:#8AA4FF}
+  /* Utilities sit top right, clear of the README window that opens on load. */
+  .zone-tools{position:absolute;top:14px;right:14px;--zc:#FFC94D}
   .icons{list-style:none;display:grid;grid-template-columns:repeat(2,96px);gap:6px 2px}
   .dicon{width:96px;padding:6px 4px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;border-radius:8px}
   .dicon .ic{--s:60px}
@@ -407,6 +409,51 @@
   }
   .act-foot{padding:9px 16px;font-size:11.5px;color:var(--win-mute);border-top:.5px solid var(--win-line)}
 
+  /* ---------- Calculator ---------- */
+  .ic-calc{background:linear-gradient(160deg,#5A5A60,#232325);color:#FF9F0A;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
+  .ic-calc svg{stroke-width:2.2}
+  .win.calc-win{background:#1C1C1E}
+  .win.calc-win .bar{background:#2A2A2C;border-color:#000}
+  .win.calc-win .title{color:#D0D0D4}
+  .win.calc-win:not(.focused) .title{color:#7D7D84}
+  .calc{display:flex;flex-direction:column;padding:6px 10px 10px;background:#1C1C1E;color:#fff;overflow:hidden;user-select:none;-webkit-user-select:none}
+  .ca-exp{min-height:18px;text-align:right;font-size:13px;color:#8E8E93;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ca-out{display:block;margin:0 2px 8px;text-align:right;font-size:46px;font-weight:300;line-height:1.15;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden}
+  .ca-keys{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:8px}
+  .ca-keys button{border-radius:12px;background:#3A3A3C;font-size:22px;color:#fff;cursor:pointer;transition:filter .08s}
+  .ca-keys button:hover{filter:brightness(1.15)}
+  .ca-keys button:active,.ca-keys button.on{filter:brightness(1.45)}
+  .ca-keys .fn{background:#5C5C5F;font-size:18px}
+  .ca-keys .op{background:#FF9F0A;font-size:26px}
+  .ca-keys .op.sel{background:#fff;color:#FF9F0A}
+  .ca-keys .zero{grid-column:span 2;text-align:left;padding-left:22px}
+  @media (max-width:768px){
+    .calc{justify-content:flex-end;padding:10px 12px 14px}
+    .ca-out{font-size:64px}
+    .ca-keys{flex:none;grid-auto-rows:72px;gap:10px}
+    .ca-keys button{border-radius:999px;font-size:26px}
+  }
+
+  /* ---------- Calendar ---------- */
+  .ic-cal{background:#fff;color:#1D1D1F;display:flex;flex-direction:column;align-items:center;overflow:hidden}
+  .ci-wd{margin-top:calc(var(--s) * .11);font:600 calc(var(--s) * .16)/1 var(--sys);color:#E8453C}
+  .ci-d{margin-top:calc(var(--s) * .03);font:300 calc(var(--s) * .48)/1 var(--sys);letter-spacing:-.02em}
+  .cal{display:flex;flex-direction:column;padding:14px 16px 10px;user-select:none;-webkit-user-select:none}
+  .cal-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .cal-title{margin-right:auto;font-size:20px;font-weight:700}
+  .cal-nav{display:flex;gap:4px}
+  .cal-nav button{height:26px;min-width:30px;padding:0 10px;border-radius:6px;border:.5px solid var(--win-line);background:var(--win-bg);font-size:13px;cursor:pointer}
+  .cal-nav button:hover{background:rgba(127,127,127,.14)}
+  .cal-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:auto repeat(6,1fr)}
+  .cal-wd{padding:6px 0;text-align:center;font-size:11.5px;font-weight:600;color:var(--win-mute)}
+  .cal-day{display:flex;justify-content:center;padding-top:5px;border-top:.5px solid var(--win-line);font-size:14px;font-variant-numeric:tabular-nums;cursor:pointer}
+  .cal-day span{width:28px;height:28px;display:grid;place-items:center;border-radius:50%}
+  .cal-day:hover span{background:rgba(127,127,127,.14)}
+  .cal-day.out{color:var(--win-mute);opacity:.6}
+  .cal-day.sel span{box-shadow:inset 0 0 0 1.5px #D62828}
+  .cal-day.today span{background:#D62828;color:#fff;font-weight:700;box-shadow:none}
+  .cal-foot{padding-top:8px;border-top:.5px solid var(--win-line);font-size:12.5px;color:var(--win-soft)}
+
   /* Terminal colours used by neofetch / git log / kubectl */
   .t-out .red{color:#FF6B5E}
   .t-out .yel{color:#E3B341}
@@ -488,9 +535,9 @@
   @media (max-width:768px){
     :root{--ds:clamp(28px,calc((100vw - 104px) / 8),52px)}
     .desktop{overflow-y:auto;padding:14px 6px calc(var(--dock-space) + 8px)}
-    .zones-l,.zone-about{position:static}
+    .zones-l,.zone-tools,.zone-about{position:static}
     .zones-l{gap:16px}
-    .zone-about{margin-top:16px}
+    .zone-tools,.zone-about{margin-top:16px}
     .icons,.zone-about .icons{grid-template-columns:repeat(4,1fr);justify-items:center}
     .dicon{width:84px}
     .dicon .ic{--s:56px}
@@ -524,6 +571,7 @@
   <symbol id="g-pulse" viewBox="0 0 24 24"><path d="M2.5 12.5h4l2.2-5.5 4 11 2.6-7 1.6 1.5h4.6"/></symbol>
   <symbol id="g-blocks" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect x="3.5" y="13" width="7.5" height="7.5" rx="1.6"/><path d="M15 17h4M17 15v4" opacity=".7"/></symbol>
   <symbol id="g-term" viewBox="0 0 24 24"><path d="M5 7l5 5-5 5"/><path d="M12.5 17.5H19"/></symbol>
+  <symbol id="g-calc" viewBox="0 0 24 24"><path d="M4.5 7.5h6M7.5 4.5v6M13.5 7.5h6M5.2 14.2l4.6 4.6M9.8 14.2l-4.6 4.6M13.5 15h6M13.5 18h6"/></symbol>
   <symbol id="g-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.2"/><path d="M3.8 7.2l8.2 6 8.2-6"/></symbol>
   <symbol id="g-doc" viewBox="0 0 48 60">
     <path d="M6.5 1.5H31L44.5 15V56a2.5 2.5 0 0 1-2.5 2.5H6.5A2.5 2.5 0 0 1 4 56V4a2.5 2.5 0 0 1 2.5-2.5z" fill="#FDFDFD" stroke="none"/>
@@ -549,7 +597,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v1.0.0</span>
+    <span class="mb-ver">v1.1.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -577,11 +625,18 @@
       </ul>
     </section>
   </div>
+  <section class="zone zone-tools" aria-labelledby="zTools">
+    <h2 class="zh" id="zTools" data-i18n="os.zone.tools">小工具</h2>
+      <ul class="icons">
+        <li><button class="dicon" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="lbl" data-i18n="app.terminal">終端機</span></button></li>
+        <li><button class="dicon" type="button" data-open="calc"><span class="ic ic-calc"><svg><use href="#g-calc"/></svg></span><span class="lbl" data-i18n="app.calc">計算機</span></button></li>
+        <li><button class="dicon" type="button" data-open="calendar"><span class="ic ic-cal" aria-hidden="true"><b class="ci-wd"></b><b class="ci-d"></b></span><span class="lbl" data-i18n="app.calendar">日曆</span></button></li>
+      </ul>
+  </section>
   <section class="zone zone-about" aria-labelledby="zAbout">
     <h2 class="zh" id="zAbout" data-i18n="os.zone.about">關於我</h2>
       <ul class="icons">
         <li><button class="dicon" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="lbl">README.md</span></button></li>
-        <li><button class="dicon" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="lbl" data-i18n="app.terminal">終端機</span></button></li>
         <li><button class="dicon" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="lbl" data-i18n="app.contact">聯絡我</span></button></li>
       </ul>
   </section>
@@ -730,6 +785,49 @@
   </div>
 </template>
 
+<template id="tpl-calc">
+  <div class="body calc">
+    <div class="ca-exp" aria-hidden="true"></div>
+    <output class="ca-out" aria-live="polite">0</output>
+    <div class="ca-keys">
+      <button type="button" class="fn" data-k="clear">AC</button>
+      <button type="button" class="fn" data-k="neg">+/−</button>
+      <button type="button" class="fn" data-k="%">%</button>
+      <button type="button" class="op" data-k="/">÷</button>
+      <button type="button" data-k="7">7</button>
+      <button type="button" data-k="8">8</button>
+      <button type="button" data-k="9">9</button>
+      <button type="button" class="op" data-k="*">×</button>
+      <button type="button" data-k="4">4</button>
+      <button type="button" data-k="5">5</button>
+      <button type="button" data-k="6">6</button>
+      <button type="button" class="op" data-k="-">−</button>
+      <button type="button" data-k="1">1</button>
+      <button type="button" data-k="2">2</button>
+      <button type="button" data-k="3">3</button>
+      <button type="button" class="op" data-k="+">+</button>
+      <button type="button" class="zero" data-k="0">0</button>
+      <button type="button" data-k=".">.</button>
+      <button type="button" class="op" data-k="=">=</button>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-calendar">
+  <div class="body cal">
+    <div class="cal-head">
+      <h2 class="cal-title"></h2>
+      <div class="cal-nav">
+        <button type="button" data-d="-1" data-i18n-title="os.cal.prev">‹</button>
+        <button type="button" data-d="0" data-i18n="os.cal.today"></button>
+        <button type="button" data-d="1" data-i18n-title="os.cal.next">›</button>
+      </div>
+    </div>
+    <div class="cal-grid"></div>
+    <p class="cal-foot"></p>
+  </div>
+</template>
+
 <script>
 (function(){
   var I18N = {
@@ -813,6 +911,8 @@
                     en:"If any of this is interesting to you, or you want to talk backend and engineering management, get in touch."},
     "app.activity":{zh:"活動監視器", en:"Activity Monitor"},
     "app.blocks":  {zh:"方塊消除", en:"Block Puzzle"},
+    "app.calc":    {zh:"計算機", en:"Calculator"},
+    "app.calendar":{zh:"日曆", en:"Calendar"},
     "os.bk.score": {zh:"分數", en:"Score"},
     "os.bk.best":  {zh:"最佳", en:"Best"},
     "os.bk.new":   {zh:"重新開始", en:"New game"},
@@ -829,6 +929,11 @@
     "os.zone.proj":{zh:"作品", en:"Projects"},
     "os.zone.lab": {zh:"實驗區", en:"Lab"},
     "os.zone.about":{zh:"關於我", en:"About me"},
+    "os.zone.tools":{zh:"小工具", en:"Utilities"},
+    "os.calc.err": {zh:"錯誤", en:"Error"},
+    "os.cal.today":{zh:"今天", en:"Today"},
+    "os.cal.prev": {zh:"上個月", en:"Previous month"},
+    "os.cal.next": {zh:"下個月", en:"Next month"},
     "os.lock.hint":{zh:"點一下或按任意鍵解鎖", en:"Click or press any key to unlock"},
     "os.spot.btn": {zh:"Spotlight 搜尋（⌘K）", en:"Spotlight search (⌘K)"},
     "os.spot.ph":  {zh:"搜尋 App、經歷、技術…", en:"Search apps, experience, skills…"},
@@ -868,6 +973,8 @@
     readme:  {w:680, h:660},
     terminal:{w:700, h:560, cls:"term-win"},
     contact: {w:440, h:450},
+    calc:    {w:260, h:400, cls:"calc-win"},
+    calendar:{w:560, h:480},
     // The private TankOS (tankfinal/portfolio-private) sits behind Cloudflare Access, whose sign-in page
     // cannot run in an iframe, so this one opens in a new tab instead of a window.
     private: {link:"https://portfolio-private.xarenvich.workers.dev/"}
@@ -997,6 +1104,8 @@
     if (id === "terminal") initTerm(el);
     if (id === "activity") initActivity(el);
     if (id === "blocks") initBlocks(el);
+    if (id === "calc") initCalc(el);
+    if (id === "calendar") initCalendar(el);
     wire(el, id);
     return el;
   }
@@ -1219,6 +1328,165 @@
       langHooks.splice(langHooks.indexOf(render), 1);
     };
   }
+
+  /* ---------- Calculator ---------- */
+  // Works like the basic macOS calculator: an operator applies to the running total, = repeats the last step.
+  // Results are rounded to 12 significant digits so 0.1 + 0.2 shows 0.3.
+  function initCalc(el){
+    var out = el.querySelector(".ca-out"), exp = el.querySelector(".ca-exp"), clr = el.querySelector('[data-k="clear"]');
+    var SYM = {"+":"+", "-":"−", "*":"×", "/":"÷"};
+    var KEYS = {"Enter":"=", "=":"=", "Escape":"clear", "Delete":"clear", "Backspace":"back", "x":"*", "X":"*", ",":"."};
+    var acc, op, cur, fresh, entered, last, err;
+
+    function reset(){ acc = null; op = null; cur = "0"; fresh = true; entered = false; last = null; err = false; }
+    function calc(a, o, b){
+      var r = o === "+" ? a + b : o === "-" ? a - b : o === "*" ? a * b : a / b;
+      return parseFloat(r.toPrecision(12));
+    }
+    function show(v){
+      var n = parseFloat(v);
+      if (/e/i.test(v) || Math.abs(n) >= 1e15) return n.toExponential(6).replace(/\.?0+e/, "e").replace("e+", "e");
+      var neg = v.charAt(0) === "-", p = (neg ? v.slice(1) : v).split(".");
+      p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return (neg ? "-" : "") + p.join(".");
+    }
+    function settle(v){
+      if (!isFinite(v)) { reset(); err = true; return false; }
+      acc = v; cur = String(v);
+      return true;
+    }
+
+    function press(k){
+      if (err) reset();
+      if (/^[0-9]$/.test(k)) {
+        if (fresh) cur = k;
+        else if (cur.replace(/[-.]/g, "").length < 12) cur = cur === "0" ? k : cur === "-0" ? "-" + k : cur + k;
+        fresh = false; entered = true;
+      } else if (k === ".") {
+        if (fresh) cur = "0.";
+        else if (cur.indexOf(".") < 0) cur += ".";
+        fresh = false; entered = true;
+      } else if (SYM[k]) {
+        if (op && entered) { if (!settle(calc(acc, op, parseFloat(cur)))) return render(); }
+        else if (!op) acc = parseFloat(cur);
+        op = k; fresh = true; entered = false; last = null;
+      } else if (k === "=") {
+        var r;
+        if (op) { var b = entered ? parseFloat(cur) : acc; last = [op, b]; r = calc(acc, op, b); op = null; }
+        else if (last) r = calc(parseFloat(cur), last[0], last[1]);
+        else r = parseFloat(cur);
+        settle(r);
+        fresh = true; entered = false;
+      } else if (k === "neg") {
+        if (op && !entered) { cur = "-0"; fresh = false; entered = true; }
+        else cur = cur.charAt(0) === "-" ? cur.slice(1) : "-" + cur;
+      } else if (k === "%") {
+        cur = String(parseFloat((parseFloat(cur) / 100).toPrecision(12)));
+        fresh = true; entered = true;
+      } else if (k === "back") {
+        if (!fresh) { cur = cur.slice(0, -1); if (cur === "" || cur === "-") cur = "0"; }
+      } else if (k === "clear") {
+        if (clr.textContent === "C") { cur = "0"; fresh = true; entered = false; }
+        else reset();
+      }
+      render();
+    }
+
+    function render(){
+      var txt = err ? t("os.calc.err") : show(cur);
+      out.textContent = txt;
+      out.style.fontSize = txt.length > 12 ? "26px" : txt.length > 9 ? "34px" : "";
+      exp.textContent = op ? show(String(acc)) + " " + SYM[op] : "";
+      clr.textContent = (!fresh && cur !== "0") ? "C" : "AC";
+      el.querySelectorAll(".op").forEach(function(b){ b.classList.toggle("sel", !!op && !entered && b.dataset.k === op); });
+    }
+
+    function onKey(e){
+      if (focused !== "calc" || locked || !spot.hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+      var k = KEYS[e.key] || e.key;
+      if (!(/^[0-9]$/.test(k) || SYM[k] || k === "." || k === "%" || k === "=" || k === "clear" || k === "back")) return;
+      e.preventDefault();
+      press(k);
+      var b = el.querySelector('[data-k="' + (k === "back" ? "clear" : k) + '"]');
+      if (b) { b.classList.add("on"); setTimeout(function(){ b.classList.remove("on"); }, 110); }
+    }
+
+    el.querySelector(".ca-keys").addEventListener("click", function(e){
+      var b = e.target.closest("button");
+      if (b) press(b.dataset.k);
+    });
+    document.addEventListener("keydown", onKey);
+    langHooks.push(render);
+    el._stop = function(){
+      document.removeEventListener("keydown", onKey);
+      langHooks.splice(langHooks.indexOf(render), 1);
+    };
+    reset();
+    render();
+  }
+
+  /* ---------- Calendar ---------- */
+  // Month view with weeks starting on Sunday. Today is the red circle; clicking a day selects it.
+  function dayKey(d){ return d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate(); }
+  function dayStart(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+
+  function initCalendar(el){
+    var title = el.querySelector(".cal-title"), grid = el.querySelector(".cal-grid"), foot = el.querySelector(".cal-foot");
+    var sel = dayStart(new Date()), view = new Date(sel.getFullYear(), sel.getMonth(), 1);
+
+    function render(){
+      var loc = lang === "en" ? "en-US" : "zh-TW", today = dayStart(new Date());
+      title.textContent = new Intl.DateTimeFormat(loc, {year:"numeric", month:"long"}).format(view);
+      var wd = new Intl.DateTimeFormat(loc, {weekday: lang === "en" ? "short" : "narrow"});
+      var html = "";
+      // 1970-01-04 was a Sunday.
+      for (var i = 0; i < 7; i++) html += '<div class="cal-wd">' + wd.format(new Date(1970, 0, 4 + i)) + '</div>';
+      var start = new Date(view.getFullYear(), view.getMonth(), 1 - view.getDay());
+      for (var j = 0; j < 42; j++) {
+        var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + j);
+        var cls = "cal-day" +
+          (d.getMonth() !== view.getMonth() ? " out" : "") +
+          (dayKey(d) === dayKey(today) ? " today" : "") +
+          (dayKey(d) === dayKey(sel) ? " sel" : "");
+        html += '<button type="button" class="' + cls + '" data-t="' + d.getTime() + '"><span>' + d.getDate() + '</span></button>';
+      }
+      grid.innerHTML = html;
+      var diff = Math.round((sel - today) / 864e5);
+      foot.textContent = new Intl.DateTimeFormat(loc, {year:"numeric", month:"long", day:"numeric", weekday:"long"}).format(sel) +
+        " · " + new Intl.RelativeTimeFormat(loc, {numeric:"auto"}).format(diff, "day");
+    }
+
+    grid.addEventListener("click", function(e){
+      var b = e.target.closest(".cal-day");
+      if (!b) return;
+      sel = new Date(+b.dataset.t);
+      view = new Date(sel.getFullYear(), sel.getMonth(), 1);
+      render();
+    });
+    el.querySelectorAll(".cal-nav button").forEach(function(b){
+      b.addEventListener("click", function(){
+        var d = +b.dataset.d;
+        if (d === 0) { sel = dayStart(new Date()); view = new Date(sel.getFullYear(), sel.getMonth(), 1); }
+        else view = new Date(view.getFullYear(), view.getMonth() + d, 1);
+        render();
+      });
+    });
+    langHooks.push(render);
+    el._stop = function(){ langHooks.splice(langHooks.indexOf(render), 1); };
+    render();
+  }
+
+  // The Calendar icon shows today's weekday and date, like the macOS one.
+  function paintCalIcons(){
+    var d = new Date(), wd = new Intl.DateTimeFormat(lang === "en" ? "en-US" : "zh-TW", {weekday:"short"}).format(d);
+    document.querySelectorAll(".ic-cal").forEach(function(ic){
+      ic.querySelector(".ci-wd").textContent = wd;
+      ic.querySelector(".ci-d").textContent = d.getDate();
+    });
+  }
+  paintCalIcons();
+  langHooks.push(paintCalIcons);
+  setInterval(paintCalIcons, 60000);
 
   /* ---------- Block Puzzle ---------- */
   // 8x8 board, three pieces at a time. Drag a piece onto the board; a full row or column clears.
@@ -1495,7 +1763,7 @@
     ["exit",             "close this window"]
   ];
   var CMDS = ["help","whoami","neofetch","ls","open","git","kubectl","top","cat","contact","date","clear","exit","sudo"];
-  var OPENABLE = ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","readme","contact","private"];
+  var OPENABLE = ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","calc","calendar","readme","contact","private"];
   var REPOS = SERVICES.map(function(s){ return s.repo; });
 
   function pad(s, n){ s = String(s); while (s.length < n) s += " "; return s; }
@@ -1644,7 +1912,7 @@
           neofetch();
           return;
         case "ls":
-          line("fukuoka/   busan/   yangmingshan/   averlyn/   activity   blocks   README.md   contact   private/ 🔒");
+          line("fukuoka/   busan/   yangmingshan/   averlyn/   activity   blocks   calc   calendar   README.md   contact   private/ 🔒");
           return;
         case "open":
           var id = resolveApp(rest);
@@ -1851,6 +2119,8 @@
     blocks:"方塊 消除 遊戲 小遊戲 益智 俄羅斯方塊 block puzzle game 1010",
     readme:"關於 經歷 履歷 about bio resume experience",
     terminal:"終端機 shell cli zsh command",
+    calc:"計算機 計算 算數 加減乘除 calculator calc math",
+    calendar:"日曆 行事曆 月曆 日期 今天 calendar cal date today",
     contact:"聯絡 email mail linkedin github",
     private:"私人 私密 登入 鎖 private login lock"
   };
@@ -1865,7 +2135,7 @@
 
   function index(){
     var items = [];
-    ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","readme","terminal","contact","private"].forEach(function(id){
+    ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","terminal","calc","calendar","readme","contact","private"].forEach(function(id){
       items.push({label:appName(id), sub:"", kind:t("os.spot.app"), icon:iconOf(id), keys:(id + " " + KW[id]).toLowerCase(), go:function(){ open(id); }});
     });
     EXP.forEach(function(e){
@@ -1957,7 +2227,7 @@
     }
     if (e.key === "Escape" && !spot.hidden) { spotClose(); return; }
     var typing = /^(INPUT|TEXTAREA)$/.test((document.activeElement || {}).tagName || "");
-    if (e.key === "/" && !typing && spot.hidden) { e.preventDefault(); spotOpen(); }
+    if (e.key === "/" && !typing && spot.hidden && focused !== "calc") { e.preventDefault(); spotOpen(); }
   });
 
   if (!narrow.matches) open("readme");
