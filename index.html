@@ -564,6 +564,8 @@
   .bk-piece{--m:24px;display:grid;cursor:grab;touch-action:none}
   .bk-piece.lift{opacity:.25}
   .bk-piece.dead{filter:grayscale(1) brightness(.6);cursor:not-allowed}
+  .bk-piece.turn{animation:bk-turn .18s ease-out}
+  @keyframes bk-turn{from{transform:rotate(-90deg) scale(.9)}}
   .bk-piece i{--bv:4px;border-width:1px}
   .bk-ghost{position:fixed;left:0;top:0;z-index:9700;pointer-events:none;filter:drop-shadow(0 0 10px rgba(255,214,110,.75)) drop-shadow(0 12px 16px rgba(0,0,0,.45))}
   .bk-ghost i{--bv:6px;border-width:2px}
@@ -608,7 +610,7 @@
     .mb-priv span{display:none}
   }
   @media (prefers-reduced-motion:reduce){
-    .win,.win.closing{animation:none}
+    .win,.win.closing,.bk-piece.turn{animation:none}
     .win,.dk,.dk .ic{transition:none}
   }
 </style>
@@ -650,7 +652,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v1.4.3</span>
+    <span class="mb-ver">v1.5.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -995,11 +997,11 @@
     "os.bk.score": {zh:"分數", en:"Score"},
     "os.bk.best":  {zh:"最佳", en:"Best"},
     "os.bk.new":   {zh:"重新開始", en:"New game"},
-    "os.bk.hint":  {zh:"把方塊拖進格子，填滿一整排或一整列就會消除", en:"Drag pieces onto the board. Fill a whole row or column to clear it."},
-    "os.bk.r1":    {zh:"把下方的三塊方塊拖進格子裡", en:"Drag the three pieces below onto the board"},
+    "os.bk.hint":  {zh:"點一下方塊可以轉向，拖進格子填滿一整排或一整列就會消除", en:"Tap a piece to rotate it. Drag it onto the board and fill a row or column to clear it."},
+    "os.bk.r1":    {zh:"把下方的三塊方塊拖進格子裡；點一下方塊可以轉 90 度", en:"Drag the three pieces below onto the board; tap a piece to turn it 90°"},
     "os.bk.r2":    {zh:"填滿一整排或一整列，就會消除", en:"Fill a whole row or column to clear it"},
     "os.bk.r3":    {zh:"一次消多條、連續消除，分數加倍", en:"Clear several lines at once, or in a row, for bonus points"},
-    "os.bk.r4":    {zh:"三塊都放不下時遊戲結束", en:"The game ends when none of your pieces fit"},
+    "os.bk.r4":    {zh:"三塊不論轉成哪個方向都放不下時，遊戲結束", en:"The game ends when none of your pieces fit, whichever way they turn"},
     "os.bk.go":    {zh:"開始遊戲", en:"Start"},
     "os.bk.combo": {zh:"連擊", en:"Combo"},
     "os.bk.over":  {zh:"沒地方放了！", en:"No room left!"},
@@ -1764,7 +1766,7 @@
     var board = el.querySelector(".bk-board"), tray = el.querySelector(".bk-tray");
     var scoreEl = el.querySelector(".bk-score"), bestEl = el.querySelector(".bk-best");
     var over = el.querySelector(".bk-over"), pop = el.querySelector(".bk-pop");
-    var grid, cells = [], pieces = [], score = 0, best = 0, combo = 0, drag = null;
+    var grid, cells = [], pieces = [], score = 0, best = 0, combo = 0, drag = null, press = null;
     try { best = +localStorage.getItem("blocks.best") || 0; } catch (e) {}
 
     for (var i = 0; i < BK_N * BK_N; i++) {
@@ -1793,6 +1795,17 @@
     }
     function fitsAnywhere(shape){
       for (var y = 0; y < BK_N; y++) for (var x = 0; x < BK_N; x++) if (fits(shape, x, y)) return true;
+      return false;
+    }
+    // 90° clockwise: (x, y) -> (h - 1 - y, x), which keeps the shape anchored at (0, 0).
+    function rotate(shape){
+      var h = 0;
+      shape.forEach(function(p){ h = Math.max(h, p[1] + 1); });
+      return shape.map(function(p){ return [h - 1 - p[1], p[0]]; });
+    }
+    // Pieces can be turned, so a piece is only stuck if no rotation of it fits.
+    function fitsSomeWay(shape){
+      for (var k = 0; k < 4; k++, shape = rotate(shape)) if (fitsAnywhere(shape)) return true;
       return false;
     }
     // Rows and columns that would be full if `shape` landed at (ox, oy).
@@ -1830,14 +1843,15 @@
       });
       renderTray();
     }
-    function renderTray(){
+    function renderTray(turned){
       tray.textContent = "";
       pieces.forEach(function(pc, i){
         var slot = document.createElement("div");
         slot.className = "bk-slot";
         if (!pc.used) {
           var m = mini(pc.shape, pc.color);
-          if (!fitsAnywhere(pc.shape)) m.classList.add("dead");
+          if (!fitsSomeWay(pc.shape)) m.classList.add("dead");
+          if (i === turned) m.classList.add("turn");
           m.addEventListener("pointerdown", function(e){ start(e, i, m); });
           slot.appendChild(m);
         }
@@ -1847,30 +1861,45 @@
 
     function cellSize(){ return board.getBoundingClientRect().width / BK_N; }
 
+    // A press turns into a drag once the pointer travels a few pixels. A press that never moves is a tap,
+    // and a tap rotates the piece.
     function start(e, i, src){
       if (e.button) return;
       e.preventDefault();
-      var pc = pieces[i], cs = cellSize();
+      press = {i:i, src:src, x:e.clientX, y:e.clientY, touch:e.pointerType === "touch"};
+      document.addEventListener("pointermove", move);
+      document.addEventListener("pointerup", end);
+      document.addEventListener("pointercancel", end);
+    }
+
+    function turn(i){
+      var pc = pieces[i];
+      if (!pc || pc.used) return;
+      pc.shape = rotate(pc.shape);
+      renderTray(still.matches ? -1 : i);
+    }
+
+    function pickUp(){
+      var i = press.i, src = press.src, pc = pieces[i], cs = cellSize();
       var ghost = mini(pc.shape, pc.color);
       ghost.classList.add("bk-ghost");
       ghost.style.setProperty("--m", cs + "px");
       document.body.appendChild(ghost);
       src.classList.add("lift");
       // Lift the piece above a finger so it stays visible; a mouse grabs it where it was clicked.
-      var lift = e.pointerType === "touch" ? cs * 2.2 : 0;
+      var lift = press.touch ? cs * 2.2 : 0;
       var r = src.getBoundingClientRect(), w = 0;
       pc.shape.forEach(function(p){ w = Math.max(w, p[0] + 1); });
       var scale = cs * w / r.width;
-      var gx = (e.clientX - r.left) * scale, gy = (e.clientY - r.top) * scale + lift;
+      var gx = (press.x - r.left) * scale, gy = (press.y - r.top) * scale + lift;
       drag = {i:i, pc:pc, ghost:ghost, src:src, gx:gx, gy:gy, at:null};
-      move(e);
-      document.addEventListener("pointermove", move);
-      document.addEventListener("pointerup", end);
-      document.addEventListener("pointercancel", end);
     }
 
     function move(e){
-      if (!drag) return;
+      if (!drag) {
+        if (!press || Math.abs(e.clientX - press.x) + Math.abs(e.clientY - press.y) < 6) return;
+        pickUp();
+      }
       var left = e.clientX - drag.gx, top = e.clientY - drag.gy;
       drag.ghost.style.transform = "translate(" + left + "px," + top + "px)";
       var b = board.getBoundingClientRect(), cs = b.width / BK_N;
@@ -1886,11 +1915,12 @@
       }
     }
 
-    function end(){
-      if (!drag) return;
+    function end(e){
       document.removeEventListener("pointermove", move);
       document.removeEventListener("pointerup", end);
       document.removeEventListener("pointercancel", end);
+      var p = press; press = null;
+      if (!drag) { if (p && e && e.type === "pointerup") turn(p.i); return; }
       var d = drag; drag = null;
       d.ghost.remove();
       d.src.classList.remove("lift");
@@ -1968,7 +1998,7 @@
       stats();
       if (pieces.every(function(p){ return p.used; })) deal(); else renderTray();
       var left = pieces.filter(function(p){ return !p.used; });
-      if (left.length && !left.some(function(p){ return fitsAnywhere(p.shape); })) {
+      if (left.length && !left.some(function(p){ return fitsSomeWay(p.shape); })) {
         setTimeout(function(){
           over.querySelector(".bk-final").textContent = fill(t("os.bk.final"), {s:score});
           over.hidden = false;
