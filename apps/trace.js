@@ -1,7 +1,9 @@
 // Life of a Request（Request 的一生）. One GET to the API Worker's /trace, shown three ways: a route diagram
 // (you → Cloudflare's data centre → D1), the browser's own timing of each phase from Resource Timing (the
-// Worker sends Timing-Allow-Origin; without it a cross-origin request reports every phase as 0), and what
-// the Worker measured on its side. index.html loads this file the first time the window opens.
+// Worker sends Timing-Allow-Origin on every response; without it a cross-origin request reports every phase
+// as 0), and what the Worker measured on its side. When the connection is reused, the request that opened it
+// (usually the menu bar's heartbeat) still has its DNS / connect / TLS times, so those are shown too.
+// index.html loads this file the first time the window opens.
 (function(){
   // Cloudflare data centres a request is likely to reach, by IATA code: [lat, lon, 中文, English].
   // Codes not listed are shown as they are, without a distance.
@@ -80,6 +82,10 @@
       "tr.s.other": {zh:"其他", en:"Everything else"},
       "tr.reuse":   {zh:"連線重用：選單列的線上人數一直跟這台伺服器保持連線，所以這次不用查 DNS，也不用 TLS 握手。", en:"Connection reused: the online counter in the menu bar keeps a connection to this server open, so there was no DNS lookup or TLS handshake this time."},
       "tr.fresh":   {zh:"這次開了一條新連線，所以有 DNS 和 TLS 的時間；再送一次就會重用它。", en:"This request opened a new connection, hence the DNS and TLS time. Send again and it will be reused."},
+      "tr.conn":    {zh:"這條連線是 {at} {by}時建立的：DNS 查詢 {dns}、建立連線 {tcp}、TLS 握手 {tls}，共 {sum}。之後的請求都省下了這一段。", en:"This connection was opened at {at} {by}: DNS lookup {dns}, connect {tcp}, TLS handshake {tls}, {sum} in all. Every request since has skipped that."},
+      "tr.by.presence":{zh:"選單列回報線上人數", en:"when the menu bar reported you online"},
+      "tr.by.scores":{zh:"讀取排行榜", en:"when the leaderboard was loaded"},
+      "tr.by.trace":{zh:"前一次送出請求", en:"by an earlier request from this window"},
       "tr.notao":   {zh:"瀏覽器沒有提供分段時間，只看得到總計。", en:"Your browser didn't share the per-phase timing, only the total."},
       "tr.more":    {zh:"細節", en:"Details"},
       "tr.d.http":  {zh:"協定", en:"Protocol"},
@@ -143,6 +149,8 @@
       ".tr-legend{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:10px;font-size:12px;color:var(--win-soft)}",
       ".tr-legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:-1px}",
       ".tr-note{margin-top:10px;font-size:12.5px;color:var(--win-soft)}",
+      ".tr-conn{margin-top:8px;padding:9px 12px;border-radius:8px;border:.5px dashed var(--win-line);font-size:12.5px;color:var(--win-soft)}",
+      ".tr-conn[hidden]{display:none}",
       ".tr-dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px}",
       ".tr-dl dt{color:var(--win-mute)}",
       ".tr-dl dd{font:12.5px var(--mono);word-break:break-word}",
@@ -167,7 +175,7 @@
           '</div>' +
           '<div class="tr-res" hidden>' +
             '<p class="tr-punch"></p>' +
-            '<h3 data-i18n="tr.wf"></h3><div class="tr-bars"></div><div class="tr-legend"></div><p class="tr-note"></p>' +
+            '<h3 data-i18n="tr.wf"></h3><div class="tr-bars"></div><div class="tr-legend"></div><p class="tr-note"></p><p class="tr-conn" hidden></p>' +
             '<h3 data-i18n="tr.more"></h3><dl class="tr-dl"></dl><p class="tr-hist"></p>' +
             '<details class="tr-tip"><summary data-i18n="tr.tip.h"></summary><p data-i18n="tr.tip.b"></p><p data-i18n="tr.tip.dev"></p></details>' +
           '</div>' +
@@ -177,16 +185,22 @@
     init: function(el, os){
       var go = el.querySelector(".tr-go"), out = el.querySelector(".tr-out"), res = el.querySelector(".tr-res"), err = el.querySelector(".tr-err");
       var route = el.querySelector(".tr-route"), bars = el.querySelector(".tr-bars"), legend = el.querySelector(".tr-legend");
-      var note = el.querySelector(".tr-note"), punch = el.querySelector(".tr-punch"), dl = el.querySelector(".tr-dl"), hist = el.querySelector(".tr-hist");
-      var seen = {}, runs = [], last = null, busy = false, seq = 0;
+      var note = el.querySelector(".tr-note"), conn = el.querySelector(".tr-conn"), punch = el.querySelector(".tr-punch"), dl = el.querySelector(".tr-dl"), hist = el.querySelector(".tr-hist");
+      var seen = {}, live = [], runs = [], last = null, busy = false, seq = 0;
 
       // The observer still sees entries once the page's resource-timing buffer (250 entries) is full,
-      // which the menu bar's 30-second heartbeat gets to after about two hours.
+      // which the menu bar's 30-second heartbeat gets to after about two hours. `live` keeps every API
+      // request since this window opened, in case one of them reopens the connection.
       var obs = null;
       if (window.PerformanceObserver) {
         try {
           obs = new PerformanceObserver(function(list){
-            list.getEntries().forEach(function(e){ if (e.name.indexOf("/trace?") > -1) seen[e.name] = e; });
+            list.getEntries().forEach(function(e){
+              if (e.name.indexOf(os.api) !== 0) return;
+              if (e.name.indexOf("/trace?") > -1) seen[e.name] = e;
+              live.push(e);
+              if (live.length > 50) live.shift();
+            });
           });
           obs.observe({type:"resource"});
         } catch (x) { obs = null; }
@@ -249,6 +263,28 @@
         ].map(function(p){ p.d = Math.max(0, p.d || 0); return p; });
       }
 
+      // The latest earlier API request that spent time on DNS or connecting opened the connection this one
+      // reused (HTTP/2 and HTTP/3 keep one per origin). Once the buffer is full, newer requests are missing
+      // from it, so only what the observer saw since this window opened can be trusted.
+      function opener(e){
+        var buf = performance.getEntriesByType ? performance.getEntriesByType("resource") : [];
+        var pool = (buf.length >= 250 ? [] : buf).concat(live), best = null;
+        pool.forEach(function(x){
+          if (x.name.indexOf(os.api) !== 0 || x.startTime >= e.startTime) return;
+          if (x.connectEnd - x.connectStart > 0 || x.domainLookupEnd - x.domainLookupStart > 0) {
+            if (!best || x.startTime > best.startTime) best = x;
+          }
+        });
+        return best;
+      }
+      function connLine(x){
+        var p = phases(x), path = x.name.slice(os.api.length).split("?")[0];
+        var by = {"/presence":"tr.by.presence", "/presence/leave":"tr.by.presence", "/scores":"tr.by.scores", "/trace":"tr.by.trace"}[path];
+        var at = new Intl.DateTimeFormat(en() ? "en-US" : "zh-TW", {hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:false})
+          .format(new Date(performance.timeOrigin + x.startTime));
+        return os.fill(os.t("tr.conn"), {at:at, by:by ? os.t(by) : "", dns:ms(p[0].d), tcp:ms(p[1].d), tls:ms(p[2].d), sum:ms(p[0].d + p[1].d + p[2].d)});
+      }
+
       // Waiting = one network round trip (Cloudflare's RTT for this connection) + the Worker's wait on D1
       // + everything the Worker can't time, its own CPU included.
       function splitWait(bar, w, rtt, d1ms){
@@ -302,7 +338,10 @@
         bars.appendChild(make("span", "k tot", os.t("tr.p.total")));
         bars.appendChild(make("span"));
         bars.appendChild(make("span", "v tot", ms(last.total)));
-        note.textContent = !ph ? os.t("tr.notao") : ph[0].d + ph[1].d + ph[2].d < 0.5 ? os.t("tr.reuse") : os.t("tr.fresh");
+        var reused = ph && ph[0].d + ph[1].d + ph[2].d < 0.5, from = reused ? opener(e) : null;
+        note.textContent = !ph ? os.t("tr.notao") : reused ? os.t("tr.reuse") : os.t("tr.fresh");
+        conn.hidden = !from;
+        if (from) conn.textContent = connLine(from);
 
         dl.textContent = "";
         var hop = e && e.nextHopProtocol, proto = hop ? ({h3:"HTTP/3", h2:"HTTP/2", "http/1.1":"HTTP/1.1"})[hop] || hop : c.http;

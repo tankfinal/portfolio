@@ -35,6 +35,9 @@ export default {
           "Access-Control-Allow-Methods": "GET, POST",
           "Access-Control-Allow-Headers": "Content-Type",
           "Access-Control-Max-Age": "86400",
+          // Without this a cross-origin response reports DNS / connect / TLS / TTFB as 0 to the page. Life of a
+          // Request reads it on /trace, and on whichever earlier request opened the connection it reuses.
+          "Timing-Allow-Origin": origin,
           Vary: "Origin",
         }
       : { Vary: "Origin" };
@@ -122,8 +125,7 @@ async function leave(request, env, cors) {
 
 // One read against D1, timed from inside the Worker. Date.now() in a Worker only moves when I/O completes,
 // so this measures the wait for D1 and nothing else; the Worker's own CPU time cannot be seen from here.
-// Timing-Allow-Origin lets the page read the browser's per-phase timing (DNS, TLS, TTFB...) for this
-// response; without it a cross-origin request reports those phases as 0. Nothing is stored.
+// Nothing is stored.
 async function trace(request, env, cors) {
   const cf = request.cf || {};
   const t0 = Date.now();
@@ -156,8 +158,7 @@ async function trace(request, env, cors) {
   const timing = [`d1;dur=${d1Ms};desc="D1 ${d1.colo || "local"}"`];
   if (sqlMs != null) timing.push(`sql;dur=${sqlMs};desc="SQL"`);
   if (body.edge) timing.push(`edge;desc="Cloudflare ${body.edge}"`);
-  const origin = cors["Access-Control-Allow-Origin"];
-  return json(body, 200, { ...cors, ...(origin ? { "Timing-Allow-Origin": origin } : {}), "Server-Timing": timing.join(", ") });
+  return json(body, 200, { ...cors, "Server-Timing": timing.join(", ") });
 }
 
 function coord(v) {
