@@ -208,5 +208,5 @@ Push 到 `main` → Cloudflare Workers Builds 自動部署 Worker `portfolio`（
 
 - **靜態檔**是 repo 根目錄整個上傳，不是網站的檔案（文件、設定、`api/` 原始碼、本機的 `.wrangler`、截圖資料夾）列在 `.assetsignore`。新增這類檔案記得加進去
 - **Workers Builds 部署到 Dashboard 上接著的那個 Worker**，`wrangler.jsonc` 的 `name` 不一樣也照樣成功（2026-10-13 實測），所以 Worker 改名一定要在 Dashboard 改接
-- **舊網址**：repo 改成私人後 GitHub Pages 停用；`tankfinal.github.io/portfolio` 由另一個公開 repo `tankfinal/tankfinal.github.io` 轉址到這裡（含 `/classic/` 等路徑）
+- **舊網址**：GitHub Pages 改成發佈 `gh-pages` 分支，那個分支只有轉址頁（`index.html`、`classic/`、`os/`、`404.html`），`tankfinal.github.io/portfolio/<任何路徑>` 都轉到這裡的同一路徑，query 和 hash 照帶。`main` 不再由 GitHub Pages 發佈；轉址頁要改就改 `gh-pages` 分支，推上去後若沒自動重建，用 `gh api -X POST repos/tankfinal/portfolio/pages/builds` 觸發
 - 急著上線或 Workers Builds 出狀況時，可以在 repo 根目錄手動 `npx wrangler deploy`
