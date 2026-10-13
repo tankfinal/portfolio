@@ -10,7 +10,7 @@ const T = (s) => ({ zh: s, en: s });
 // A small scenario that uses every rule: a clue, a mitigation, a timer, a costly shortcut and a sound fix.
 function sample(){
   return {
-    id: "t", stars: 1, par: 10, clock: "03:00", name: T("t"), hook: T("t"), cause: T("t"), lesson: T("t"), todo: [],
+    id: "t", par: 10, clock: "03:00", name: T("t"), hook: T("t"), cause: T("t"), lesson: T("t"), todo: [],
     weights: { time: 0.3, users: 0.3, asset: 0.4 }, budget: { users: 50, asset: 50 },
     rate: { users: 2, asset: 1 },
     alerts: [{ sev: "P1", text: T("a") }],
@@ -32,14 +32,14 @@ function sample(){
 const zero = () => 0;
 
 test("a new game shuffles the options and pages with the alerts", () => {
-  const st = E.create(sample(), zero);
+  const st = E.create(sample(), 1, zero);
   assert.equal(st.phase, "start");
   assert.deepEqual(st.events.map((e) => e.k), ["sys", "al"]);
   assert.deepEqual(st.order.start.slice().sort(), [0, 1, 2, 3]);
 });
 
 test("an option needing a clue stays hidden until the clue is found", () => {
-  const s = sample(), st = E.create(s, zero);
+  const s = sample(), st = E.create(s, 1, zero);
   assert.ok(!E.options(s, st).some((x) => x.i === 1));
   E.choose(s, st, 0);
   assert.ok(E.options(s, st).some((x) => x.i === 1));
@@ -47,7 +47,7 @@ test("an option needing a clue stays hidden until the clue is found", () => {
 });
 
 test("time passes, impact grows at the rate, and a mitigation stops it", () => {
-  const s = sample(), st = E.create(s, zero);
+  const s = sample(), st = E.create(s, 1, zero);
   const d = E.choose(s, st, 2);                      // waste 3 min
   assert.deepEqual(d, { mins: 3, users: 6, asset: 3 });
   E.choose(s, st, 3);                                // contain: 1 more min, then asset stops
@@ -57,11 +57,11 @@ test("time passes, impact grows at the rate, and a mitigation stops it", () => {
 });
 
 test("a timer fires once, and only worsens what is still at full rate", () => {
-  const s = sample(), st = E.create(s, zero);
+  const s = sample(), st = E.create(s, 1, zero);
   E.choose(s, st, 2); E.choose(s, st, 0); E.choose(s, st, 1);   // 6 min: the timer fires at minute 6
   assert.equal(st.rate.users, 5);
   assert.equal(st.events.filter((e) => e.late).length, 1);
-  const st2 = E.create(s, zero);
+  const st2 = E.create(s, 1, zero);
   E.choose(s, st2, 3);                               // contain assets first
   st2.rate.users = 1;                                // users already contained too
   E.choose(s, st2, 2); E.choose(s, st2, 0);
@@ -69,7 +69,7 @@ test("a timer fires once, and only worsens what is still at full rate", () => {
 });
 
 test("fixing ends the game and stops all growth", () => {
-  const s = sample(), st = E.create(s, zero);
+  const s = sample(), st = E.create(s, 1, zero);
   E.choose(s, st, 0); E.choose(s, st, 1); E.choose(s, st, 0);
   assert.equal(st.done, true);
   assert.deepEqual(st.rate, { users: 0, asset: 0 });
@@ -79,7 +79,7 @@ test("the best trade-off scores 100 and a ruinous shortcut is capped at C", () =
   const s = sample(), a = E.analyse(s);
   assert.equal(a.top.score.total, 100);
   assert.equal(a.top.score.grade, "S");
-  const st = E.create(s, zero);
+  const st = E.create(s, 1, zero);
   E.choose(s, st, 0); E.choose(s, st, 1); E.choose(s, st, 1);   // look, act, shortcut
   const sc = E.score(s, st);
   assert.equal(sc.asset, 0);
@@ -88,10 +88,22 @@ test("the best trade-off scores 100 and a ruinous shortcut is capped at C", () =
 });
 
 test("decision costs leave out the choices the best path makes too", () => {
-  const s = sample(), st = E.create(s, zero);
+  const s = sample(), st = E.create(s, 1, zero);
   E.choose(s, st, 2); E.choose(s, st, 0); E.choose(s, st, 1); E.choose(s, st, 0);
   const c = E.costs(s, st);
   assert.equal(c[0].o.label.en, "waste");
+});
+
+test("harder difficulties add options and alerts tagged with lv", () => {
+  const s = sample();
+  s.steps.start.opts.push({ lv: 3, min: 4, label: T("hell"), say: T("x") });
+  s.alerts.push({ lv: 2, sev: "P3", noise: true, text: T("noise") });
+  const easy = E.create(s, 1, zero), hell = E.create(s, 3, zero);
+  assert.ok(!E.options(s, easy).some((x) => x.o.label.en === "hell"));
+  assert.ok(E.options(s, hell).some((x) => x.o.label.en === "hell"));
+  assert.equal(easy.events.filter((e) => e.k === "al").length, 1);
+  assert.equal(hell.events.filter((e) => e.k === "al").length, 2);
+  assert.notEqual(E.analyse(s, 1), E.analyse(s, 3), "each difficulty is analysed on its own");
 });
 
 test("validate catches broken content", () => {
@@ -99,10 +111,12 @@ test("validate catches broken content", () => {
   s.steps.start.opts[1].need = ["nowhere"];
   s.steps.fix.opts[0].at = "fridge";
   s.steps.start.opts[1].next = "nope";
+  s.steps.start.opts[2].lv = 4;
   const out = E.validate({ id: "r", scenarios: [s] }, ["pc", "phone"]).join("\n");
   assert.match(out, /clue 'nowhere'/);
   assert.match(out, /station 'fridge'/);
   assert.match(out, /next 'nope'/);
+  assert.match(out, /lv must be 1, 2 or 3/);
 });
 
 test("the shipped content is valid", () => {

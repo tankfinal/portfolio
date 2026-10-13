@@ -7,8 +7,12 @@
 // step (`next`) or resolve the incident (`fix`). Timers make a slow response worse. There is no single right
 // answer: the score weighs time (against the scenario's `par`, the minutes a sound fix takes), users and assets
 // (against the best any way through reached), and losing everything that matters caps the grade at C.
+//
+// The player picks a difficulty, 1 to 3 (普通, 困難, 地獄). An option or alert with `lv` shows only from that
+// difficulty up; without it, it shows on all three. Each difficulty is analysed and scored on its own.
 (function(root){
   var DIMS = ["time", "users", "asset"];
+  var LEVELS = [1, 2, 3];
   var GRADES = [["S", 90], ["A", 75], ["B", 60], ["C", 0]];
   var STATIONS_DEFAULT = "pc";
 
@@ -18,25 +22,29 @@
     return a;
   }
   function stationOf(o){ return o.at || STATIONS_DEFAULT; }
+  function shows(x, lv){ return (x.lv || 1) <= lv; }
+  function alertsAt(scn, lv){ return scn.alerts.filter(function(a){ return shows(a, lv); }); }
 
-  // A new game. `rnd` returns [0, 1); tests pass a fixed one. `log` false skips the event list (for the search).
-  function create(scn, rnd, log){
+  // A new game at difficulty `lv`. `rnd` returns [0, 1); tests pass a fixed one. `log` false skips the event
+  // list (for the search).
+  function create(scn, lv, rnd, log){
     rnd = rnd || Math.random;
     var order = {};
     Object.keys(scn.steps).forEach(function(id){
       order[id] = shuffle(scn.steps[id].opts.map(function(_, i){ return i; }), rnd);   // the right answer is often first in the data
     });
     var rate = scn.rate || {};
-    var st = {phase:scn.first || "start", mins:0, users:0, asset:0, rate:{users:rate.users || 0, asset:rate.asset || 0},
+    var st = {lv:lv || 1, phase:scn.first || "start", mins:0, users:0, asset:0, rate:{users:rate.users || 0, asset:rate.asset || 0},
               flags:{}, used:{}, fired:{}, done:false, order:order, events:log === false ? null : []};
     if (st.events) {
-      st.events.push({k:"sys", t:0, key:"oc.paged", vars:{n:scn.alerts.length}});
-      scn.alerts.forEach(function(a){ st.events.push({k:"al", t:0, a:a}); });
+      var al = alertsAt(scn, st.lv);
+      st.events.push({k:"sys", t:0, key:"oc.paged", vars:{n:al.length}});
+      al.forEach(function(a){ st.events.push({k:"al", t:0, a:a}); });
     }
     return st;
   }
   function copy(st){
-    return {phase:st.phase, mins:st.mins, users:st.users, asset:st.asset, rate:{users:st.rate.users, asset:st.rate.asset},
+    return {lv:st.lv, phase:st.phase, mins:st.mins, users:st.users, asset:st.asset, rate:{users:st.rate.users, asset:st.rate.asset},
             flags:Object.assign({}, st.flags), used:Object.assign({}, st.used), fired:Object.assign({}, st.fired),
             done:st.done, order:st.order, events:null};
   }
@@ -46,7 +54,7 @@
     var step = scn.steps[st.phase];
     return st.order[st.phase].filter(function(i){
       var o = step.opts[i];
-      if (st.used[st.phase + ":" + i]) return false;
+      if (st.used[st.phase + ":" + i] || !shows(o, st.lv)) return false;
       if ((o.need || []).some(function(f){ return !st.flags[f]; })) return false;
       return at == null || stationOf(o) === at;
     }).map(function(i){ return {i:i, o:step.opts[i]}; });
@@ -96,8 +104,10 @@
 
   // Every way to fix the incident, found by trying each choice in turn. Options that only cost (no clue, no
   // rate change, no move) can never help, so the search skips them; that keeps it small.
-  function analyse(scn){
-    if (scn.__analysis) return scn.__analysis;
+  function analyse(scn, lv){
+    lv = lv || 1;
+    if (!scn.__analysis) Object.defineProperty(scn, "__analysis", {value:{}, enumerable:false, configurable:true});
+    if (scn.__analysis[lv]) return scn.__analysis[lv];
     var paths = [];
     (function dfs(st, path, depth){
       if (st.done) { paths.push({path:path, mins:st.mins, users:st.users, asset:st.asset}); return; }
@@ -109,7 +119,7 @@
         choose(scn, s2, x.i);
         dfs(s2, path.concat([{phase:st.phase, i:x.i}]), depth + 1);
       });
-    })(create(scn, function(){ return 0; }, false), [], 0);
+    })(create(scn, lv, function(){ return 0; }, false), [], 0);
     var best = {mins:Infinity, users:Infinity, asset:Infinity};
     paths.forEach(function(p){ DIMS.forEach(function(k){ var v = k === "time" ? p.mins : p[k]; var key = k === "time" ? "mins" : k; if (v < best[key]) best[key] = v; }); });
     // First find the best trade-off, judging each dimension against the best any path reached in it (those
@@ -122,9 +132,7 @@
     });
     var ref = top ? {par:par, users:top.users, asset:top.asset} : {par:par, users:0, asset:0};
     paths.forEach(function(p){ p.score = scoreWith(scn, ref, p); });
-    var a = {par:par, fastest:best.mins, best:best, top:top, ref:ref, paths:paths};
-    Object.defineProperty(scn, "__analysis", {value:a, enumerable:false, configurable:true});
-    return a;
+    return (scn.__analysis[lv] = {par:par, fastest:best.mins, best:best, top:top, ref:ref, paths:paths});
   }
 
   // Each dimension is 100 at the reference and falls to 0 at `budget` worse; time is 100 up to `par` and falls
@@ -145,12 +153,12 @@
     if (s.capped) s.grade = "C";
     return s;
   }
-  function score(scn, st){ return scoreWith(scn, analyse(scn).ref, st); }
+  function score(scn, st){ return scoreWith(scn, analyse(scn, st.lv).ref, st); }
 
   // How many score points each decision cost, for the postmortem. Choices on the top-scoring path are left out:
   // that path pays them too.
   function costs(scn, st){
-    var a = analyse(scn), w = scn.weights || {}, b = scn.budget || {};
+    var a = analyse(scn, st.lv), w = scn.weights || {}, b = scn.budget || {};
     var wsum = DIMS.reduce(function(t, k){ return t + (w[k] || 0); }, 0) || 1;
     var onTop = a.top ? a.top.path.map(function(p){ return scn.steps[p.phase].opts[p.i]; }) : [];
     return (st.events || []).filter(function(e){ return e.k === "say" && onTop.indexOf(e.o) < 0; }).map(function(e){
@@ -175,12 +183,12 @@
       ids[s.id] = 1;
       ["name", "hook", "cause", "lesson"].forEach(function(k){ text(at + "." + k, s[k]); });
       (s.todo || []).forEach(function(t, i){ text(at + ".todo[" + i + "]", t); });
-      if (!(s.stars >= 1 && s.stars <= 3)) bad(at, "stars must be 1 to 3");
       if (!(s.par > 0)) bad(at, "par (the minutes a sound fix takes) must be set");
       if (!/^\d\d:\d\d$/.test(s.clock || "")) bad(at, "clock must be HH:MM");
-      if (!s.alerts || !s.alerts.length) bad(at, "needs at least one alert");
+      if (!s.alerts || !alertsAt(s, 1).length) bad(at, "needs at least one alert on every difficulty");
       (s.alerts || []).concat((s.timers || []).map(function(t){ return t.alert; }).filter(Boolean)).forEach(function(a, i){
         if (!/^P[123]$/.test(a.sev)) bad(at + ".alert[" + i + "]", "sev must be P1, P2 or P3");
+        if (a.lv != null && LEVELS.indexOf(a.lv) < 0) bad(at + ".alert[" + i + "]", "lv must be 1, 2 or 3");
         text(at + ".alert[" + i + "]", a.text);
       });
       var w = s.weights || {};
@@ -197,6 +205,7 @@
           text(ow + ".label", o.label);
           text(ow + ".say", o.say);
           if (!(o.min >= 0)) bad(ow, "min must be a number >= 0");
+          if (o.lv != null && LEVELS.indexOf(o.lv) < 0) bad(ow, "lv must be 1, 2 or 3");
           if (o.next && !steps[o.next]) bad(ow, "next '" + o.next + "' does not exist");
           if (o.next && o.fix) bad(ow, "cannot both move on and fix");
           if (stationIds.indexOf(stationOf(o)) < 0) bad(ow, "station '" + stationOf(o) + "' is not on the map");
@@ -205,16 +214,16 @@
         });
       });
       needed.forEach(function(n){ if (!given[n[1]]) bad(n[0], "needs clue '" + n[1] + "' that nothing gives"); });
-      if (!out.length || out.every(function(m){ return m.indexOf(role.id + "/" + at) !== 0; })) {
-        var a = analyse(s);
-        if (!a.paths.length) bad(at, "cannot be fixed by any path");
-        else if (a.top.score.capped) bad(at, "the best trade-off still loses all of " + a.top.score.capped);
-      }
+      if (!out.length || out.every(function(m){ return m.indexOf(role.id + "/" + at) !== 0; })) LEVELS.forEach(function(lv){
+        var a = analyse(s, lv);
+        if (!a.paths.length) bad(at + "@" + lv, "cannot be fixed by any path");
+        else if (a.top.score.capped) bad(at + "@" + lv, "the best trade-off still loses all of " + a.top.score.capped);
+      });
     });
     return out;
   }
 
-  var E = {DIMS:DIMS, create:create, options:options, stations:stations, choose:choose, analyse:analyse,
+  var E = {DIMS:DIMS, LEVELS:LEVELS, alerts:alertsAt, create:create, options:options, stations:stations, choose:choose, analyse:analyse,
            score:score, costs:costs, validate:validate, stationOf:stationOf};
   if (typeof module === "object" && module.exports) module.exports = E;
   else (root.OC = root.OC || {}).engine = E;

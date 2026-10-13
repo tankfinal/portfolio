@@ -37,6 +37,7 @@
 .oc-cv{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges;outline:none;cursor:pointer;touch-action:manipulation}
 .oc-cv:focus-visible{box-shadow:inset 0 0 0 2px var(--sel)}
 .oc-hud{position:absolute;top:8px;right:8px;z-index:1;display:flex;gap:6px}
+.oc-hud[hidden]{display:none}
 .oc-hud button{padding:3px 10px;border-radius:6px;background:rgba(14,16,38,.72);border:1px solid rgba(232,219,190,.5);color:#F5EEDC;font-size:12px;cursor:pointer}
 .oc-hud button:hover{background:rgba(14,16,38,.92)}
 .oc-load{position:absolute;inset:0;display:grid;place-items:center;color:#C8C8D8;font-size:13px}
@@ -57,7 +58,7 @@
 .oc-po .al{margin-top:10px;white-space:normal}
 .oc-po > :first-child{margin-top:0}
 .oc-po .q{margin-top:10px;color:#FFD84D}
-.oc-pa{flex:none;display:flex;flex-direction:column;gap:6px;padding:8px 12px 12px;max-height:50%;overflow:auto;border-top:1px solid rgba(127,127,127,.25)}
+.oc-pa{flex:none;display:flex;flex-direction:column;gap:6px;padding:8px 12px 12px;max-height:65%;overflow:auto;border-top:1px solid rgba(127,127,127,.25)}
 .oc-pa button{text-align:left;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:inherit;font:inherit;cursor:pointer}
 .oc-pa button:hover,.oc-pa button:focus-visible{background:rgba(127,219,255,.16);outline:none}
 .oc-pa .none{opacity:.7}
@@ -90,13 +91,25 @@
 .gr.B,.oc-grade.B{background:linear-gradient(160deg,#64D2FF,#0A84FF)}
 .gr.C,.oc-grade.C{background:linear-gradient(160deg,#A1A1A6,#636366)}
 
-/* Narrow windows (phones): the map is too short to cover, so the panels, log, dialog and card sit under it. */
+/* The difficulty picker, before each game. */
+.oc-pick{position:absolute;inset:0;z-index:4;display:grid;place-items:center;padding:16px;background:rgba(10,10,24,.82)}
+.oc-pick[hidden]{display:none}
+.oc-pickcard{width:min(360px,100%);display:flex;flex-direction:column;gap:8px;padding:16px 18px;border-radius:10px;background:#1A1C30;border:3px solid #E8DBBE;color:#F5EEDC}
+.oc-pickcard h2{font-size:17px;text-align:center}
+.oc-pickcard > p{margin-bottom:4px;text-align:center;font-size:12px;color:#A9A391}
+.oc-lvb{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:baseline;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(232,219,190,.3);color:inherit;text-align:left;cursor:pointer}
+.oc-lvb b{font-size:14px}
+.oc-lvb span{font-size:12px;color:#FFD84D;letter-spacing:1px}
+.oc-lvb small{grid-column:1/-1;font-size:12px;color:#C9C1AE}
+.oc-lvb:hover,.oc-lvb:focus-visible{background:rgba(255,216,77,.14);border-color:#FFD84D;outline:none}
+
+/* Narrow windows (phones): the map is too short to cover, so the panels, log, dialog and cards sit under it. */
 @container (max-width:520px){
   .oc-panel,.oc-panel.phone,.oc-book,.oc-say{position:static;margin:8px}
   .oc-pa{max-height:none}
   .oc-po,.oc-book ol{max-height:260px}
   .oc-panel.phone{border-radius:14px}
-  .oc-end{position:static;padding:8px;background:none}
+  .oc-end,.oc-pick{position:static;padding:8px;background:none}
 }
 
 /* The postmortem. */

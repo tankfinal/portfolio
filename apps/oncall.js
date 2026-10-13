@@ -12,10 +12,11 @@
 //   apps/oncall/maps/*.json    a map: tiles, furniture, and the things you can use
 //   apps/oncall/art.json       the pixel art the packs don't have (bed, laptop, phone, rack, Kuai Kuai, window)
 // To add a role: write roles/<id>.json (node tools/check-oncall.js checks it) and add the id to ROLES.
-// This file is the controller: it loads all that, picks an incident (preferring ones not played yet) and runs
-// the game. The best grade per incident and the incidents seen stay in this browser (localStorage
-// "oncall.best", "oncall.seen", keyed "<role>/<incident>"). index.html loads these files the first time the
-// window opens.
+// This file is the controller: it loads all that, asks for a difficulty (普通, 困難, 地獄: harder ones offer
+// more options), picks an incident (preferring ones not played yet) and runs the game. The difficulty, the
+// incidents seen and the best grade per incident and difficulty stay in this browser (localStorage
+// "oncall.lv", "oncall.seen" keyed "<role>/<incident>", "oncall.best" keyed "<role>/<incident>@<lv>").
+// index.html loads these files the first time the window opens.
 (function(){
   var ROLES = ["be"];
   var GRADE_ORDER = "SABC";
@@ -49,13 +50,15 @@
     return DATA;
   }
 
-  // Keys were plain incident ids before roles existed; those were all the backend role's.
+  // Keys were plain incident ids before roles existed, all the backend role's, and grades had no difficulty
+  // before there was a choice; what there was then is 困難 now.
   function keyed(k){ return k.indexOf("/") < 0 ? "be/" + k : k; }
+  function bestKey(k){ k = keyed(k); return k.indexOf("@") < 0 ? k + "@2" : k; }
   function read(name, empty){ try { return JSON.parse(localStorage.getItem(name)) || empty; } catch (e) { return empty; } }
   function write(name, v){ try { localStorage.setItem(name, JSON.stringify(v)); } catch (e) {} }
   function saveBest(key, grade){
     var old = read("oncall.best", {}), best = {};
-    Object.keys(old).forEach(function(k){ best[keyed(k)] = old[k]; });
+    Object.keys(old).forEach(function(k){ best[bestKey(k)] = old[k]; });
     if (!best[key] || GRADE_ORDER.indexOf(grade) < GRADE_ORDER.indexOf(best[key])) best[key] = grade;
     write("oncall.best", best);
   }
@@ -76,6 +79,14 @@
 
   TankOS.define("oncall", {
     i18n: {
+      "oc.pick":   {zh:"選擇難度", en:"Choose a difficulty"},
+      "oc.lv.1":   {zh:"普通", en:"Normal"},
+      "oc.lv.2":   {zh:"困難", en:"Hard"},
+      "oc.lv.3":   {zh:"地獄", en:"Hell"},
+      "oc.lv.1.d": {zh:"選項少，一步一步來。", en:"Fewer options. One step at a time."},
+      "oc.lv.2.d": {zh:"多了岔路和陷阱，告警裡夾著雜訊。", en:"More forks and traps, and noise among the alerts."},
+      "oc.lv.3.d": {zh:"選項最多，很多看起來都對。", en:"The most options, and many of them look right."},
+      "oc.toPick": {zh:"換難度", en:"Change difficulty"},
       "oc.shift":  {zh:"值班中", en:"On call"},
       "oc.time":   {zh:"時間", en:"Time"},
       "oc.status": {zh:"狀態", en:"Status"},
@@ -97,7 +108,7 @@
       "oc.paged":  {zh:"手機響了：{n} 則告警", en:"Paged: {n} alerts"},
       "oc.did":    {zh:"你：{a}", en:"You: {a}"},
       "oc.pm":     {zh:"事故檢討", en:"Postmortem"},
-      "oc.pm.stars":{zh:"難度 {stars}", en:"Difficulty {stars}"},
+      "oc.pm.lv":  {zh:"難度：{lv}", en:"Difficulty: {lv}"},
       "oc.pm.total":{zh:"總分", en:"Score"},
       "oc.pm.mins":{zh:"修好花了 {m} 分鐘；穩健的處理大約 {par} 分鐘", en:"Fixed in {m} min; a sound fix takes about {par}"},
       "oc.pm.raw": {zh:"累積 {n}；拿高分的做法是 {best}", en:"Ended at {n}; the top-scoring way ends at {best}"},
@@ -123,7 +134,7 @@
       "end.A.t":   {zh:"{m} 分鐘修好，判斷大致都對。睡得不算多，但鬧鐘響的時候你還記得自己是誰。今天的咖啡點大杯。", en:"Fixed in {m} minutes, mostly the right calls. Not much sleep, but when the alarm goes off you still know who you are. Make today's coffee a large."},
       "end.B.t":   {zh:"修好了，只是代價大了點，前後 {m} 分鐘。早上站會，大家都想聽昨晚發生什麼事。下午記得寫事故檢討。", en:"Fixed, at a price: {m} minutes in all. At stand-up everyone wants the story of last night. Write the postmortem this afternoon."},
       "end.C.t":   {zh:"前後 {m} 分鐘，事情是處理完了，要善後的卻比事故本身還多。天亮後，你在早餐店收到一則訊息：「今天下午開個會，聊聊昨晚。」", en:"{m} minutes, and it's over, but the clean-up is bigger than the incident. After sunrise, at the breakfast shop, a message arrives: \"Let's meet this afternoon about last night.\""},
-      "end.was":   {zh:"這次的事故：{name}（{stars}）", en:"This time: {name} ({stars})"},
+      "end.was":   {zh:"這次的事故：{name}（{lv}）", en:"This time: {name} ({lv})"},
       "end.score": {zh:"總分 {n}", en:"Score {n}"},
       "end.pm":    {zh:"看事故檢討", en:"Read the postmortem"},
       "rpg.loading":{zh:"載入中…", en:"Loading…"},
@@ -154,12 +165,13 @@
         '<section class="oc-rpg">' +
           '<div class="oc-stage">' +
             '<canvas class="oc-cv" width="320" height="192" tabindex="0"></canvas>' +
-            '<div class="oc-hud"><button type="button" class="oc-logb" data-i18n="rpg.bookKey"></button><button type="button" class="oc-re" data-i18n="rpg.restart" data-i18n-title="rpg.restartTip"></button></div>' +
+            '<div class="oc-hud"><button type="button" class="oc-lvh" data-i18n-title="oc.toPick"></button><button type="button" class="oc-logb" data-i18n="rpg.bookKey"></button><button type="button" class="oc-re" data-i18n="rpg.restart" data-i18n-title="rpg.restartTip"></button></div>' +
             '<div class="oc-load" data-i18n="rpg.loading"></div>' +
             '<div class="oc-panel" hidden><header><b></b><button type="button" class="oc-x" data-i18n="rpg.close"></button></header><div class="oc-po"></div><div class="oc-pa"></div></div>' +
             '<div class="oc-book" hidden><header><b data-i18n="rpg.book"></b><button type="button" class="oc-x" data-i18n="rpg.close"></button></header><ol class="oc-log"></ol></div>' +
             '<div class="oc-say" hidden><p></p><small>▼</small></div>' +
             '<div class="oc-end" hidden><div class="oc-endcard"></div></div>' +
+            '<div class="oc-pick" hidden><div class="oc-pickcard"></div></div>' +
           '</div>' +
           '<p class="oc-goal"></p>' +
         '</section>' +
@@ -178,15 +190,33 @@
       var ui = OC.ui.create(el, os), cv = el.querySelector(".oc-cv");
       // One game: the incident, the engine state, and what has happened at each station, so a language switch
       // can redraw it all. g.score is set once you are in bed.
-      var data = null, g = null, world = null, alive = true;
-      var endOn = {pm:toPm, next:next}, pmOn = {next:next, again:again};
+      var data = null, g = null, world = null, alive = true, last = null;
+      var lv = +read("oncall.lv", 0);
+      if (E.LEVELS.indexOf(lv) < 0) lv = 1;
+      var endOn = {pm:toPm, next:next}, pmOn = {next:next, again:again, level:level};
+
+      // Before each round of play: choose the difficulty. Leaving a game for this abandons it.
+      function level(){
+        if (world) { world.destroy(); world = null; }
+        if (g) last = g.key;
+        g = null;
+        ui.reset();
+        lvBtn.textContent = os.t("oc.lv." + lv);
+        ui.pick(lv, onPick);
+      }
+      function onPick(n){
+        lv = n;
+        write("oncall.lv", n);
+        start(pick(data.pool, last));
+      }
 
       function start(x){
         if (world) world.destroy();
         markSeen(data.pool, x.key);
         var map = data.maps[x.role.map], wake = map.things.filter(function(t){ return t.kind === "station" && t.wake; })[0];
-        g = {key:x.key, role:x.role, s:x.s, map:map, wake:wake.id, st:E.create(x.s), answered:false, on:{}, outs:{}, panelAt:null, score:null};
+        g = {key:x.key, role:x.role, s:x.s, map:map, wake:wake.id, st:E.create(x.s, lv), answered:false, on:{}, outs:{}, panelAt:null, score:null};
         ui.reset();
+        lvBtn.textContent = os.t("oc.lv." + lv);
         ui.loading(false);
         ui.bar(g);
         ui.goal(g);
@@ -211,8 +241,9 @@
           if (t.id !== g.wake) { ui.talk(os.fill(os.t("rpg.wakeFirst"), {name:ui.L(w.name)})); return; }
           g.answered = true;
           world.set({ringing:null});
-          ui.talk(os.fill(os.t("rpg.answer"), {n:g.s.alerts.length}));
-          g.s.alerts.forEach(function(a){ ui.talk(a.sev + "　" + ui.L(a.text)); });
+          var al = E.alerts(g.s, g.st.lv);
+          ui.talk(os.fill(os.t("rpg.answer"), {n:al.length}));
+          al.forEach(function(a){ ui.talk(a.sev + "　" + ui.L(a.text)); });
           ui.goal(g);
           return;
         }
@@ -244,7 +275,7 @@
 
       function sleep(){
         g.score = E.score(g.s, g.st);
-        saveBest(g.key, g.score.grade);
+        saveBest(g.key + "@" + g.st.lv, g.score.grade);
         ui.clearGoal();
         world.sleep();
       }
@@ -253,11 +284,14 @@
         if (ui.bookOpen()) ui.closeBook(); else ui.openBook(g);
       }
 
+      var lvBtn = el.querySelector(".oc-lvh");
+      lvBtn.addEventListener("click", function(){ if (g) level(); });
       el.querySelector(".oc-logb").addEventListener("click", toggleBook);
-      el.querySelector(".oc-re").addEventListener("click", function(){ if (data) start(pick(data.pool, g && g.key)); });
+      el.querySelector(".oc-re").addEventListener("click", function(){ if (g) start(pick(data.pool, g.key)); });
 
       var off = os.onLang(function(){
-        if (!g) return;
+        lvBtn.textContent = os.t("oc.lv." + lv);
+        if (!g) { if (ui.pickOpen()) ui.pick(lv, onPick); return; }
         if (ui.pmOpen()) { ui.pm(g, pmOn); return; }
         ui.bar(g);
         if (!g.score) ui.goal(g);
@@ -271,7 +305,8 @@
       load(os.ver).then(function(d){
         if (!alive) return;
         data = d;
-        start(pick(data.pool));
+        ui.loading(false);
+        level();
       }, function(){ if (alive) ui.loading("fail"); });
       return function(){ alive = false; off(); if (world) world.destroy(); };
     }

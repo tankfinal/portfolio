@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Checks the 凌晨三點 content: every role's scenarios against the game rules (apps/oncall/engine.js) and its
-// map, then prints each scenario's par and fastest fix, the top-scoring way through and how the endings spread.
+// map, then prints, for each scenario and difficulty, the options on offer, par and fastest fix, the top-scoring
+// way through and how the endings spread.
 // Run before committing content:  node tools/check-oncall.js        (add -v to list the top path)
 "use strict";
 const fs = require("fs");
@@ -9,6 +10,7 @@ const E = require("../apps/oncall/engine.js");
 
 const ROOT = path.join(__dirname, "..", "apps", "oncall");
 const verbose = process.argv.includes("-v");
+const LV = { 1: "普通", 2: "困難", 3: "地獄" };
 const problems = [];
 
 function load(p){ return JSON.parse(fs.readFileSync(p, "utf8")); }
@@ -46,20 +48,23 @@ fs.readdirSync(path.join(ROOT, "roles")).filter((f) => f.endsWith(".json")).forE
   E.validate(role, stations).forEach((p) => problems.push(p));
   console.log("\n" + role.id + " (" + role.name.en + "), map " + map.id + ", " + role.scenarios.length + " scenarios");
   role.scenarios.forEach((s) => {
-    let a;
-    try { a = E.analyse(s); } catch (e) { problems.push(role.id + "/" + s.id + ": " + e.message); return; }
-    if (!a.paths.length) return;
-    const grades = { S: 0, A: 0, B: 0, C: 0 };
-    a.paths.forEach((p) => grades[p.score.grade]++);
-    const totals = a.paths.map((p) => p.score.total).sort((x, y) => x - y);
-    console.log("  " + s.id.padEnd(9) + "★".repeat(s.stars).padEnd(4) + "par " + String(a.par).padStart(3) + " min (fastest " + a.fastest + ") · top " +
-      a.top.score.total + " (" + a.top.score.grade + ") in " + a.top.mins + " min · " + a.paths.length + " paths · " +
-      "S" + grades.S + " A" + grades.A + " B" + grades.B + " C" + grades.C + " · totals " + totals[0] + "–" + totals[totals.length - 1]);
-    if (verbose) {
-      const sc = a.top.score;
-      console.log("      top: time " + sc.time + " users " + sc.users + " asset " + sc.asset + "  (" + a.top.mins + " min, users " + a.top.users + ", asset " + a.top.asset + "; best users " + a.best.users + ", asset " + a.best.asset + ")");
-      a.top.path.forEach((p) => console.log("      → " + s.steps[p.phase].opts[p.i].label.zh));
-    }
+    E.LEVELS.forEach((lv) => {
+      let a;
+      try { a = E.analyse(s, lv); } catch (e) { problems.push(role.id + "/" + s.id + ": " + e.message); return; }
+      if (!a.paths.length) return;
+      const grades = { S: 0, A: 0, B: 0, C: 0 };
+      a.paths.forEach((p) => grades[p.score.grade]++);
+      const totals = a.paths.map((p) => p.score.total).sort((x, y) => x - y);
+      const opts = Object.keys(s.steps).reduce((n, k) => n + s.steps[k].opts.filter((o) => (o.lv || 1) <= lv).length, 0);
+      console.log("  " + (lv === 1 ? s.id : "").padEnd(9) + LV[lv] + " " + String(opts).padStart(2) + " options · par " + String(a.par).padStart(3) +
+        " min (fastest " + a.fastest + ") · top " + a.top.score.total + " (" + a.top.score.grade + ") in " + a.top.mins + " min · " +
+        a.paths.length + " paths · S" + grades.S + " A" + grades.A + " B" + grades.B + " C" + grades.C + " · totals " + totals[0] + "–" + totals[totals.length - 1]);
+      if (verbose) {
+        const sc = a.top.score;
+        console.log("      top: time " + sc.time + " users " + sc.users + " asset " + sc.asset + "  (" + a.top.mins + " min, users " + a.top.users + ", asset " + a.top.asset + "; best users " + a.best.users + ", asset " + a.best.asset + ")");
+        a.top.path.forEach((p) => console.log("      → " + s.steps[p.phase].opts[p.i].label.zh));
+      }
+    });
   });
 });
 

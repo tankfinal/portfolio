@@ -1,7 +1,8 @@
-// 凌晨三點 (3 A.M.): everything around the map. The dialog box, the station screens (a terminal or a phone),
-// the log, the status bar, the goal line, the ending card and the postmortem. It draws from the game the
-// controller (apps/oncall.js) keeps, g = {role, s (scenario), st (engine state), map, answered, outs, panelAt},
-// and never changes it; what the player picks goes back through the callbacks.
+// 凌晨三點 (3 A.M.): everything around the map. The difficulty picker, the dialog box, the station screens (a
+// terminal or a phone), the log, the status bar, the goal line, the ending card and the postmortem. It draws
+// from the game the controller (apps/oncall.js) keeps, g = {role, s (scenario), st (engine state; st.lv is the
+// difficulty), map, answered, outs, panelAt}, and never changes it; what the player picks goes back through
+// the callbacks.
 (function(root){
   var OC = root.OC = root.OC || {};
   var SEV = {P1:"#FF453A", P2:"#FF9F0A", P3:"#8E8E93"};
@@ -11,7 +12,8 @@
     var cv = el.querySelector(".oc-cv"), loadEl = el.querySelector(".oc-load"), goalEl = el.querySelector(".oc-goal");
     var game = el.querySelector(".oc-rpg"), pmEl = el.querySelector(".oc-pm"), barEl = el.querySelector(".oc-bar");
     var sayEl = el.querySelector(".oc-say"), panel = el.querySelector(".oc-panel"), book = el.querySelector(".oc-book");
-    var bookList = book.querySelector(".oc-log"), endEl = el.querySelector(".oc-end");
+    var bookList = book.querySelector(".oc-log"), endEl = el.querySelector(".oc-end"), pickEl = el.querySelector(".oc-pick");
+    var hud = el.querySelector(".oc-hud");
     var queue = [], typing = null, full = "";
 
     function L(o){ return o[os.lang() === "en" ? "en" : "zh"]; }
@@ -31,6 +33,35 @@
     // The dimensions this incident is scored on; time always counts.
     function dims(s){ return E.DIMS.filter(function(k){ return k === "time" || (s.weights[k] || 0) > 0; }); }
     function stars(n){ return "★★★".slice(0, n) + "☆☆☆".slice(n); }
+
+    /* ----- the difficulty picker, before each game ----- */
+    function drawPick(lv, onPick){
+      var card = pickEl.querySelector(".oc-pickcard"), on = null;
+      card.textContent = "";
+      card.appendChild(make("h2", "", os.t("app.oncall")));
+      card.appendChild(make("p", "", os.t("oc.pick")));
+      E.LEVELS.forEach(function(n){
+        var b = make("button", "oc-lvb");
+        b.type = "button";
+        b.appendChild(make("b", "", os.t("oc.lv." + n)));
+        b.appendChild(make("span", "", stars(n)));
+        b.appendChild(make("small", "", os.t("oc.lv." + n + ".d")));
+        b.addEventListener("click", function(){ onPick(n); });
+        card.appendChild(b);
+        if (n === lv) on = b;
+      });
+      barEl.hidden = true;
+      hud.hidden = true;
+      goalEl.textContent = "";
+      pickEl.hidden = false;
+      on.focus();
+    }
+    pickEl.addEventListener("keydown", function(e){
+      if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+      e.preventDefault();
+      var bs = [].slice.call(pickEl.querySelectorAll(".oc-lvb")), i = bs.indexOf(document.activeElement);
+      bs[(i + (e.key === "ArrowDown" ? 1 : bs.length - 1)) % bs.length].focus();
+    });
 
     /* ----- the dialog box: lines queue up and type out ----- */
     function talk(text){
@@ -182,7 +213,7 @@
       card.appendChild(make("div", "gr " + sc.grade, sc.grade));
       card.appendChild(make("h2", "", os.fill(os.t("end.title"), {g:sc.grade, name:os.t("end." + sc.grade)})));
       card.appendChild(make("p", "", os.fill(os.t("end." + sc.grade + ".t"), {m:g.st.mins})));
-      card.appendChild(make("p", "was", os.fill(os.t("end.was"), {name:L(g.s.name), stars:stars(g.s.stars)})));
+      card.appendChild(make("p", "was", os.fill(os.t("end.was"), {name:L(g.s.name), lv:os.t("oc.lv." + g.st.lv)})));
       card.appendChild(make("p", "st", os.fill(os.t("end.score"), {n:sc.total}) + " · " + scoreLine(g, sc)));
       var row = make("div", "row"), toPm = make("button", "oc-btn pri", os.t("end.pm")), next = make("button", "oc-btn", os.t("oc.next"));
       toPm.type = next.type = "button";
@@ -197,7 +228,7 @@
 
     /* ----- the postmortem ----- */
     function drawPm(g, on){
-      var s = g.s, st = g.st, sc = g.score, a = E.analyse(s), acts = st.events.filter(function(e){ return e.k === "act"; });
+      var s = g.s, st = g.st, sc = g.score, a = E.analyse(s, st.lv), acts = st.events.filter(function(e){ return e.k === "act"; });
       var wsum = dims(s).reduce(function(t, k){ return t + (s.weights[k] || 0); }, 0) || 1;
       function section(title){ pmEl.appendChild(make("h3", "", title)); }
       pmEl.textContent = "";
@@ -205,7 +236,7 @@
       var head = make("div", "oc-head"), txt = make("div");
       head.appendChild(make("div", "oc-grade " + sc.grade, sc.grade));
       txt.appendChild(make("h2", "", os.t("oc.pm") + " · " + L(s.name)));
-      txt.appendChild(make("p", "", os.fill(os.t("end.title"), {g:sc.grade, name:os.t("end." + sc.grade)}) + " · " + os.fill(os.t("oc.pm.stars"), {stars:stars(s.stars)})));
+      txt.appendChild(make("p", "", os.fill(os.t("end.title"), {g:sc.grade, name:os.t("end." + sc.grade)}) + " · " + os.fill(os.t("oc.pm.lv"), {lv:os.t("oc.lv." + st.lv)})));
       head.appendChild(txt);
       pmEl.appendChild(head);
 
@@ -275,11 +306,14 @@
       pmEl.appendChild(make("p", "oc-credit", os.t("oc.credit")));
 
       var end = make("div", "oc-endrow"), next = make("button", "oc-btn pri", os.t("oc.next")), again = make("button", "oc-btn", os.t("oc.again"));
-      next.type = again.type = "button";
+      var lvB = make("button", "oc-btn", os.t("oc.toPick"));
+      next.type = again.type = lvB.type = "button";
       next.addEventListener("click", on.next);
       again.addEventListener("click", on.again);
+      lvB.addEventListener("click", on.level);
       end.appendChild(next);
       end.appendChild(again);
+      end.appendChild(lvB);
       pmEl.appendChild(end);
       game.hidden = true; barEl.hidden = true; pmEl.hidden = false;
       el.scrollTop = 0;
@@ -294,11 +328,12 @@
     return {
       L:L, talk:talk, advance:advance,
       busy: function(){ return !sayEl.hidden || !panel.hidden || !book.hidden; },
-      // A fresh game: the map showing, every overlay closed, the loading note until `loaded` says otherwise.
+      // A fresh game: the map showing, every overlay closed.
       reset: function(){
         queue = []; clearInterval(typing); typing = null;
-        [sayEl, panel, book, endEl, pmEl].forEach(function(x){ x.hidden = true; });
+        [sayEl, panel, book, endEl, pmEl, pickEl].forEach(function(x){ x.hidden = true; });
         game.hidden = false;
+        hud.hidden = false;
         goalEl.textContent = "";
         el.scrollTop = 0;
       },
@@ -306,6 +341,7 @@
         loadEl.hidden = state === false;
         loadEl.textContent = os.t(state === "fail" ? "rpg.loadFail" : "rpg.loading");
       },
+      pick:drawPick, pickOpen: function(){ return !pickEl.hidden; },
       bar:drawBar, goal:drawGoal, panel:drawPanel, closePanel:closePanel,
       panelOpen: function(){ return !panel.hidden; },
       openBook:openBook, closeBook:closeBook, drawLog:drawLog,
