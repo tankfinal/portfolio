@@ -40,7 +40,8 @@ images/
 ├── yangmingshan-trip.jpg
 ├── wallpaper-komezuka.jpg     # TankOS 桌布（1920px）
 ├── wallpaper-komezuka-sm.jpg  # 手機版桌布（1200px）
-└── averlyn-vaccine.jpg
+├── averlyn-vaccine.jpg
+└── shachiku.jpg
 api/                # 排行榜、線上訪客、Request 的一生共用的 Worker + D1，獨立部署，見「API」
 ├── src/index.js
 ├── schema.sql
@@ -93,7 +94,7 @@ macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.htm
 - **下個連假小工具**（`#wgHol`）：連續放假 3 天以上、且其中有 `HOLIDAYS` 裡的日子才算連假。顯示還有幾天（或「明天」「放假中」）、節日名、連休天數與起訖日，每分鐘重算；點一下開日曆並選在連假第一天。`HOLIDAYS` 的資料用完就自動隱藏。
 - **關於 TankOS**（`about`，點選單列左上的 T，或 Spotlight、`open about`）：版號直接讀 `.mb-ver`；更新紀錄從 GitHub API 抓 commit，只列 subject 結尾有 `（vX.Y.Z）` 的那些，所以版號規則裡「commit subject 標版號」是這個視窗的資料來源，不能省。主機欄依網址判斷是 Cloudflare Workers 還是 GitHub Pages。
 - **Terminal** 是假的，指令寫死在 `run()` 裡；開視窗時會先列出 `HELP`。有幾個吃真資料：`who`（見下一條）、`git log [repo]`（GitHub API，未登入每小時 60 次）、`kubectl get pods`（跟活動監視器同一個 `probe()`）、`neofetch`、`top`。Tab 會補指令、`open` 的 App 名稱和 `git log` 的 repo。彩蛋（不列在 help）：`sudo`、`sudo rm -rf /`、`rm`、`deploy`（禮拜五不同）、`乖乖`、`vim`、`咖啡`、`hi`、`fortune`、`bug`，中文在上、英文在下。
-- **我是社畜**（英文 I'm a Shachiku，`shachiku`，桌面「實驗區」與 Spotlight）：半夜被告警叫醒的像素 RPG，獨立在私人 repo `tankfinal/shachiku`、部署在 `https://shachiku.xarenvich.workers.dev`，遊戲內容、規則、版號都在那邊。跟私人版一樣是 `link` App，點了開新分頁（遊戲要全尺寸玩才順，鍵盤也不用先點進 iframe），網址帶 `?lang=` 讓遊戲沿用 TankOS 現在的語言（遊戲那邊自己選過語言的話以它為準）。TankOS 這裡只有圖示、名稱和網址。舊名「凌晨三點」留在 Spotlight 關鍵字裡。
+- **我是社畜**（英文 I'm a Shachiku，`shachiku`，桌面「實驗區」、Dock 與 Spotlight）：半夜被告警叫醒的像素 RPG，獨立在私人 repo `tankfinal/shachiku`、部署在 `https://shachiku.xarenvich.workers.dev`，遊戲內容、規則、版號都在那邊。跟其他作品一樣是網站型 App（`k: "w5"`，經典版作品第 05 項），視窗左邊介紹、右邊即時預覽，要全尺寸玩就按「開啟網站」開新分頁。repo 是私人的，所以沒有 Source 連結。舊名「凌晨三點」留在 Spotlight 關鍵字裡。
 - **Request 的一生**（`trace`，獨立檔案 App，桌面「實驗區」與 Spotlight）：按「送出請求」打一次 `GET /trace`，畫出三塊：路線圖（你 → Cloudflare 機房，Worker 在這裡跑 → D1 所在機房），每段標實測來回時間、直線距離與光速來回下限（光纖約 200 km/ms），送出時有一顆點沿路線來回（減少動態效果時不跑）；瀑布圖用瀏覽器的 Resource Timing（`PerformanceObserver`，不受 250 筆緩衝上限影響）拆 DNS、連線、TLS、等待回應、下載，「等待回應」再拆成網路來回（Cloudflare 量的 RTT）、Worker 等 D1、其他；細節列協定、TLS、網路業者、資料庫（D1 所在機房、主要或副本）與查詢（`SELECT 1` 與資料庫實際執行的時間）。路線圖、圖例與結論都寫「資料庫」而不是 D1，結論那句直接用兩端的城市（例：從達拉斯到新加坡），讓不懂後端的人也看得懂。選單列的線上人數讓這台 Worker 的連線一直開著，所以通常是連線重用、DNS 與 TLS 為 0，畫面會照實說明，並列出當初開這條連線的那個請求（通常是 `/presence` 的心跳）花了多少 DNS、連線、TLS 時間——找法是這次之前、最後一個有連線時間的 API 請求；瀏覽器的 Resource Timing 緩衝（250 筆）滿了以後只信視窗開著時 `PerformanceObserver` 看到的，找不到就不顯示。網頁沒辦法要求瀏覽器開新連線，所以只能顯示當初那條的數字。機房座標表在 `apps/trace.js` 的 `COLO`，不在表裡的機房只顯示代號、不算距離。最近 10 次的總時間與中位數列在最下面。路線圖、結論和細節以外分三個分頁：**時間軸**（預設，SVG 循序圖，三條泳道「你／Cloudflare／資料庫」由上往下走時間；色塊是實測的建立連線、資料庫執行查詢、其他、下載，虛線箭頭是單程，量不到所以用來回除以 2 並標 ≈；照視窗實際寬度畫、`ResizeObserver` 在寬度變了才重畫）、**瀑布圖**（上面那段）、**原始封包**（請求依 HTTP 版本顯示：HTTP/2、3 用 `:method`、`:path` 這類 pseudo-header，HTTP/1.1 用請求行；瀏覽器自動加的 header 網頁讀不到，畫面上註明。回應列 status、全部 header（Worker 送 `Access-Control-Expose-Headers: *`）和排版過的 JSON，加上內容大小（有壓縮時列壓縮前後）。header 的實際大小瀏覽器不公開：Resource Timing 規格的 `transferSize` 是內容大小加固定 300，避免從大小推出 cookie，所以畫面不拿它算 header，直接照實說明）。
 - **線上訪客**（選單列時鐘左邊的綠點與人數、終端機 `who`）：每個分頁每 30 秒向 `/presence` 回報一次（分頁在背景時停止，切回來馬上補一次），回應就是 60 秒內有回報的人；離開頁面時用 `sendBeacon` 打 `/presence/leave` 立刻下線。回報內容是分頁 id 和「現在在看什麼」（最上層視窗的 App id，沒開視窗是 `desktop`，還沒解鎖是 `lock`）。`who` 會重新問一次伺服器，列出 `visitor-xxxx`、城市與國家、上線時間（看的人的當地時間）、在看什麼，自己那列標「← 你」，只有自己時跳彩蛋。點選單列的人數會開終端機並執行 `who`（`initTerm` 把 `exec` 掛在視窗的 `_cmd` 上）。分頁 id 存在 `sessionStorage.who.sid`，新分頁或下次造訪就是新的人，不跨造訪追蹤。API 連不上時人數不顯示，`who` 印錯誤。後端見「API」。
 
@@ -145,14 +146,15 @@ sips -s format jpeg -s formatOptions 78 shot.png --out out.jpg
 
 ## API（`api/`）
 
-方塊消除的排行榜、線上訪客與 Request 的一生共用一個 Cloudflare Worker `blocks-leaderboard`（名稱沿用最早只有排行榜的時候），資料放 Cloudflare D1（同名資料庫），都在免費額度內。跟靜態站分開部署（見下方「部署」）：GitHub Pages 與 `portfolio` Worker 都只送靜態檔，`api/` 已列進 `.assetsignore`。
+方塊消除的排行榜、線上訪客與 Request 的一生共用一個 Cloudflare Worker `tankos-api`，資料放 Cloudflare D1 的 `blocks-leaderboard` 資料庫（名稱沿用最早只有排行榜的時候），都在免費額度內。直接打開 `https://tankos-api.xarenvich.workers.dev/` 是一頁說明，列出下面這些 API。跟靜態站分開部署（見下方「部署」）：GitHub Pages 與 `portfolio` Worker 都只送靜態檔，`api/` 已列進 `.assetsignore`。
 
 ```
-GET  https://blocks-leaderboard.xarenvich.workers.dev/scores               → {top}
-POST https://blocks-leaderboard.xarenvich.workers.dev/scores {name, score} → {top, me:{name, score, rank}}
-POST https://blocks-leaderboard.xarenvich.workers.dev/presence {sid, app}   → {me, total, online:[{tag, city, country, app, since}]}
-POST https://blocks-leaderboard.xarenvich.workers.dev/presence/leave {sid} → 204
-GET  https://blocks-leaderboard.xarenvich.workers.dev/trace                → {edge, client, d1}
+GET  https://tankos-api.xarenvich.workers.dev/                       → 說明頁（HTML）
+GET  https://tankos-api.xarenvich.workers.dev/scores               → {top}
+POST https://tankos-api.xarenvich.workers.dev/scores {name, score} → {top, me:{name, score, rank}}
+POST https://tankos-api.xarenvich.workers.dev/presence {sid, app}   → {me, total, online:[{tag, city, country, app, since}]}
+POST https://tankos-api.xarenvich.workers.dev/presence/leave {sid} → 204
+GET  https://tankos-api.xarenvich.workers.dev/trace                → {edge, client, d1}
 ```
 
 ### 排行榜（`/scores`）
@@ -179,7 +181,7 @@ GET  https://blocks-leaderboard.xarenvich.workers.dev/trace                → {
 
 ### 部署
 
-Push 到 `main` 且改到 `api/` 底下的檔案 → Cloudflare Workers Builds 自動部署 `blocks-leaderboard`。只改網頁的 push 不會觸發它。Dashboard 上的設定（`blocks-leaderboard` → Settings → Build）：
+Push 到 `main` 且改到 `api/` 底下的檔案 → Cloudflare Workers Builds 自動部署 `tankos-api`。只改網頁的 push 不會觸發它。Dashboard 上的設定（`tankos-api` → Settings → Build）：
 
 | 設定 | 值 |
 |---|---|

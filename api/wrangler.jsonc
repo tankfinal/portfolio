@@ -2,11 +2,12 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   // Workers Builds deploys this on every push to main that touches api/ (root directory /api/, watch path api/*).
   // The Worker name in the dashboard must stay equal to `name`, or the build fails.
-  "name": "blocks-leaderboard",
+  "name": "tankos-api",
   "main": "src/index.js",
   "compatibility_date": "2026-10-01",
   // The site calls the workers.dev URL; preview URLs are not needed.
   "preview_urls": false,
+  // The database keeps the name from when it only held the leaderboard.
   "d1_databases": [
     {
       "binding": "DB",

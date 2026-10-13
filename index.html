@@ -624,7 +624,8 @@
 
   /* ---------- phones ---------- */
   @media (max-width:768px){
-    :root{--ds:clamp(28px,calc((100vw - 104px) / 8),52px)}
+    /* Nine Dock icons share the width left after the ten 6px gaps, the padding, the separator and a margin. */
+    :root{--ds:clamp(28px,calc((100vw - 110px) / 9),52px)}
     .desktop{overflow-y:auto;overscroll-behavior:contain;padding:14px 6px calc(var(--dock-space) + 8px)}
     .zones-l,.zones-r,.zone-about{position:static}
     .zones-l{gap:16px}
@@ -694,7 +695,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v1.16.1</span>
+    <span class="mb-ver">v1.17.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -779,6 +780,7 @@
   <button class="dk" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="tip" data-i18n="app.busan">釜山清單</span></button>
   <button class="dk" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="tip" data-i18n="app.yangmingshan">陽明山慶生</span></button>
   <button class="dk" type="button" data-open="averlyn"><span class="ic ic-averlyn"><svg><use href="#g-syringe"/></svg></span><span class="tip" data-i18n="app.averlyn">Averlyn 疫苗</span></button>
+  <button class="dk" type="button" data-open="shachiku"><span class="ic ic-shachiku"><svg><use href="#g-bell"/></svg></span><span class="tip" data-i18n="app.shachiku">我是社畜</span></button>
   <button class="dk" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="tip">README.md</span></button>
   <button class="dk" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="tip" data-i18n="app.terminal">終端機</span></button>
   <button class="dk" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="tip" data-i18n="app.contact">聯絡我</span></button>
@@ -987,6 +989,10 @@
              en:"Tracks my daughter through 36 shots against Taiwan’s public and self-paid vaccine schedule. The timeline groups by date, folds finished shots into one line and opens on the countdown to the next one. The records are for family only, so the site sits behind a password on Cloudflare Pages: the hash lives in D1, Pages Functions return the data only after login, and the frontend bundle holds no records at all."},
     "w3.s2": {zh:"GitHub Actions 部署到 Cloudflare Pages", en:"GitHub Actions deploys to Cloudflare Pages"},
     "w3.s3": {zh:"密碼保護，登入後才回傳資料", en:"Password-protected; data only after login"},
+    "w5.t": {zh:"我是社畜：半夜值班的像素 RPG", en:"I'm a Shachiku: an On-Call Pixel RPG"},
+    "w5.d": {zh:"半夜被告警叫醒的俯視角像素 RPG。九個交易所後端事故，每個都要走完分診、止血、找原因、恢復服務、驗證、善後，沒有唯一正解，依時間、用戶影響、資產風險三項計分。分普通、困難、地獄三種難度，困難以上即時計時，現實每 10 秒就是遊戲裡 1 分鐘。劇本和地圖都是 JSON，加角色不用改程式。", en:"A top-down pixel RPG about being woken at night by alerts. Nine exchange-backend incidents, each taken from triage and containment through the cause, the restore, the checks and the clean-up, with no single right answer: you are scored on time, user impact and asset risk. Normal, Hard and Hell; from Hard up the clock runs in real time, ten seconds to a game minute. Scenarios and maps are JSON, so a new role needs no code."},
+    "w5.s2": {zh:"Cloudflare Workers，push 到 main 自動部署", en:"Cloudflare Workers, deployed on every push to main"},
+    "w5.s3": {zh:"三種難度、即時計時、事故檢討", en:"Three difficulties, a real-time clock, a postmortem"},
     "hero.lede": {zh:"我帶 XREX 的後端團隊，做區塊鏈合規與 AML 風控系統。在這之前是 Binance 的微服務跟資料管線。晚上寫一些自己會用的小網站。",
                    en:"I lead the backend team at XREX, building blockchain compliance and AML risk systems. Before that, microservices and data pipelines at Binance. At night I write small websites I actually use."},
     "exp.now": {zh:"現職", en:"Current"},
@@ -1120,9 +1126,8 @@
     "os.load.retry":{zh:"重試", en:"Retry"}
   };
 
-  // Site apps run the live page in an iframe beside a sidebar about it; `link` apps open in a new tab
-  // (`lang: true` passes the current language as ?lang=); `file` apps load apps/<id>.js the first time they
-  // open; the rest clone a <template id="tpl-{id}">.
+  // Site apps run the live page in an iframe beside a sidebar about it; `link` apps open in a new tab;
+  // `file` apps load apps/<id>.js the first time they open; the rest clone a <template id="tpl-{id}">.
   var APPS = {
     fukuoka: {k:"w1", url:"https://tankfinal.github.io/fukuoka-trip/", src:"https://github.com/tankfinal/fukuoka-trip",
               spec:[["spec.build","w1.s1"], ["spec.feat","w1.s2"], ["spec.size",null,"113 KB"]], w:1080, h:720},
@@ -1135,8 +1140,9 @@
     activity:{w:780, h:430},
     blocks:  {w:420, h:660},
     trace:   {w:760, h:620, file:"apps/trace.js"},
-    // A game with its own site (tankfinal/shachiku): it plays better full size, so it opens in a new tab.
-    shachiku:{link:"https://shachiku.xarenvich.workers.dev/", lang:true},
+    // A game with its own site (tankfinal/shachiku, a private repo, so no Source link).
+    shachiku:{k:"w5", url:"https://shachiku.xarenvich.workers.dev/",
+              spec:[["spec.build",null,"Vanilla JS · Canvas · JSON"], ["spec.deploy","w5.s2"], ["spec.feat","w5.s3"]], w:1080, h:720},
     readme:  {w:680, h:660},
     terminal:{w:700, h:560, cls:"term-win"},
     contact: {w:440, h:450},
@@ -1420,7 +1426,7 @@
 
   function open(id){
     if (!APPS[id]) return;
-    if (APPS[id].link) { window.open(APPS[id].link + (APPS[id].lang ? "?lang=" + lang : ""), "_blank", "noopener"); return; }
+    if (APPS[id].link) { window.open(APPS[id].link, "_blank", "noopener"); return; }
     if (wins[id]) {
       wins[id].el.classList.remove("minimized");
       focused = null;
@@ -1483,7 +1489,8 @@
     {app:"fukuoka",      repo:"fukuoka-trip",       url:"https://tankfinal.github.io/fukuoka-trip/"},
     {app:"busan",        repo:"busan-trip",         url:"https://tankfinal.github.io/busan-trip/"},
     {app:"yangmingshan", repo:"yangmingshan-trip",  url:"https://tankfinal.github.io/yangmingshan-trip/"},
-    {app:"averlyn",      repo:"averlyn-vaccine",    url:"https://averlyn-vaccine.pages.dev/"}
+    {app:"averlyn",      repo:"averlyn-vaccine",    url:"https://averlyn-vaccine.pages.dev/"},
+    {app:"shachiku",     repo:"shachiku",           url:"https://shachiku.xarenvich.workers.dev/"}
   ];
   var langHooks = [];
 
@@ -1906,7 +1913,7 @@
   var BK_N = 8;
   // Leaderboard Worker (api/ in this repo), backed by Cloudflare D1.
   // The leaderboard and who's online share one Worker (api/). Point this at http://localhost:8787 to test locally.
-  var API = "https://blocks-leaderboard.xarenvich.workers.dev";
+  var API = "https://tankos-api.xarenvich.workers.dev";
   var BK_API = API + "/scores";
   var BK_COLORS = ["gold","red","blue","green","purple","orange","cyan"];
   var BK_SHAPES = [

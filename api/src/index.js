@@ -1,4 +1,7 @@
-// Leaderboard for TankOS's Block Puzzle, and who is on the site right now.
+// TankOS's API (Worker `tankos-api`): the Block Puzzle leaderboard, who is on the site right now, and the
+// measurements for Life of a Request. Data lives in D1 (database `blocks-leaderboard`, named when the leaderboard
+// was all there was).
+//   GET  /                       -> a page saying what this is and listing the endpoints, for anyone who opens it
 //   GET  /scores                 -> {top}
 //   POST /scores {name, score}   -> {top, me}   keeps the higher of the new and stored score for that name
 //   POST /presence {sid, app}    -> {me, total, online}   heartbeat, every 30 s while the page is visible
@@ -24,6 +27,29 @@ const ORIGINS = [
   "http://127.0.0.1:4321",
 ];
 
+const INDEX = `<!doctype html>
+<html lang="zh-Hant"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TankOS API</title>
+<style>
+  body{max-width:640px;margin:40px auto;padding:0 16px;font:14px/1.7 -apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;color:#1d1d1f;background:#fff}
+  code{font:13px ui-monospace,"SF Mono",Menlo,monospace}
+  li{margin:4px 0}
+  small{color:#8a8a90}
+  a{color:#0a64d8}
+  @media (prefers-color-scheme:dark){body{color:#f2f2f4;background:#1f1f22}a{color:#6cb4ff}}
+</style>
+<h1>TankOS API</h1>
+<p>給 <a href="https://tankfinal.github.io/portfolio/">TankOS</a> 用的後端，資料存在 Cloudflare D1。只接受 TankOS 自己的網域呼叫。</p>
+<ul>
+  <li><code>GET /scores</code>：方塊消除排行榜前 10 名</li>
+  <li><code>POST /scores</code>：送出分數</li>
+  <li><code>POST /presence</code>、<code>POST /presence/leave</code>：線上訪客的心跳與離線</li>
+  <li><code>GET /trace</code>：Request 的一生，這次請求經過哪裡、每段花多久</li>
+</ul>
+<p><small>The backend for TankOS: Block Puzzle leaderboard, who's online, and Life of a Request.</small></p>
+</html>
+`;
+
 const TOP_SQL = "SELECT name, score FROM scores ORDER BY score DESC, set_at LIMIT " + TOP;
 
 export default {
@@ -46,6 +72,9 @@ export default {
       : { Vary: "Origin" };
 
     const path = new URL(request.url).pathname;
+    if (path === "/" && request.method === "GET") {
+      return new Response(INDEX, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=3600" } });
+    }
     if (!["/scores", "/presence", "/presence/leave", "/trace"].includes(path)) return json({ error: "not found" }, 404, cors);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
     if (path === "/scores" && request.method === "GET") {
