@@ -1,0 +1,423 @@
+{
+  "id": "be",
+  "name": {"zh": "後端工程師", "en": "Backend engineer"},
+  "char": 0,
+  "map": "home",
+  "scenarios": [
+    {
+      "id": "pool", "stars": 1, "par": 9, "clock": "03:07",
+      "name": {"zh": "連線池滿了", "en": "Connection pool exhausted"},
+      "hook": {"zh": "下單 API 回應時間飆到 8 秒，5xx 一直往上爬。", "en": "Order API latency hits 8 seconds and 5xx errors keep climbing."},
+      "weights": {"time": 0.5, "users": 0.5, "asset": 0},
+      "budget": {"users": 100},
+      "rate": {"users": 4},
+      "alerts": [
+        {"sev": "P1", "text": {"zh": "下單 API p99 延遲 8.2 秒（SLO 500 ms）", "en": "Order API p99 latency 8.2 s (SLO 500 ms)"}},
+        {"sev": "P1", "text": {"zh": "5xx 比例 23%", "en": "5xx rate 23%"}},
+        {"sev": "P3", "noise": true, "text": {"zh": "行情推播服務記憶體 78%", "en": "Market-data push service memory at 78%"}}
+      ],
+      "steps": {
+        "start": {"ask": {"zh": "先看哪裡？", "en": "Where do you look first?"}, "opts": [
+          {"min": 2, "next": "pool", "label": {"zh": "看監控儀表板", "en": "Open the dashboards"},
+           "say": {"zh": "API 機器 CPU 15%、記憶體正常；資料庫連線數卡在 100/100，資料庫 CPU 92%。", "en": "API hosts: CPU 15%, memory fine. Database connections pinned at 100/100, database CPU 92%."}},
+          {"min": 3, "next": "pool", "label": {"zh": "看下單服務的 log", "en": "Read the order service logs"},
+           "say": {"zh": "滿滿都是 Connection is not available, request timed out after 30000ms：連線池裡的連線全被佔住，新請求拿不到。", "en": "Wall-to-wall \"Connection is not available, request timed out after 30000ms\": every pooled connection is taken and new requests can't get one."}},
+          {"min": 13, "label": {"zh": "直接重啟下單服務", "en": "Restart the order service"},
+           "say": {"zh": "重啟後 5xx 降到 0……8 分鐘後又回到 25%。連線池重新開始是空的，很快又被同一批東西塞滿。", "en": "After the restart 5xx drops to zero... and is back at 25% eight minutes later. The pool starts empty and fills up with the same thing again."}},
+          {"min": 6, "label": {"zh": "先處理行情推播的記憶體告警", "en": "Deal with the market-data memory alert first"},
+           "say": {"zh": "記憶體在正常範圍內波動，跟這次的 5xx 無關。告警不是每一則都重要。", "en": "Memory is moving within its normal range and has nothing to do with the 5xx. Not every alert matters."}}
+        ]},
+        "pool": {"ask": {"zh": "連線池滿了。下一步？", "en": "The pool is full. Next?"}, "opts": [
+          {"min": 3, "next": "fix", "label": {"zh": "到資料庫看正在跑的查詢（processlist、慢查詢紀錄）", "en": "Look at the queries running in the database (processlist, slow query log)"},
+           "say": {"zh": "有 80 條一模一樣的查詢，各跑了 30–60 秒：SELECT … FROM trades WHERE DATE(created_at) = '…'，來自凌晨 3:00 開始的「每日交易對帳報表」排程。", "en": "80 identical queries, each running 30–60 s: SELECT … FROM trades WHERE DATE(created_at) = '…', from the daily trade reconciliation report that starts at 3:00 a.m."}},
+          {"min": 10, "at": "phone", "next": "fix", "label": {"zh": "叫醒 DBA", "en": "Wake up the DBA"},
+           "say": {"zh": "DBA 過了 7 分鐘才接起電話：「你看一下 processlist，我猜是 3 點的對帳報表。」你一看，果然是。", "en": "The DBA picks up after seven minutes: \"Check the processlist, I bet it's the 3 a.m. reconciliation report.\" It is."}},
+          {"min": 10, "users": 30, "label": {"zh": "把連線池從 100 調大到 300", "en": "Raise the pool from 100 to 300"},
+           "say": {"zh": "改設定、重新部署花了 6 分鐘。結果資料庫 CPU 衝到 100%，所有查詢都變慢，5xx 反而升到 40%，你又花 4 分鐘改回來。連線池滿是症狀，不是原因。", "en": "Changing the config and redeploying takes six minutes. Database CPU hits 100%, every query slows down, 5xx climbs to 40%, and you spend four more minutes reverting. A full pool is the symptom, not the cause."}}
+        ]},
+        "fix": {"ask": {"zh": "找到了：對帳報表的慢查詢。怎麼止血？", "en": "Found it: the report's slow queries. How do you stop the bleeding?"}, "opts": [
+          {"min": 4, "fix": true, "label": {"zh": "先暫停報表排程，再 kill 掉這些慢查詢", "en": "Pause the report job first, then kill the slow queries"},
+           "say": {"zh": "連線數掉到 18/100，p99 回到 180 ms，5xx 歸零。", "en": "Connections fall to 18/100, p99 is back to 180 ms, 5xx at zero."}},
+          {"min": 5, "label": {"zh": "直接 kill 掉慢查詢", "en": "Just kill the slow queries"},
+           "say": {"zh": "連線數掉下來了……3 分鐘後排程自動重試，又塞滿了。來源沒停，砍再多都會回來。", "en": "Connections drop... and three minutes later the job retries and fills them again. Until the source stops, they keep coming back."}},
+          {"min": 22, "users": 20, "label": {"zh": "現在就幫 trades 表加索引", "en": "Add an index to trades right now"},
+           "say": {"zh": "上億筆的表，建索引跑了 20 分鐘，期間還吃掉資料庫的 CPU 和 IO，止不了血。索引是事後的根治，不是現在的止血。", "en": "On hundreds of millions of rows the index takes 20 minutes to build and eats database CPU and IO the whole time. An index is the cure for later, not the tourniquet for now."}}
+        ]}
+      },
+      "cause": {"zh": "凌晨 3:00 的對帳報表用了 DATE(created_at) = ?，函式包住欄位讓索引失效，每條查詢都掃整張表。80 條同時跑，把資料庫連線全部佔住，下單 API 拿不到連線就逾時。", "en": "The 3 a.m. reconciliation report filters on DATE(created_at) = ?. Wrapping the column in a function stops the index from being used, so every query scans the whole table. Eighty of them at once held every database connection, and the order API timed out waiting for one."},
+      "todo": [
+        {"zh": "查詢改成 created_at >= ? AND created_at < ?，讓索引用得上", "en": "Rewrite the filter as created_at >= ? AND created_at < ? so the index applies"},
+        {"zh": "報表改到唯讀副本跑，不跟下單搶連線", "en": "Run reports on a read replica, away from order traffic"},
+        {"zh": "批次工作的查詢設逾時，跑太久就直接中斷", "en": "Give batch queries a timeout so runaway ones are cut off"}
+      ],
+      "lesson": {"zh": "連線池滿是症狀，不是原因：先找出是誰佔住連線，停掉來源止血，再回頭根治。", "en": "A full pool is a symptom, not a cause: find who is holding the connections, stop the source, then fix it properly."}
+    },
+    {
+      "id": "cron", "stars": 2, "par": 23, "clock": "00:20",
+      "name": {"zh": "返佣發了兩次", "en": "Rebates paid twice"},
+      "hook": {"zh": "今天的交易返佣，發了平常的兩倍。", "en": "Tonight's trading rebates went out at twice the usual amount."},
+      "weights": {"time": 0.3, "users": 0.3, "asset": 0.4},
+      "budget": {"users": 80, "asset": 120},
+      "rate": {"users": 1, "asset": 4},
+      "alerts": [
+        {"sev": "P2", "text": {"zh": "每日返佣發放總額 2.0 倍（平常 ±5%）", "en": "Daily rebate payout: 2.0× (normally ±5%)"}},
+        {"sev": "P3", "text": {"zh": "客服信箱：「我的返佣怎麼多了一倍？」", "en": "Support inbox: \"Why did my rebate double?\""}}
+      ],
+      "steps": {
+        "start": {"ask": {"zh": "先做什麼？", "en": "What do you do first?"}, "opts": [
+          {"min": 3, "next": "why", "label": {"zh": "看排程的執行紀錄", "en": "Check the job's run history"},
+           "say": {"zh": "00:00:00 在 worker-1 跑了一次，00:00:01 在 worker-2 又跑了一次。上週為了扛行情的流量，worker 從一台擴成兩台。", "en": "It ran on worker-1 at 00:00:00 and again on worker-2 at 00:00:01. Last week the workers were scaled from one to two for market traffic."}},
+          {"min": 8, "label": {"zh": "回滾昨天的部署", "en": "Roll back yesterday's deploy"},
+           "say": {"zh": "昨天的部署只改了前端文案，回滾完返佣還是多的。不是每個事故都是最近一次部署造成的。", "en": "Yesterday's deploy only changed some front-end copy; after the rollback the rebates are still doubled. Not every incident comes from the latest deploy."}},
+          {"min": 6, "users": 40, "label": {"zh": "馬上寫 SQL 把多發的返佣扣回來", "en": "Write SQL to claw the rebates back right now"},
+           "say": {"zh": "你用「今天有兩筆返佣的用戶」當條件扣回，結果把今天剛好有兩筆合法返佣（例如邀請獎勵）的用戶也一起扣了，客服信箱炸開。補救之前要先算清楚範圍。", "en": "You deduct from \"users with two rebates today\" and also hit everyone who legitimately got two, referral rewards included. The support inbox explodes. Work out the scope before you repair anything."}}
+        ]},
+        "why": {"ask": {"zh": "為什麼兩台都會跑？", "en": "Why did both machines run it?"}, "opts": [
+          {"min": 2, "next": "contain", "label": {"zh": "看排程是怎麼寫的", "en": "Read how the job is scheduled"},
+           "say": {"zh": "排程寫在應用程式裡，每台機器各自觸發，沒有分散式鎖，發放也沒有冪等鍵。一台的時候沒事，兩台就各跑一次。", "en": "The schedule lives in the application, so every machine fires it. No distributed lock, no idempotency key on the payout. Fine with one machine; with two, each runs it once."}},
+          {"min": 12, "at": "phone", "next": "contain", "label": {"zh": "叫醒寫這支排程的同事", "en": "Wake the engineer who wrote the job"},
+           "say": {"zh": "同事過了 10 分鐘回電：「啊……當初預設只會有一台。」", "en": "Ten minutes later they call back: \"Oh... we assumed there'd only ever be one.\""}}
+        ]},
+        "contain": {"ask": {"zh": "先擋住、再補救。下一步？", "en": "Contain it, then repair it. Next?"}, "opts": [
+          {"min": 3, "users": 10, "rate": {"asset": 0}, "label": {"zh": "先暫停返佣的提領和交易使用", "en": "Freeze rebate balances from withdrawal and trading for now"},
+           "say": {"zh": "多發的返佣不會再被用掉或提走了。只是所有人的返佣都暫時不能用，客服多了一些詢問。", "en": "The extra rebates can't be spent or withdrawn any more. Everyone's rebates are frozen for now, though, and support gets more questions."}},
+          {"min": 10, "next": "spent", "label": {"zh": "停掉今晚的排程，撈出「同一用戶、同一天、同一種返佣」的重複紀錄，先 dry-run 算人數", "en": "Stop tonight's job, find duplicates by user, day and rebate type, and dry-run the count"},
+           "say": {"zh": "12,034 位用戶各多了 3 USDT，其中 1,820 位已經拿去交易或提走一部分。名單確定了，排程也不會再重試。", "en": "12,034 users got 3 extra USDT each; 1,820 have already traded or withdrawn some. The list is settled and the job won't retry."}},
+          {"min": 4, "label": {"zh": "把 worker-2 關掉就好", "en": "Just shut down worker-2"},
+           "say": {"zh": "明天不會再跑兩次了，但今天多發的返佣還在，而且只剩一台，明天的行情尖峰扛不住。", "en": "It won't run twice tomorrow, but today's extra rebates are still out there, and one machine won't survive tomorrow's market peak."}}
+        ]},
+        "spent": {"ask": {"zh": "已經被用掉的返佣怎麼處理？", "en": "What about rebates that were already used?"}, "opts": [
+          {"min": 5, "fix": true, "asset": 20, "label": {"zh": "用掉的不追回，其餘扣回，並發公告說明", "en": "Leave what was used, reclaim the rest, and post a notice"},
+           "say": {"zh": "扣回腳本照 dry-run 的名單跑完，數字對得上。公告寫清楚是系統錯誤、已用掉的不追回，客服照著回覆。公司吞下已被用掉的那一部分。", "en": "The reclaim script runs against the dry-run list and the numbers match. The notice says it was our error and used rebates stay used; support replies from it. The company absorbs what was spent."}},
+          {"min": 6, "fix": true, "users": 60, "label": {"zh": "全部扣回，扣到變負數也沒關係", "en": "Reclaim everything, even into a negative balance"},
+           "say": {"zh": "1,820 位用戶的返佣餘額變成負的，客服電話整晚沒停。錯是我們犯的，代價不該讓用戶扛。", "en": "1,820 users now show a negative rebate balance and the support line rings all night. The mistake was ours; users shouldn't pay for it."}}
+        ]}
+      },
+      "cause": {"zh": "每日返佣的排程寫在應用程式裡，沒有分散式鎖，發放也沒有冪等鍵。上週 worker 從一台擴成兩台，兩台在 00:00 各跑了一次。", "en": "The daily rebate job lives in the application with no distributed lock and no idempotency key on the payout. Last week the workers went from one to two, and at midnight each ran it."},
+      "todo": [
+        {"zh": "排程加分散式鎖（例如 ShedLock，或 Redis 的 SET NX），同一時間只讓一台跑", "en": "Add a distributed lock (ShedLock, or Redis SET NX) so only one machine runs it"},
+        {"zh": "發放紀錄加唯一鍵（用戶 + 日期 + 返佣類型），重跑也不會重複發", "en": "Put a unique key on payouts (user + date + type) so a rerun can't double up"},
+        {"zh": "擴容檢查表加一項：有沒有只能跑一次的工作", "en": "Add \"anything that must run only once?\" to the scale-out checklist"}
+      ],
+      "lesson": {"zh": "擴容會打破「這段只會跑一次」的假設：排程要有鎖，寫入要冪等；補救前先 dry-run，範圍算清楚再動手。", "en": "Scaling out breaks \"this only runs once\": jobs need a lock, writes need to be idempotent, and repairs need a dry run before anything changes."}
+    },
+    {
+      "id": "cache", "stars": 1, "par": 13, "clock": "03:31",
+      "name": {"zh": "快取雪崩", "en": "Cache stampede"},
+      "hook": {"zh": "Redis 例行升級重啟後，資料庫 CPU 衝到 100%。", "en": "After a routine Redis upgrade and restart, database CPU hits 100%."},
+      "weights": {"time": 0.5, "users": 0.5, "asset": 0},
+      "budget": {"users": 150},
+      "rate": {"users": 5},
+      "alerts": [
+        {"sev": "P1", "text": {"zh": "資料庫 CPU 100%", "en": "Database CPU 100%"}},
+        {"sev": "P1", "text": {"zh": "行情頁（K 線、深度）p99 6.1 秒，5xx 15%", "en": "Market pages (candles, depth) p99 6.1 s, 5xx 15%"}},
+        {"sev": "P3", "text": {"zh": "Redis 命中率 0%", "en": "Redis hit rate 0%"}}
+      ],
+      "timers": [
+        {"at": 15, "rate": {"users": 5}, "alert": {"sev": "P2", "text": {"zh": "客服：App 一直轉圈，用戶說看不到行情", "en": "Support: the app keeps spinning, users can't see prices"}}}
+      ],
+      "steps": {
+        "start": {"ask": {"zh": "Redis 剛重啟完，資料庫就爆了。先做什麼？", "en": "Redis just restarted and the database is melting. First move?"}, "opts": [
+          {"min": 3, "next": "breathe", "label": {"zh": "看資料庫在忙什麼", "en": "See what the database is busy with"},
+           "say": {"zh": "九成是同一支「交易對資訊」查詢，熱門交易對每秒被查幾百次。快取全部同時變空，所有請求一起回源，這就是快取雪崩（cache stampede）。", "en": "Ninety percent is one trading-pair info query, with popular pairs fetched hundreds of times a second. The whole cache emptied at once and every request went to the source together: a cache stampede."}},
+          {"min": 4, "users": 10, "label": {"zh": "再重啟一次 Redis", "en": "Restart Redis again"},
+           "say": {"zh": "快取又空了一次，情況一模一樣。Redis 沒壞，壞的是「所有東西同時沒有快取」。", "en": "The cache empties again and nothing changes. Redis isn't broken; the problem is that nothing is cached at the same time."}},
+          {"min": 20, "users": 25, "label": {"zh": "緊急把資料庫升級到更大的規格", "en": "Upgrade the database to a bigger instance now"},
+           "say": {"zh": "升級要 20 分鐘，中間切換時還斷線 30 秒。等它升完，你早該用別的方法止血了。", "en": "The upgrade takes 20 minutes and drops connections for 30 seconds during the switch. You should have stopped the bleeding some other way long before it finished."}}
+        ]},
+        "breathe": {"ask": {"zh": "怎麼先讓資料庫喘口氣？", "en": "How do you give the database room to breathe?"}, "opts": [
+          {"min": 4, "next": "warm", "rate": {"users": 2}, "label": {"zh": "開啟限流，先關掉「熱門幣種排行」「公告輪播」這些非核心功能", "en": "Turn on rate limiting and switch off non-essentials like the trending list and the announcement carousel"},
+           "say": {"zh": "資料庫 CPU 降到 70%，下單和提幣恢復正常，行情頁還是偏慢。先保住最重要的路徑。", "en": "Database CPU drops to 70%, orders and withdrawals work again, market pages are still slow. Protect the critical path first."}},
+          {"min": 5, "users": 15, "label": {"zh": "把 API 逾時從 3 秒調成 10 秒", "en": "Raise the API timeout from 3 s to 10 s"},
+           "say": {"zh": "請求等得更久、佔住的連線更多，資料庫前面排的隊更長。逾時調長只會讓塞車更嚴重。", "en": "Requests wait longer, hold more connections, and the queue in front of the database grows. A longer timeout only makes the jam worse."}}
+        ]},
+        "warm": {"ask": {"zh": "讓快取回來：", "en": "Bring the cache back:"}, "opts": [
+          {"min": 6, "fix": true, "label": {"zh": "用腳本預熱交易量最大的 200 個交易對", "en": "Warm the 200 busiest trading pairs with a script"},
+           "say": {"zh": "命中率回到 85%，資料庫 CPU 降到 35%，p99 回到 250 ms，非核心功能逐一打開。", "en": "Hit rate back to 85%, database CPU at 35%, p99 at 250 ms. The non-essentials come back one by one."}},
+          {"min": 25, "fix": true, "label": {"zh": "什麼都不做，等快取自己慢慢長回來", "en": "Do nothing and let the cache refill on its own"},
+           "say": {"zh": "25 分鐘後命中率才慢慢回到八成。修好了，但這段時間都在用降級模式撐。", "en": "Twenty-five minutes later the hit rate creeps back to 80%. It's fixed, but you ran degraded the whole time."}}
+        ]}
+      },
+      "cause": {"zh": "Redis 重啟後快取全部變空，熱門交易對的請求同時回源到資料庫。快取平常替資料庫擋掉九成以上的讀取，一拿掉，資料庫就扛不住。", "en": "The restart emptied the cache, and requests for popular pairs all went to the database at once. The cache normally absorbs over 90% of reads; without it the database couldn't cope."},
+      "todo": [
+        {"zh": "快取到期時間加隨機值（jitter），避免大量 key 同時過期", "en": "Add jitter to expiry times so keys don't expire together"},
+        {"zh": "熱門 key 回源加互斥（single-flight），同一個 key 只放一個請求去查資料庫", "en": "Single-flight the refill: one request per key goes to the database"},
+        {"zh": "Redis 升級改用副本切換，不讓快取整個清空；真的要清空前先預熱", "en": "Upgrade Redis by failing over to a replica instead of emptying it, and warm up before any planned flush"}
+      ],
+      "lesson": {"zh": "快取不只是加速，它也在替資料庫擋流量。拿掉之前，先想好誰來擋。", "en": "A cache doesn't just speed things up; it shields the database. Before you remove it, know what will take the load."}
+    },
+    {
+      "id": "kafka", "stars": 2, "par": 15, "clock": "01:50",
+      "name": {"zh": "成交通知卡住", "en": "Trade notifications stuck"},
+      "hook": {"zh": "成交通知延遲 40 分鐘，consumer lag 一直漲。", "en": "Trade notifications are 40 minutes late and consumer lag keeps rising."},
+      "weights": {"time": 0.4, "users": 0.6, "asset": 0},
+      "budget": {"users": 120},
+      "rate": {"users": 3},
+      "alerts": [
+        {"sev": "P2", "text": {"zh": "trade-notify consumer lag 48,000，持續上升", "en": "trade-notify consumer lag 48,000 and rising"}},
+        {"sev": "P3", "text": {"zh": "客服：成交了卻沒收到通知", "en": "Support: users aren't getting fill notifications"}},
+        {"sev": "P3", "noise": true, "text": {"zh": "某條鏈的節點同步延遲 3 個區塊", "en": "A chain node is 3 blocks behind"}}
+      ],
+      "steps": {
+        "start": {"ask": {"zh": "先做什麼？", "en": "What do you do first?"}, "opts": [
+          {"min": 3, "next": "bad", "label": {"zh": "看 consumer 的 log", "en": "Read the consumer logs"},
+           "say": {"zh": "partition 4 一直在重試同一筆訊息（offset 1,203,377）：JsonParseException: Unexpected character。每次失敗就從頭再來，後面的訊息全部排隊。", "en": "Partition 4 keeps retrying the same message (offset 1,203,377): JsonParseException: Unexpected character. Each failure starts over, and everything behind it waits."}},
+          {"min": 5, "label": {"zh": "把 consumer 從 3 個加到 12 個", "en": "Scale the consumers from 3 to 12"},
+           "say": {"zh": "topic 只有 6 個 partition，多出來的 consumer 根本分不到工作；卡住的 partition 4 還是卡住。", "en": "The topic has only 6 partitions, so the extra consumers get nothing to do, and partition 4 is as stuck as before."}},
+          {"min": 4, "label": {"zh": "重啟 consumer", "en": "Restart the consumers"},
+           "say": {"zh": "重啟後從上次 commit 的 offset 繼續，馬上又撞到同一筆壞訊息。", "en": "They resume from the last committed offset and hit the same bad message straight away."}}
+        ]},
+        "bad": {"ask": {"zh": "這筆壞訊息怎麼處理？", "en": "What do you do with the bad message?"}, "opts": [
+          {"min": 4, "next": "wrap", "rate": {"users": 0}, "label": {"zh": "把它送進錯誤佇列（DLQ），commit 跳過", "en": "Send it to the dead-letter queue (DLQ) and commit past it"},
+           "say": {"zh": "partition 4 開始往下消化，lag 從 52,000 一路下降。壞訊息還在 DLQ 裡，沒有丟。", "en": "Partition 4 starts draining and lag falls from 52,000. The bad message is parked in the DLQ, not lost."}},
+          {"min": 2, "next": "wrap", "users": 60, "rate": {"users": 0}, "label": {"zh": "把 consumer group 的 offset 直接重設到最新", "en": "Reset the consumer group's offset to latest"},
+           "say": {"zh": "lag 瞬間歸零，新的成交通知恢復正常。代價是中間那 52,000 筆通知全被跳過，那些用戶永遠收不到了。", "en": "Lag drops to zero and new fill notifications flow again. The price: the 52,000 in between are skipped, and those users will never get them."}},
+          {"min": 6, "users": 40, "label": {"zh": "請上游的撮合服務先停止發訊息", "en": "Ask the upstream matching service to stop producing"},
+           "say": {"zh": "上游停了，新的成交也跟著沒有通知；而且卡住的那一筆還在原地。", "en": "Upstream stops, so new fills get no notifications either, and the stuck message is still there."}}
+        ]},
+        "wrap": {"ask": {"zh": "lag 在下降了。收尾：", "en": "Lag is falling. Wrap it up:"}, "opts": [
+          {"min": 1, "fix": true, "users": 15, "label": {"zh": "壞訊息先留在 DLQ，等上班再查", "en": "Leave the bad message in the DLQ until the morning"},
+           "say": {"zh": "lag 消化完了，你回去睡覺。那一筆壞掉的成交，用戶要到明天才收得到通知。", "en": "The lag is gone and you go back to bed. The user behind the broken message gets their fill notification tomorrow."}},
+          {"min": 8, "fix": true, "label": {"zh": "查壞訊息從哪來、修好解析，再從 DLQ 重送", "en": "Trace where the bad message came from, fix the parser, and replay it from the DLQ"},
+           "say": {"zh": "是上游某個版本把成交數量寫成了「1,200.5」這種帶逗號的字串。解析修好後，從 DLQ 重送那一筆，通知全部補發完畢。", "en": "An upstream release wrote the fill quantity as the string \"1,200.5\", comma and all. With the parser fixed, the message is replayed from the DLQ and every notification goes out."}}
+        ]}
+      },
+      "cause": {"zh": "上游送出一筆格式錯誤的訊息（數量是帶逗號的字串）。consumer 解析失敗就無限重試同一筆；同一個 partition 內要照順序處理，後面的訊息就全部卡住。", "en": "Upstream sent a malformed message (the quantity as a string with a comma). The consumer retried it forever, and since a partition is processed in order, everything behind it stalled."},
+      "todo": [
+        {"zh": "consumer 重試設上限，超過就送 DLQ，不讓一筆訊息卡住整個 partition", "en": "Cap consumer retries and send failures to the DLQ, so one message can't block a partition"},
+        {"zh": "DLQ 要有告警和重送工具，不是丟進去就忘了", "en": "Alert on the DLQ and give it a replay tool, so nothing is dropped and forgotten"},
+        {"zh": "producer 端加 schema 驗證，壞資料一開始就送不出去", "en": "Validate the schema on the producer so bad data never gets sent"}
+      ],
+      "lesson": {"zh": "一筆壞訊息就能卡住整個 partition：重試要有上限，失敗的要有地方去，不能無限重來。", "en": "One bad message can block a whole partition: cap the retries and give failures somewhere to go."}
+    },
+    {
+      "id": "cert", "stars": 1, "par": 12, "clock": "23:40",
+      "name": {"zh": "憑證過期", "en": "Expired certificate"},
+      "hook": {"zh": "禮拜五 23:40，法幣通道的到帳通知全部失敗。", "en": "Friday, 23:40. Every fiat-channel deposit notification is failing."},
+      "weights": {"time": 0.5, "users": 0.5, "asset": 0},
+      "budget": {"users": 150},
+      "rate": {"users": 6},
+      "alerts": [
+        {"sev": "P1", "text": {"zh": "法幣通道合作夥伴的 webhook 失敗率 100%", "en": "Fiat-channel partner webhook failure rate 100%"}},
+        {"sev": "P2", "text": {"zh": "外部監控：api.example.com TLS 握手失敗", "en": "External probe: TLS handshake failed for api.example.com"}}
+      ],
+      "steps": {
+        "start": {"ask": {"zh": "禮拜五晚上，先做什麼？", "en": "It's Friday night. First move?"}, "opts": [
+          {"min": 2, "next": "renew", "label": {"zh": "用 openssl 看一下憑證", "en": "Inspect the certificate with openssl"},
+           "say": {"zh": "notAfter 是今天 23:39:59。憑證在一分鐘前過期了。", "en": "notAfter is today at 23:39:59. The certificate expired a minute ago."}},
+          {"min": 10, "at": "phone", "next": "renew", "label": {"zh": "打給合作夥伴，請他們清快取再重試", "en": "Call the partner and ask them to clear their cache and retry"},
+           "say": {"zh": "對方 10 分鐘後回覆：「我們這邊看到的是 certificate has expired。」", "en": "Ten minutes later they reply: \"We're seeing certificate has expired.\""}},
+          {"min": 8, "label": {"zh": "回滾今天的部署", "en": "Roll back today's deploy"},
+           "say": {"zh": "今天根本沒有部署。禮拜五不部署，這是祖訓。", "en": "There was no deploy today. Nobody deploys on a Friday."}},
+          {"min": 1, "at": "rack", "egg": {"zh": "另外，你去拜了綠色乖乖。", "en": "Also, you made an offering to the green Kuai Kuai."}, "label": {"zh": "先去拜綠色乖乖", "en": "Make an offering to the green Kuai Kuai first"},
+           "say": {"zh": "綠色乖乖已經放上機櫃。可惜乖乖只保佑還沒過期的東西。", "en": "A packet of green Kuai Kuai is on the rack. Sadly it only protects things that haven't expired yet."}}
+        ]},
+        "renew": {"ask": {"zh": "憑證過期了。可是今天是禮拜五……", "en": "The certificate has expired. But it's Friday..."}, "opts": [
+          {"min": 10, "fix": true, "label": {"zh": "手動續期，部署新憑證", "en": "Renew it by hand and deploy the new certificate"},
+           "say": {"zh": "新憑證部署上去，TLS 握手恢復，合作夥伴的 webhook 開始重送，入金陸續到帳。", "en": "The new certificate is live, TLS handshakes succeed, partner webhooks start retrying and deposits begin to land."}},
+          {"min": 15, "at": "phone", "users": 100, "label": {"zh": "回覆合作夥伴：等禮拜一再處理", "en": "Tell the partner it'll be handled on Monday"},
+           "say": {"zh": "23:58，合作夥伴的負責人打電話來了：週末的法幣入金全卡著。禮拜五不部署是為了不製造事故，不是為了不修事故。", "en": "At 23:58 the partner's lead calls: every fiat deposit over the weekend is stuck. \"No Friday deploys\" is about not causing incidents, not about leaving them unfixed."}}
+        ]}
+      },
+      "cause": {"zh": "自動續期的 job 三個月前就開始失敗：它做 DNS 驗證用的 API token 被輪替了，job 每次都報錯，但只寫在 log 裡，沒人收到通知。憑證一到期，所有 TLS 連線就失敗。", "en": "The auto-renew job had been failing for three months: the API token it used for DNS validation was rotated, and its errors went to a log nobody read. When the certificate expired, every TLS connection failed."},
+      "todo": [
+        {"zh": "監控憑證本身的到期日，剩 14 天就告警", "en": "Monitor the certificate's own expiry and alert at 14 days"},
+        {"zh": "續期 job 失敗要告警，不能只寫在 log 裡", "en": "Alert when the renewal job fails, not just log it"},
+        {"zh": "輪替 token 的時候，列出所有用到它的地方", "en": "When rotating a token, list everything that uses it"}
+      ],
+      "lesson": {"zh": "監控要盯結果（憑證還剩幾天），不是盯過程（續期 job 有沒有跑）。", "en": "Monitor the outcome (days left on the certificate), not the process (whether the renewal job ran)."}
+    },
+    {
+      "id": "deposit", "stars": 2, "par": 19, "clock": "02:14",
+      "name": {"zh": "入金沒入帳", "en": "Deposits not credited"},
+      "hook": {"zh": "ETH 入金 30 分鐘沒有新的入帳。", "en": "No ETH deposit has been credited for 30 minutes."},
+      "weights": {"time": 0.3, "users": 0.4, "asset": 0.3},
+      "budget": {"users": 120, "asset": 100},
+      "rate": {"users": 3},
+      "alerts": [
+        {"sev": "P2", "text": {"zh": "ETH 入金 30 分鐘沒有新的入帳", "en": "No ETH deposits credited for 30 minutes"}},
+        {"sev": "P3", "text": {"zh": "客服：用戶說入金 40 分鐘還沒到帳", "en": "Support: users say deposits haven't arrived after 40 minutes"}},
+        {"sev": "P3", "noise": true, "text": {"zh": "行情服務 GC 停頓 120 ms", "en": "Market-data service GC pause 120 ms"}}
+      ],
+      "timers": [
+        {"at": 25, "rate": {"users": 3}, "alert": {"sev": "P2", "text": {"zh": "客服工單累積 80 筆：入金未到帳", "en": "80 support tickets now: deposits not credited"}}}
+      ],
+      "steps": {
+        "start": {"ask": {"zh": "入金卡住了。先看哪裡？", "en": "Deposits are stuck. Where do you look first?"}, "opts": [
+          {"min": 3, "give": ["stale"], "label": {"zh": "看入金監聽服務的 log", "en": "Read the deposit listener's logs"},
+           "say": {"zh": "監聽服務本身沒報錯，但它讀到的「最新區塊」已經 20 分鐘沒變過了。", "en": "The listener itself reports no errors, but the latest block it sees hasn't changed in 20 minutes."}},
+          {"min": 2, "need": ["stale"], "next": "node", "label": {"zh": "拿自家節點的區塊高度跟公開的區塊瀏覽器比", "en": "Compare our node's block height with a public block explorer"},
+           "say": {"zh": "自家節點落後 380 個區塊，卡在同一個高度不動了。", "en": "Our node is 380 blocks behind and stuck at the same height."}},
+          {"min": 5, "label": {"zh": "重啟入金監聽服務", "en": "Restart the deposit listener"},
+           "say": {"zh": "重啟後還是讀不到新區塊。問題不在監聽服務。", "en": "After the restart it still sees no new blocks. The listener isn't the problem."}},
+          {"min": 12, "at": "phone", "next": "node", "label": {"zh": "叫醒區塊鏈組的同事", "en": "Wake the blockchain team"},
+           "say": {"zh": "同事過了 10 分鐘接電話：「先比一下節點高度，八成是節點又卡了。」你一比，落後 380 個區塊。", "en": "Ten minutes later they pick up: \"Check the node's height, it's probably stuck again.\" It's 380 blocks behind."}},
+          {"min": 6, "label": {"zh": "先處理行情服務的 GC 告警", "en": "Deal with the market-data GC alert first"},
+           "say": {"zh": "120 ms 的 GC 停頓在正常範圍，跟入金無關。", "en": "A 120 ms GC pause is within normal range and has nothing to do with deposits."}}
+        ]},
+        "node": {"ask": {"zh": "節點落後 380 個區塊。怎麼讓入金恢復？", "en": "The node is 380 blocks behind. How do you get deposits moving?"}, "opts": [
+          {"min": 6, "next": "credit", "rate": {"users": 1}, "label": {"zh": "入金監聽改讀備用節點", "en": "Point the listener at the backup node"},
+           "say": {"zh": "監聽改讀備用節點，新區塊開始進來，新的入金恢復入帳。", "en": "The listener switches to the backup node, new blocks flow in and fresh deposits are credited again."}},
+          {"min": 25, "next": "credit", "label": {"zh": "等自家節點自己追上", "en": "Wait for our node to catch up"},
+           "say": {"zh": "節點一個區塊一個區塊追，25 分鐘後終於追上。這段時間入金照樣卡著。", "en": "The node catches up block by block and gets there 25 minutes later. Deposits stay stuck the whole time."}},
+          {"min": 15, "users": 20, "label": {"zh": "重啟自家節點", "en": "Restart our node"},
+           "say": {"zh": "節點重啟後要重新連上其他節點、重新同步，反而又多落後了一段。", "en": "After the restart the node has to find peers and resync, and falls further behind."}}
+        ]},
+        "credit": {"ask": {"zh": "新區塊進來了。卡住那段時間的入金怎麼補？", "en": "New blocks are coming in. How do you credit the deposits from the gap?"}, "opts": [
+          {"min": 8, "fix": true, "label": {"zh": "從落後的區塊開始重掃，用交易哈希（tx hash）去重後補入帳", "en": "Rescan from where the node stalled, deduplicating by transaction hash"},
+           "say": {"zh": "重掃完補上 412 筆入金，用交易哈希去重，一筆都沒有重複。", "en": "The rescan credits 412 deposits, deduplicated by transaction hash, with not one double."}},
+          {"min": 2, "fix": true, "users": 90, "label": {"zh": "監聽直接從最新區塊開始", "en": "Start the listener from the latest block"},
+           "say": {"zh": "中間 380 個區塊裡的入金全被跳過。用戶的錢在鏈上，帳上卻沒有，客服接下來一整天都在一筆一筆處理。", "en": "Every deposit in those 380 blocks is skipped. The money is on chain but not in users' accounts, and support spends the next day fixing them one by one."}},
+          {"min": 6, "fix": true, "asset": 70, "label": {"zh": "從落後的區塊開始重掃，直接補入帳", "en": "Rescan from where the node stalled and credit everything found"},
+           "say": {"zh": "重掃補上了，但切換節點時已經處理過的 23 筆又入帳一次。23 筆重複入帳，其中 5 筆已經被提走。", "en": "The rescan credits them, but 23 deposits already handled during the switch are credited again. 23 double credits, and 5 of them have already been withdrawn."}}
+        ]}
+      },
+      "cause": {"zh": "自家的 ETH 節點跟其他節點斷了線，停在某個區塊不再前進。入金監聽只讀這一個節點，沒有拿它跟其他來源比對，新區塊進不來，入金也就不入帳。", "en": "Our ETH node lost its peers and stopped advancing. The deposit listener read only that node and never compared it with another source, so no new blocks came in and no deposits were credited."},
+      "todo": [
+        {"zh": "監控節點的區塊高度，跟公開來源或第二個節點比對，落後就告警", "en": "Monitor the node's block height against a public source or a second node and alert when it falls behind"},
+        {"zh": "入金監聽支援自動切換到備用節點", "en": "Let the deposit listener fail over to a backup node automatically"},
+        {"zh": "入帳以交易哈希做唯一鍵，重掃幾次都不會重複入帳", "en": "Key credits by transaction hash so any number of rescans can't double-credit"}
+      ],
+      "lesson": {"zh": "鏈上資料要有第二個來源可以比對；補帳一定要冪等，再趕也不能重複入帳。", "en": "On-chain data needs a second source to check against, and back-crediting must be idempotent however rushed you are."}
+    },
+    {
+      "id": "withdraw", "stars": 2, "par": 36, "clock": "01:42",
+      "name": {"zh": "提幣卡住", "en": "Withdrawals stuck"},
+      "hook": {"zh": "USDT 提幣排了 214 筆，最舊的已經等了 50 分鐘。", "en": "214 USDT withdrawals are queued; the oldest has waited 50 minutes."},
+      "weights": {"time": 0.25, "users": 0.35, "asset": 0.4},
+      "budget": {"users": 140, "asset": 100},
+      "rate": {"users": 4},
+      "alerts": [
+        {"sev": "P2", "text": {"zh": "USDT 提幣佇列 214 筆，最舊的等了 50 分鐘", "en": "USDT withdrawal queue at 214, oldest waiting 50 minutes"}},
+        {"sev": "P3", "text": {"zh": "熱錢包 USDT 餘額低於水位", "en": "Hot wallet USDT balance below threshold"}},
+        {"sev": "P3", "noise": true, "text": {"zh": "某合作夥伴 API 延遲 900 ms", "en": "A partner API at 900 ms latency"}}
+      ],
+      "timers": [
+        {"at": 20, "rate": {"users": 4}, "alert": {"sev": "P1", "text": {"zh": "社群開始出現「交易所提不了幣」的貼文", "en": "Social media posts start saying \"the exchange won't let me withdraw\""}}}
+      ],
+      "steps": {
+        "start": {"ask": {"zh": "提幣卡住了。先做什麼？", "en": "Withdrawals are stuck. What do you do first?"}, "opts": [
+          {"min": 3, "next": "decide", "label": {"zh": "看提幣服務的 log", "en": "Read the withdrawal service logs"},
+           "say": {"zh": "每一筆都回 insufficient balance：熱錢包裡的 USDT 剩 12,000，佇列要 480,000。行情大跌，大家都在提 USDT。", "en": "Every one fails with insufficient balance: the hot wallet holds 12,000 USDT and the queue needs 480,000. The market dropped and everyone is withdrawing USDT."}},
+          {"min": 4, "users": 20, "label": {"zh": "把卡住的提幣全部重試", "en": "Retry every stuck withdrawal"},
+           "say": {"zh": "重試一樣餘額不足，還多送出一輪失敗通知，客服電話更多了。", "en": "The retries fail the same way and send another round of failure notices. More calls to support."}},
+          {"min": 10, "at": "phone", "next": "decide", "label": {"zh": "叫醒錢包負責人", "en": "Wake the wallet owner"},
+           "say": {"zh": "錢包負責人：「熱錢包被提乾了，要從冷錢包補，得叫醒多簽的簽核人。」", "en": "The wallet owner: \"The hot wallet's been drained. Topping it up from cold storage needs the multisig signers.\""}}
+        ]},
+        "decide": {"ask": {"zh": "熱錢包的 USDT 不夠付這批提幣。", "en": "The hot wallet doesn't hold enough USDT for this queue."}, "opts": [
+          {"min": 30, "at": "phone", "fix": true, "label": {"zh": "從冷錢包補幣：打電話叫醒多簽的簽核人", "en": "Top up from cold storage: call the multisig signers"},
+           "say": {"zh": "三位簽核人陸續上線核准，冷錢包補了 600,000 USDT 進熱錢包，佇列開始消化。", "en": "Three signers come online and approve; 600,000 USDT moves from cold storage to the hot wallet and the queue starts to clear."}},
+          {"min": 3, "rate": {"users": 1}, "label": {"zh": "先暫停 USDT 提幣，發公告說明「延遲處理，資產安全」", "en": "Pause USDT withdrawals for now and post a notice: delayed, funds safe"},
+           "say": {"zh": "用戶看到公告，知道錢沒事、只是慢，客訴明顯少了。但這只是爭取時間，熱錢包還是空的。", "en": "Seeing the notice, users know their money is safe, just slow, and complaints drop. It only buys time; the hot wallet is still empty."}},
+          {"min": 5, "rate": {"users": 2}, "label": {"zh": "用熱錢包剩下的 USDT 先處理小額提幣", "en": "Use what's left in the hot wallet for the small withdrawals first"},
+           "say": {"zh": "150 筆小額提幣先出去了，大額的還在排隊。", "en": "150 small withdrawals go out; the large ones keep waiting."}},
+          {"min": 4, "fix": true, "asset": 100, "label": {"zh": "為了快，把冷錢包的私鑰匯入熱錢包系統直接付", "en": "To save time, import the cold wallet's key into the hot wallet system and pay out"},
+           "say": {"zh": "提幣全部出去了。但冷錢包的私鑰碰過線上機器，等於不再是冷錢包；資安要求把整批資產搬到新地址，下週整個部門都在處理這件事。", "en": "Every withdrawal goes out. But the cold key has touched an online machine, so it isn't cold any more; security has the whole balance moved to new addresses, and the department spends next week on it."}}
+        ]}
+      },
+      "cause": {"zh": "行情大跌時提幣量暴增，熱錢包的 USDT 很快被提乾。從冷錢包補幣需要多位簽核人核准，半夜沒有自動流程，提幣就卡住了。", "en": "When the market dropped, withdrawals surged and drained the hot wallet's USDT. Topping up from cold storage needs several signers, nothing does it at night, so withdrawals stalled."},
+      "todo": [
+        {"zh": "熱錢包水位隨行情波動調整，劇烈波動時提前補幣", "en": "Adjust the hot wallet threshold with market volatility and top up ahead of big moves"},
+        {"zh": "多簽簽核人排輪值，半夜也有人能核准", "en": "Put multisig signers on a rota so someone can approve at night"},
+        {"zh": "提幣因餘額不足卡住時，自動暫停並公告，不讓用戶反覆重試", "en": "When withdrawals stall for lack of funds, pause and announce automatically instead of letting users retry"}
+      ],
+      "lesson": {"zh": "熱錢包放得少是為了安全；缺錢的時候慢一點沒關係，拿安全換速度才是真的出事。", "en": "The hot wallet is small for safety. Being slow when it runs dry is fine; trading safety for speed is the real incident."}
+    },
+    {
+      "id": "reorg", "stars": 3, "par": 19, "clock": "04:05",
+      "name": {"zh": "鏈重組，入金被撤銷", "en": "Reorg reverses deposits"},
+      "hook": {"zh": "3 筆已經入帳的入金，在鏈上找不到了。", "en": "Three credited deposits can no longer be found on chain."},
+      "weights": {"time": 0.2, "users": 0.2, "asset": 0.6},
+      "budget": {"users": 80, "asset": 150},
+      "rate": {"users": 1, "asset": 3},
+      "alerts": [
+        {"sev": "P1", "text": {"zh": "入金對帳：3 筆已入帳的交易在鏈上找不到", "en": "Deposit reconciliation: 3 credited transactions missing on chain"}},
+        {"sev": "P2", "text": {"zh": "某條鏈發生 7 個區塊的重組（reorg）", "en": "A 7-block reorganisation (reorg) on one chain"}},
+        {"sev": "P3", "noise": true, "text": {"zh": "ETH 節點 CPU 75%", "en": "ETH node CPU at 75%"}}
+      ],
+      "timers": [
+        {"at": 15, "rate": {"asset": 4}, "alert": {"sev": "P1", "text": {"zh": "同一條鏈又出現 2 筆可疑的大額入金", "en": "Two more suspicious large deposits on the same chain"}}}
+      ],
+      "steps": {
+        "start": {"ask": {"zh": "已入帳的入金在鏈上消失了。先做什麼？", "en": "Credited deposits have vanished from the chain. First move?"}, "opts": [
+          {"min": 4, "next": "contain", "label": {"zh": "查這 3 筆交易和帳戶入帳後做了什麼", "en": "Trace the three transactions and what the accounts did after the credit"},
+           "say": {"zh": "3 筆入金來自同一批剛註冊的帳戶，都只等了 3 個確認就入帳。重組之後，原本的交易被另一筆把錢轉走的交易取代——有人在做雙花。其中一個帳戶已經把錢換成 USDT 提走了。", "en": "All three came from a batch of brand-new accounts and were credited after only 3 confirmations. The reorg replaced each with a transaction sending the coins elsewhere: a double spend. One account has already converted to USDT and withdrawn."}},
+          {"min": 3, "users": 10, "asset": 20, "label": {"zh": "直接把這 3 筆的金額扣回來", "en": "Deduct the three amounts straight away"},
+           "say": {"zh": "兩個帳戶扣回了，第三個已經提走，扣成負數也追不回來；而且你還不知道攻擊有沒有在繼續。", "en": "Two accounts are debited; the third has already withdrawn, and a negative balance won't bring it back. You still don't know whether the attack is ongoing."}},
+          {"min": 12, "at": "phone", "next": "contain", "label": {"zh": "叫醒風控同事", "en": "Wake the risk team"},
+           "say": {"zh": "風控同事：「先看這幾個帳戶入帳後做了什麼。」你一查，3 筆都只等了 3 個確認，其中一個已經換成 USDT 提走了。", "en": "The risk lead: \"Check what those accounts did after the credit.\" All three waited only 3 confirmations, and one has already been converted to USDT and withdrawn."}}
+        ]},
+        "contain": {"ask": {"zh": "有人在故意雙花。怎麼止血？", "en": "Someone is double-spending on purpose. How do you stop the loss?"}, "opts": [
+          {"min": 5, "next": "fix", "users": 15, "rate": {"asset": 0}, "label": {"zh": "暫停這條鏈的入金與提幣，凍結相關帳戶", "en": "Pause deposits and withdrawals on that chain and freeze the accounts involved"},
+           "say": {"zh": "攻擊者沒得玩了。只是這條鏈上的正常用戶也暫時不能出入金。", "en": "The attacker is shut out. Legitimate users of that chain can't move funds for now, though."}},
+          {"min": 3, "next": "fix", "label": {"zh": "只凍結這幾個帳戶，入金照常", "en": "Freeze just these accounts and keep deposits open"},
+           "say": {"zh": "這幾個帳戶停住了，但新註冊的帳戶一樣可以照做，損失只止住一部分。", "en": "These accounts are stopped, but a fresh account can do the same thing, so the loss is only partly contained."}},
+          {"min": 20, "at": "phone", "asset": 30, "label": {"zh": "跟風控討論後決定等天亮再處理", "en": "Agree with the risk team to deal with it in the morning"},
+           "say": {"zh": "等待的這段時間，又有兩筆一樣手法的入金進來。", "en": "While you wait, two more deposits arrive using the same trick."}}
+        ]},
+        "fix": {"ask": {"zh": "止血了。收尾：", "en": "Contained. Wrap it up:"}, "opts": [
+          {"min": 10, "fix": true, "label": {"zh": "把這條鏈的確認數門檻從 3 調到 30，重新對帳後恢復入金", "en": "Raise the chain's confirmation threshold from 3 to 30, reconcile, then reopen deposits"},
+           "say": {"zh": "重新對帳，確認沒有其他受影響的入金；門檻調高後恢復入金。", "en": "Reconciliation finds no other affected deposits; with the higher threshold, deposits reopen."}},
+          {"min": 2, "fix": true, "asset": 60, "label": {"zh": "直接恢復入金，門檻不變", "en": "Reopen deposits with the threshold unchanged"},
+           "say": {"zh": "入金恢復了，門檻沒動。同樣的攻擊，明天還能再來一次。", "en": "Deposits reopen, threshold untouched. The same attack can run again tomorrow."}}
+        ]}
+      },
+      "cause": {"zh": "這條鏈的確認數門檻只設 3 個，而它的算力相對低、容易被重組。攻擊者先入金、等 3 個確認入帳、換成別的幣提走，再用重組把原本的入金交易換掉。", "en": "The chain's confirmation threshold was only 3, on a chain whose low hash rate makes reorgs cheap. The attacker deposited, got credited after 3 confirmations, converted and withdrew, then used a reorg to replace the original deposit."},
+      "todo": [
+        {"zh": "確認數門檻依每條鏈的安全性設定，算力低的鏈要等更多確認", "en": "Set confirmation thresholds per chain by its security; low-hash-rate chains wait for more"},
+        {"zh": "監控重組事件，發生重組時自動暫停該鏈的入帳", "en": "Watch for reorgs and pause crediting on a chain automatically when one happens"},
+        {"zh": "新帳戶的大額入金先延遲可用，或加強審查", "en": "Delay or review large deposits from new accounts before they become usable"}
+      ],
+      "lesson": {"zh": "確認數不是越少越好：入帳要等到這條鏈「翻不過來」為止。", "en": "Fewer confirmations isn't faster, it's riskier: credit only once the chain can't be rewritten."}
+    },
+    {
+      "id": "price", "stars": 3, "par": 27, "clock": "03:50",
+      "name": {"zh": "幣價異常跳動", "en": "Price glitch"},
+      "hook": {"zh": "BTC 指數價格一分鐘內跌了 18%。", "en": "The BTC index price falls 18% in one minute."},
+      "weights": {"time": 0.2, "users": 0.3, "asset": 0.5},
+      "budget": {"users": 100, "asset": 150},
+      "rate": {"users": 1, "asset": 6},
+      "alerts": [
+        {"sev": "P1", "text": {"zh": "BTC/USDT 指數價格 1 分鐘內 -18%", "en": "BTC/USDT index price -18% in 1 minute"}},
+        {"sev": "P2", "text": {"zh": "閃兌（convert）BTC 成交量 12 倍", "en": "BTC convert volume 12×"}},
+        {"sev": "P3", "noise": true, "text": {"zh": "K 線服務延遲 2 秒", "en": "Candle service 2 s behind"}}
+      ],
+      "timers": [
+        {"at": 12, "rate": {"asset": 4}, "alert": {"sev": "P1", "text": {"zh": "有帳戶連續用閃兌低價買進 BTC 並提走", "en": "Accounts are buying cheap BTC through convert and withdrawing it"}}}
+      ],
+      "steps": {
+        "start": {"ask": {"zh": "價格一分鐘跳了 18%。先做什麼？", "en": "The price moved 18% in a minute. First move?"}, "opts": [
+          {"min": 3, "next": "stop", "label": {"zh": "比對各個報價來源", "en": "Compare the price sources"},
+           "say": {"zh": "五個報價來源裡只有一家報 52,000，其他四家都在 63,000 附近；指數取平均，被這一家拉了下來。", "en": "One of five sources reports 52,000; the other four are around 63,000. The index averages them, so the one dragged it down."}},
+          {"min": 10, "label": {"zh": "等等看價格會不會自己回來", "en": "Wait and see whether the price comes back"},
+           "say": {"zh": "價格一直沒回來。閃兌照著錯的指數報價，一直有人用低價買 BTC。", "en": "It doesn't come back. Convert keeps quoting from the wrong index, and people keep buying BTC cheap."}},
+          {"min": 12, "at": "phone", "next": "stop", "label": {"zh": "叫醒交易組的同事", "en": "Wake the trading team"},
+           "say": {"zh": "交易組的同事：「先比對各家報價。」你一比，只有一家在亂跳。", "en": "The trading lead: \"Compare the sources.\" Only one of them is off."}}
+        ]},
+        "stop": {"ask": {"zh": "確定是單一報價來源出錯。", "en": "It's one bad price source."}, "opts": [
+          {"min": 1, "users": 15, "rate": {"asset": 0}, "label": {"zh": "先暫停 BTC 閃兌", "en": "Pause BTC convert first"},
+           "say": {"zh": "錯價不會再被拿來成交了，但想正常閃兌的用戶也被擋住了。", "en": "No more fills at the wrong price, but users who just want to convert are blocked too."}},
+          {"min": 8, "next": "after", "rate": {"asset": 0}, "label": {"zh": "把出錯的來源移出指數，加上離群值過濾", "en": "Drop the bad source from the index and add outlier filtering"},
+           "say": {"zh": "改設定、重新部署花了 8 分鐘。指數回到 63,000 附近，閃兌恢復正常報價。", "en": "The config change and redeploy take 8 minutes. The index is back near 63,000 and convert quotes normally."}},
+          {"min": 3, "next": "after", "asset": 30, "rate": {"asset": 0}, "label": {"zh": "指數改成只看最大的那家交易所", "en": "Switch the index to the single largest exchange"},
+           "say": {"zh": "馬上恢復正常。但只剩一個來源、沒有備援，下次那一家出錯就沒救了。", "en": "Normal again at once. But with one source and no backup, the next glitch there goes straight through."}}
+        ]},
+        "after": {"ask": {"zh": "價格恢復正常了。錯價期間成交的單怎麼處理？", "en": "Prices are normal again. What about the fills at the wrong price?"}, "opts": [
+          {"min": 15, "fix": true, "users": 20, "label": {"zh": "依用戶條款回滾明顯錯價的成交，逐一通知用戶", "en": "Reverse the clearly mispriced fills under the terms of service and tell each user"},
+           "say": {"zh": "依條款回滾偏離市價的成交，逐一通知受影響的用戶並說明原因。有人抱怨，但帳是對的。", "en": "The off-market fills are reversed under the terms and every affected user gets an explanation. Some complain, but the books are right."}},
+          {"min": 2, "fix": true, "asset": 60, "label": {"zh": "全部認賠，不回滾", "en": "Absorb the loss, reverse nothing"},
+           "say": {"zh": "用戶都開心，公司吞下這筆損失。", "en": "Users are happy; the company eats the loss."}},
+          {"min": 8, "fix": true, "users": 70, "label": {"zh": "直接回滾，不另外通知", "en": "Reverse them without telling anyone"},
+           "say": {"zh": "用戶打開 App，發現剛買的 BTC 不見了，社群上一片罵聲。", "en": "Users open the app to find the BTC they just bought is gone, and social media erupts."}}
+        ]}
+      },
+      "cause": {"zh": "指數價格由五個報價來源平均而來，沒有過濾離群值。其中一家的 API 回了錯誤的成交價，指數被拉低 18%，閃兌照著這個指數報價，有人趁機低價買進。", "en": "The index averaged five price sources with no outlier filter. One source's API returned a bad trade price, dragging the index down 18%; convert quoted from that index and some people bought cheap."},
+      "todo": [
+        {"zh": "指數用中位數或加權並過濾離群值，單一來源拉不動指數", "en": "Use a median or weighted index with outlier filtering, so no single source can move it"},
+        {"zh": "價格短時間劇烈變動時自動暫停閃兌，等人工確認", "en": "Pause convert automatically on sharp moves until someone confirms"},
+        {"zh": "用戶條款寫清楚錯價成交的處理方式，事發時照條款走並通知", "en": "State in the terms how mispriced fills are handled, and follow them with notice when it happens"}
+      ],
+      "lesson": {"zh": "價格是交易所的命脈：任何一個來源都不該能單獨改變它；出事時先止血，再照規則處理。", "en": "Price is an exchange's lifeline: no single source should be able to move it. Stop the bleeding first, then follow the rules."}
+    }
+  ]
+}

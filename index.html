@@ -694,7 +694,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v1.12.2</span>
+    <span class="mb-ver">v1.13.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -1134,7 +1134,7 @@
     activity:{w:780, h:430},
     blocks:  {w:420, h:660},
     trace:   {w:760, h:620, file:"apps/trace.js"},
-    oncall:  {w:700, h:640, file:"apps/oncall.js"},
+    oncall:  {w:700, h:640, file:["apps/oncall/engine.js", "apps/oncall/world.js", "apps/oncall/ui.js", "apps/oncall.js"]},
     readme:  {w:680, h:660},
     terminal:{w:700, h:560, cls:"term-win"},
     contact: {w:440, h:450},
@@ -1287,7 +1287,8 @@
 
   /* ---------- apps in their own file (apps/<id>.js) ---------- */
   // The file loads the first time its window opens and registers itself with
-  // TankOS.define(id, {html, css, i18n, init}). init(body, os) gets only the `os` below, and may return a
+  // TankOS.define(id, {html, css, i18n, init}). init(body, os) gets only the `os` below (ver is the site version,
+  // for cache-busting files the app fetches itself), and may return a
   // function to run when the window closes. The ?v= is the site version, so a new release is never
   // served from an old cache.
   var DEFS = {}, LOADS = {};
@@ -1295,7 +1296,7 @@
 
   function osFor(){
     return {
-      t: t, fill: fill, api: API, open: open, still: still,
+      t: t, fill: fill, api: API, open: open, still: still, ver: siteVer(),
       lang: function(){ return lang; },
       onLang: function(f){
         langHooks.push(f);
@@ -1304,15 +1305,19 @@
     };
   }
 
+  function siteVer(){ return document.querySelector(".mb-ver").textContent.replace(/^v/, ""); }
+  // `file` may be a list: the files load in parallel and one of them calls TankOS.define.
   function loadApp(id){
     if (!LOADS[id]) {
-      LOADS[id] = new Promise(function(ok, fail){
-        var s = document.createElement("script");
-        s.src = APPS[id].file + "?v=" + document.querySelector(".mb-ver").textContent.replace(/^v/, "");
-        s.onload = function(){ if (DEFS[id]) ok(DEFS[id]); else fail(); };
-        s.onerror = function(){ s.remove(); fail(); };
-        document.head.appendChild(s);
-      });
+      LOADS[id] = Promise.all([].concat(APPS[id].file).map(function(f){
+        return new Promise(function(ok, fail){
+          var s = document.createElement("script");
+          s.src = f + "?v=" + siteVer();
+          s.onload = ok;
+          s.onerror = function(){ s.remove(); fail(); };
+          document.head.appendChild(s);
+        });
+      })).then(function(){ if (DEFS[id]) return DEFS[id]; throw new Error("no define"); });
       LOADS[id].catch(function(){ delete LOADS[id]; });   // let Retry fetch it again
     }
     return LOADS[id];
