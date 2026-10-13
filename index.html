@@ -122,7 +122,6 @@
   .desktop{position:fixed;top:var(--menu-h);left:0;right:0;bottom:0;z-index:1}
   /* Icons are grouped into labelled zones: projects and lab top left, about-me bottom left. */
   .zones-l{position:absolute;top:14px;left:14px;display:flex;flex-direction:column;gap:20px}
-  .zone-about{position:absolute;left:14px;bottom:calc(var(--dock-space) + 8px)}
   .zh{
     display:flex;align-items:center;gap:7px;margin:0 0 6px 8px;
     font:700 11px/1 var(--sys);letter-spacing:.14em;text-transform:uppercase;color:#fff;
@@ -162,6 +161,7 @@
   .ic-yms{background:linear-gradient(160deg,#F2B263,#C9667A 45%,#5A3E7A 78%,#2B2350)}
   .ic-averlyn{background:linear-gradient(160deg,#FFB0C8,#F0628E 60%,#C93C6C)}
   .ic-trace{background:linear-gradient(160deg,#8E8CFF,#5E5CE6 55%,#3634A3)}
+  .ic-oncall{background:linear-gradient(160deg,#5B1F24,#2A0E12);color:#FF6B5E;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
   .ic-terminal{background:linear-gradient(180deg,#3A3A3E,#151517);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
   .ic-contact{background:linear-gradient(160deg,#8AA4FF,#4A5CF0 60%,#3241C4)}
   .ic-readme{background:none;box-shadow:none}
@@ -664,6 +664,7 @@
   <symbol id="g-syringe" viewBox="0 0 24 24"><path d="M13 3l8 8"/><path d="M15 5l-8.5 8.5a1.5 1.5 0 0 0 0 2.1l1.9 1.9a1.5 1.5 0 0 0 2.1 0L19 9"/><path d="M17 7l3.5-3.5M19 2l3 3"/><path d="M7.4 16.6L3 21"/><path d="M12.2 7.8l1.6 1.6M10 10l1.6 1.6"/></symbol>
   <symbol id="g-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></symbol>
   <symbol id="g-pulse" viewBox="0 0 24 24"><path d="M2.5 12.5h4l2.2-5.5 4 11 2.6-7 1.6 1.5h4.6"/></symbol>
+  <symbol id="g-bell" viewBox="0 0 24 24"><path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 2h-14z"/><path d="M10 20.5a2 2 0 0 0 4 0"/><path d="M3.5 8a8.5 8.5 0 0 1 2.3-3.6M20.5 8a8.5 8.5 0 0 0-2.3-3.6" opacity=".7"/></symbol>
   <symbol id="g-route" viewBox="0 0 24 24"><circle cx="5" cy="17.5" r="2.3"/><circle cx="19" cy="6.5" r="2.3"/><path d="M7.2 16.4c3.2-1.6 1.6-6.2 4.8-7.6 1.6-.7 3.3-.9 4.8-1.6"/><path d="M12 19.5h7.5M16.8 17l2.7 2.5-2.7 2.5" opacity=".7"/></symbol>
   <symbol id="g-blocks" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect x="3.5" y="13" width="7.5" height="7.5" rx="1.6"/><path d="M15 17h4M17 15v4" opacity=".7"/></symbol>
   <symbol id="g-term" viewBox="0 0 24 24"><path d="M5 7l5 5-5 5"/><path d="M12.5 17.5H19"/></symbol>
@@ -693,7 +694,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v1.10.0</span>
+    <span class="mb-ver">v1.11.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -719,6 +720,7 @@
       <ul class="icons">
         <li><button class="dicon" type="button" data-open="blocks"><span class="ic ic-blocks"><svg><use href="#g-blocks"/></svg></span><span class="lbl" data-i18n="app.blocks">方塊消除</span></button></li>
         <li><button class="dicon" type="button" data-open="trace"><span class="ic ic-trace"><svg><use href="#g-route"/></svg></span><span class="lbl" data-i18n="app.trace">Request 的一生</span></button></li>
+        <li><button class="dicon" type="button" data-open="oncall"><span class="ic ic-oncall"><svg><use href="#g-bell"/></svg></span><span class="lbl" data-i18n="app.oncall">On-call 模擬器</span></button></li>
       </ul>
     </section>
   </div>
@@ -730,7 +732,6 @@
         <li><button class="dicon" type="button" data-open="activity"><span class="ic ic-activity"><svg><use href="#g-pulse"/></svg></span><span class="lbl" data-i18n="app.activity">活動監視器</span></button></li>
         <li><button class="dicon" type="button" data-open="calc"><span class="ic ic-calc"><svg><use href="#g-calc"/></svg></span><span class="lbl" data-i18n="app.calc">計算機</span></button></li>
         <li><button class="dicon" type="button" data-open="calendar"><span class="ic ic-cal" aria-hidden="true"><b class="ci-wd"></b><b class="ci-d"></b></span><span class="lbl" data-i18n="app.calendar">日曆</span></button></li>
-        <li><button class="dicon" type="button" data-open="about"><span class="ic ic-about" aria-hidden="true">T</span><span class="lbl" data-i18n="app.about">關於 TankOS</span></button></li>
       </ul>
   </section>
     <button class="wg" id="wgHol" type="button" hidden>
@@ -739,7 +740,6 @@
       <span class="wg-name"></span>
       <span class="wg-when"></span>
     </button>
-  </div>
   <section class="zone zone-about" aria-labelledby="zAbout">
     <h2 class="zh" id="zAbout" data-i18n="os.zone.about">關於我</h2>
       <ul class="icons">
@@ -747,6 +747,7 @@
         <li><button class="dicon" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="lbl" data-i18n="app.contact">聯絡我</span></button></li>
       </ul>
   </section>
+  </div>
 </main>
 
 <div id="windows"></div>
@@ -1040,6 +1041,7 @@
     "app.activity":{zh:"活動監視器", en:"Activity Monitor"},
     "app.blocks":  {zh:"方塊消除", en:"Block Puzzle"},
     "app.trace":   {zh:"Request 的一生", en:"Life of a Request"},
+    "app.oncall":  {zh:"On-call 模擬器", en:"On-call Simulator"},
     "app.calc":    {zh:"計算機", en:"Calculator"},
     "app.calendar":{zh:"日曆", en:"Calendar"},
     "app.about":   {zh:"關於 TankOS", en:"About TankOS"},
@@ -1132,6 +1134,7 @@
     activity:{w:780, h:430},
     blocks:  {w:420, h:660},
     trace:   {w:760, h:620, file:"apps/trace.js"},
+    oncall:  {w:700, h:640, file:"apps/oncall.js"},
     readme:  {w:680, h:660},
     terminal:{w:700, h:560, cls:"term-win"},
     contact: {w:440, h:450},
@@ -2321,7 +2324,7 @@
     ["exit",             "close this window"]
   ];
   var CMDS = ["help","whoami","who","neofetch","ls","open","git","kubectl","top","cat","contact","date","clear","exit","sudo"];
-  var OPENABLE = ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","trace","calc","calendar","about","readme","contact","private"];
+  var OPENABLE = ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","trace","oncall","calc","calendar","about","readme","contact","private"];
   var REPOS = SERVICES.map(function(s){ return s.repo; });
 
   function pad(s, n){ s = String(s); while (s.length < n) s += " "; return s; }
@@ -2494,7 +2497,7 @@
           neofetch();
           return;
         case "ls":
-          line("fukuoka/   busan/   yangmingshan/   averlyn/   activity   blocks   trace   calc   calendar   README.md   contact   private/ 🔒");
+          line("fukuoka/   busan/   yangmingshan/   averlyn/   activity   blocks   trace   oncall   calc   calendar   README.md   contact   private/ 🔒");
           return;
         case "open":
           var id = resolveApp(rest);
@@ -2706,6 +2709,7 @@
     activity:"活動監視器 監控 狀態 延遲 uptime monitor status health top",
     blocks:"方塊 消除 遊戲 小遊戲 益智 俄羅斯方塊 排行榜 block puzzle game 1010 leaderboard",
     trace:"request trace 請求 延遲 網路 封包 連線 latency network ttfb waterfall 瀑布 cloudflare d1 ping",
+    oncall:"oncall on-call 值班 事故 告警 故障 演練 incident pager pagerduty sre postmortem outage",
     readme:"關於 經歷 履歷 about bio resume experience",
     terminal:"終端機 shell cli zsh command",
     calc:"計算機 計算 算數 加減乘除 calculator calc math",
@@ -2719,13 +2723,15 @@
 
   function iconOf(id){
     if (id === "private") return '<span class="ic ic-private"><svg><use href="#g-lock"/></svg></span>';
+    // About TankOS has no desktop icon (it lives behind the menu bar's T), so its glyph is drawn here.
+    if (id === "about") return '<span class="ic ic-about" aria-hidden="true">T</span>';
     var src = document.querySelector('.icons [data-open="' + id + '"] .ic, .dock [data-open="' + id + '"] .ic');
     return src ? src.outerHTML : '<span class="ic ic-glyph">·</span>';
   }
 
   function index(){
     var items = [];
-    ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","trace","terminal","calc","calendar","about","readme","contact","private"].forEach(function(id){
+    ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","trace","oncall","terminal","calc","calendar","about","readme","contact","private"].forEach(function(id){
       items.push({label:appName(id), sub:"", kind:t("os.spot.app"), icon:iconOf(id), keys:(id + " " + KW[id]).toLowerCase(), go:function(){ open(id); }});
     });
     EXP.forEach(function(e){
