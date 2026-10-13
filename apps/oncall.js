@@ -1,4 +1,4 @@
-// On-call 模擬器 (On-call Simulator). A small top-down RPG: woken at night by alerts, you walk your character
+// 凌晨三點 (3 A.M.), the on-call game. A small top-down RPG: woken at night by alerts, you walk your character
 // around a flat to the phone, the laptop and the rack, and each action there costs simulated minutes, some of
 // them making things worse. Fixed, you go back to bed for an ending that depends on the grade, then the
 // postmortem (time to fix, traps hit, the fastest path, follow-ups). Opening the app starts a random incident,
