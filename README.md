@@ -192,7 +192,7 @@ Push 到 `main` 且改到 `api/` 底下的檔案 → Cloudflare Workers Builds �
 | Build watch paths | Include `api/*` |
 | Enable Preview Builds | 關閉 |
 
-Dashboard 上的 Worker 名稱要跟 `wrangler.jsonc` 的 `name` 一致，不一致建置會失敗。急著上線或 Workers Builds 出狀況時，也可以在 `api/` 底下手動 `npx wrangler login` 再 `npx wrangler deploy`。
+Workers Builds 部署到 Dashboard 上接著的那個 Worker，`wrangler.jsonc` 的 `name` 不一樣也照樣成功（2026-10-13 改名時實測：接在舊 `blocks-leaderboard` 的建置把新程式部署到了舊 Worker），所以 Worker 改名時一定要在 Dashboard 改接，否則會部署到舊的那個。急著上線或 Workers Builds 出狀況時，也可以在 `api/` 底下手動 `npx wrangler login` 再 `npx wrangler deploy`。
 
 第一次建資料庫時，`npx wrangler d1 create blocks-leaderboard` 把產生的 `database_id` 填進 `wrangler.jsonc`，再跑 `npx wrangler d1 execute blocks-leaderboard --remote --file=schema.sql` 建表。`schema.sql` 全部是 `IF NOT EXISTS`，之後加了新表（例如 `presence`）就在 push 之前再跑一次同一行，既有的表和資料不受影響。
 

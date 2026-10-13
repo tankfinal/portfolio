@@ -1,7 +1,9 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   // Workers Builds deploys this on every push to main that touches api/ (root directory /api/, watch path api/*).
-  // The Worker name in the dashboard must stay equal to `name`, or the build fails.
+  // Workers Builds deploys to whichever Worker the dashboard connected, even when `name` differs (seen on
+  // 2026-10-13: the build connected to the old `blocks-leaderboard` deployed this code there). Renaming means
+  // reconnecting the build in the dashboard too.
   "name": "tankos-api",
   "main": "src/index.js",
   "compatibility_date": "2026-10-01",
