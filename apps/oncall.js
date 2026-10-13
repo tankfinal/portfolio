@@ -1,7 +1,8 @@
 // 凌晨三點 (3 A.M.), the on-call game. A small top-down RPG: woken at night by alerts, you walk around a flat to
 // the phone, the laptop and the rack, and each action there costs simulated minutes while user impact and asset
-// risk keep growing. Fixed, you go back to bed for an ending by grade, then the postmortem. There is no single
-// right answer: the score weighs time, users and assets per incident.
+// risk keep growing, from triage through restoring the service to the checks and clean-up. Done, you go back to
+// bed for an ending by grade, then the postmortem. There is no single right answer: the score weighs time,
+// users and assets per incident.
 //
 // The game is split so that new roles and incidents are data, not code:
 //   apps/oncall/engine.js      the rules and the scoring (no DOM; tools/ tests and checks it in Node)
@@ -13,12 +14,14 @@
 //   apps/oncall/art.json       the pixel art the packs don't have (bed, laptop, phone, rack, Kuai Kuai, window)
 // To add a role: write roles/<id>.json (node tools/check-oncall.js checks it) and add the id to ROLES.
 // This file is the controller: it loads all that, asks for a difficulty (普通, 困難, 地獄: harder ones offer
-// more options), picks an incident (preferring ones not played yet) and runs the game. The difficulty, the
+// more options, and on 困難 and 地獄 every 10 seconds of real time is a game minute once the phone is
+// answered), picks an incident (preferring ones not played yet) and runs the game. The difficulty, the
 // incidents seen and the best grade per incident and difficulty stay in this browser (localStorage
 // "oncall.lv", "oncall.seen" keyed "<role>/<incident>", "oncall.best" keyed "<role>/<incident>@<lv>").
 // index.html loads these files the first time the window opens.
 (function(){
   var ROLES = ["be"];
+  var TICK = 10000;   // real ms per game minute on the difficulties with a running clock
   var GRADE_ORDER = "SABC";
   var DATA = null;   // the loaded roles, maps, art and sprite sheets, shared by every window
 
@@ -83,9 +86,9 @@
       "oc.lv.1":   {zh:"普通", en:"Normal"},
       "oc.lv.2":   {zh:"困難", en:"Hard"},
       "oc.lv.3":   {zh:"地獄", en:"Hell"},
-      "oc.lv.1.d": {zh:"選項少，一步一步來。", en:"Fewer options. One step at a time."},
-      "oc.lv.2.d": {zh:"多了岔路和陷阱，告警裡夾著雜訊。", en:"More forks and traps, and noise among the alerts."},
-      "oc.lv.3.d": {zh:"選項最多，很多看起來都對。", en:"The most options, and many of them look right."},
+      "oc.lv.1.d": {zh:"選項少，不計時，一步一步來。", en:"Fewer options and no clock. One step at a time."},
+      "oc.lv.2.d": {zh:"多了岔路和陷阱，告警裡夾著雜訊；現實每 10 秒就過 1 分鐘。", en:"More forks and traps, noise among the alerts, and every 10 seconds is a minute."},
+      "oc.lv.3.d": {zh:"選項最多，很多看起來都對；一樣每 10 秒過 1 分鐘。", en:"The most options, many of them look right, and every 10 seconds is a minute."},
       "oc.toPick": {zh:"換難度", en:"Change difficulty"},
       "oc.shift":  {zh:"值班中", en:"On call"},
       "oc.time":   {zh:"時間", en:"Time"},
@@ -105,12 +108,17 @@
       "oc.d.slow": {zh:"{dim}擴大變慢", en:"{dim} slowing"},
       "oc.d.stop": {zh:"{dim}不再擴大", en:"{dim} contained"},
       "oc.d.fast": {zh:"{dim}擴大變快", en:"{dim} spreading faster"},
+      "oc.d.end":  {zh:"收尾完成", en:"Wrapped up"},
       "oc.paged":  {zh:"手機響了：{n} 則告警", en:"Paged: {n} alerts"},
       "oc.did":    {zh:"你：{a}", en:"You: {a}"},
       "oc.pm":     {zh:"事故檢討", en:"Postmortem"},
       "oc.pm.lv":  {zh:"難度：{lv}", en:"Difficulty: {lv}"},
       "oc.pm.total":{zh:"總分", en:"Score"},
-      "oc.pm.mins":{zh:"修好花了 {m} 分鐘；穩健的處理大約 {par} 分鐘", en:"Fixed in {m} min; a sound fix takes about {par}"},
+      "oc.pm.mins":{zh:"恢復服務花了 {m} 分鐘；穩健的處理大約 {par} 分鐘", en:"Service restored in {m} min; a sound response takes about {par}"},
+      "oc.pm.minsT":{zh:"恢復服務花了 {m} 分鐘，其中 {w} 分鐘在走路和思考；基準 {par} 分鐘（含恢復前 {n} 步、每步 {t} 分鐘的思考時間）", en:"Service restored in {m} min, {w} of them walking and thinking; the mark is {par} min ({t} min of thinking for each of the {n} steps before it included)"},
+      "oc.pm.restore":{zh:"恢復服務", en:"Restored"},
+      "oc.pm.slow":{zh:"走路和思考超過寬限 {m} 分鐘", en:"Walking and thinking {m} min past the allowance"},
+      "oc.pm.slowWhy":{zh:"每一步有 30 秒（遊戲裡 {t} 分鐘）可以想，超過的時間事故照樣在擴大。", en:"Each step gets 30 seconds ({t} game minutes) to think; past that, the incident keeps spreading."},
       "oc.pm.raw": {zh:"累積 {n}；拿高分的做法是 {best}", en:"Ended at {n}; the top-scoring way ends at {best}"},
       "oc.pm.capped":{zh:"{dim}這一項掉到 0 分：其他做得再好，評等最多 C。", en:"{dim} fell to 0: however good the rest, the grade stops at C."},
       "oc.pm.how": {zh:"總分是三項依這個事故的權重加權平均，拿高分的做法是 100 分；90 以上 S、75 以上 A、60 以上 B。", en:"The score is the three weighted for this incident; the top-scoring way is 100. 90+ is S, 75+ A, 60+ B."},
@@ -119,7 +127,7 @@
       "oc.pm.none":{zh:"沒有多付什麼代價，漂亮。", en:"Nothing cost you extra. Nicely done."},
       "oc.pm.what":{zh:"你做了什麼", en:"What you did"},
       "oc.pm.cause":{zh:"真正的原因", en:"Root cause"},
-      "oc.pm.top": {zh:"拿高分的做法（{m} 分鐘）", en:"The top-scoring way ({m} min)"},
+      "oc.pm.top": {zh:"拿高分的做法（{m} 分鐘恢復服務）", en:"The top-scoring way (service restored in {m} min)"},
       "oc.pm.todo":{zh:"事後要做", en:"Follow-ups"},
       "oc.pm.lesson":{zh:"一句話", en:"In one line"},
       "oc.again":  {zh:"同一個事故再玩一次", en:"Replay this incident"},
@@ -146,13 +154,17 @@
       "rpg.restartTip":{zh:"換一個隨機事故", en:"Start a different random incident"},
       "rpg.empty": {zh:"還沒有任何紀錄。", en:"Nothing logged yet."},
       "rpg.wake":  {zh:"{t}。{what}\n（方向鍵或 WASD 移動，空白鍵互動，J 看紀錄；也可以直接點地板或東西）", en:"{t}. {what}\n(Arrow keys or WASD to move, Space to interact, J for the log, or just click the floor or things.)"},
+      "rpg.timed": {zh:"（接起手機之後，現實每 10 秒就是遊戲裡 1 分鐘，影響會一直擴大。每一步有 30 秒可以想，超過就開始扣分；對話框開著時暫停。）", en:"(Once you answer, every 10 seconds of real time is a game minute and the damage keeps growing. Each step gets 30 seconds to think before it costs you; the clock stops while a dialog is open.)"},
+      "rpg.late":  {zh:"{name}又響了：{sev}　{text}", en:"{name} again: {sev}  {text}"},
       "rpg.wakeFirst":{zh:"{name}還在響，先接起來看看。", en:"The {name} is still ringing. Answer it first."},
       "rpg.answer":{zh:"是告警，{n} 則。", en:"Alerts. {n} of them."},
       "rpg.goalWake":{zh:"目標：接起響個不停的{name}", en:"Goal: answer the ringing {name}"},
       "rpg.goal":  {zh:"目標：{ask}　可以去：{where}", en:"Goal: {ask}  Go to: {where}"},
       "rpg.goalBed":{zh:"目標：回床上睡覺", en:"Goal: back to bed"},
       "rpg.nothing":{zh:"這一步在這裡沒什麼能做的。可以去：{where}", en:"Nothing to do here for this step. Try: {where}"},
-      "rpg.fixed": {zh:"修好了。可以回床上睡覺了。", en:"Fixed. Time to go back to bed."},
+      "rpg.restored":{zh:"服務恢復了，影響不再擴大。還有收尾要做。", en:"The service is back and the damage has stopped growing. There's still clean-up to do."},
+      "rpg.notYet":{zh:"服務恢復了，但還有收尾要做。", en:"The service is back, but there's still clean-up to do."},
+      "rpg.fixed": {zh:"收尾完成。可以回床上睡覺了。", en:"All wrapped up. Time to go back to bed."},
       "rpg.goBed": {zh:"事情處理完了，回床上睡覺吧。", en:"It's handled. Go back to bed."}
     },
 
@@ -191,6 +203,8 @@
       // One game: the incident, the engine state, and what has happened at each station, so a language switch
       // can redraw it all. g.score is set once you are in bed.
       var data = null, g = null, world = null, alive = true, last = null;
+      // The running clock: real time adds up while it runs, and every TICK of it is a minute in the game.
+      var clock = {acc:0, at:performance.now()}, clockId = setInterval(pulse, 250);
       var lv = +read("oncall.lv", 0);
       if (E.LEVELS.indexOf(lv) < 0) lv = 1;
       var endOn = {pm:toPm, next:next}, pmOn = {next:next, again:again, level:level};
@@ -217,6 +231,7 @@
         g = {key:x.key, role:x.role, s:x.s, map:map, wake:wake.id, st:E.create(x.s, lv), answered:false, on:{}, outs:{}, panelAt:null, score:null};
         ui.reset();
         lvBtn.textContent = os.t("oc.lv." + lv);
+        clock.acc = 0;
         ui.loading(false);
         ui.bar(g);
         ui.goal(g);
@@ -229,6 +244,32 @@
         world.set({ringing:wake.id, on:g.on});
         world.start();
         ui.talk(os.fill(os.t("rpg.wake"), {t:x.s.clock, what:ui.L(map.wake)}));
+        if (E.THINK[lv]) ui.talk(os.t("rpg.timed"));
+      }
+
+      // It runs from answering the phone until the fix, on the difficulties that have it, and stops while a
+      // dialog is open, the tab is hidden or the window is not showing.
+      function running(){
+        return g && g.answered && !g.st.fixed && E.THINK[g.st.lv] > 0 && !ui.talking() && !document.hidden && el.offsetParent !== null;
+      }
+      function pulse(){
+        var now = performance.now(), dt = Math.min(now - clock.at, 1000);
+        clock.at = now;
+        if (!running()) return;
+        clock.acc += dt;
+        while (clock.acc >= TICK && running()) { clock.acc -= TICK; tick(); }
+      }
+      // A minute goes by. An alert that fires now rings the phone again and is kept with it.
+      function tick(){
+        var n = g.st.events.length;
+        E.wait(g.s, g.st);
+        ui.bar(g, true);
+        var w = g.map.things.filter(function(t){ return t.id === g.wake; })[0], out = g.outs[g.wake] = g.outs[g.wake] || [];
+        g.st.events.slice(n).filter(function(e){ return e.k === "al"; }).forEach(function(e){
+          out.push(e);
+          ui.talk(os.fill(os.t("rpg.late"), {name:ui.L(w.name), sev:e.a.sev, text:ui.L(e.a.text)}));
+        });
+        if (ui.bookOpen()) ui.drawLog(g);
       }
       function next(){ start(pick(data.pool, g.key)); }
       function again(){ start(data.pool.filter(function(x){ return x.key === g.key; })[0]); }
@@ -247,7 +288,7 @@
           ui.goal(g);
           return;
         }
-        if (t.kind === "bed") { ui.talk(ui.L(t.early)); return; }
+        if (t.kind === "bed") { ui.talk(g.st.fixed ? os.t("rpg.notYet") : ui.L(t.early)); return; }
         if (t.kind === "flavor") { ui.talk(ui.L(t.say)); return; }
         if (t.idle && !E.options(g.s, g.st, t.id).length && !(g.outs[t.id] || []).length) { ui.talk(ui.L(t.idle)); return; }
         g.on[t.id] = true;
@@ -259,7 +300,7 @@
       // Do an option. The station keeps what came back and any alert that fired meanwhile.
       function choose(i){
         if (g.st.done) return;
-        var o = g.s.steps[g.st.phase].opts[i], cur = g, n = g.st.events.length;
+        var o = g.s.steps[g.st.phase].opts[i], cur = g, n = g.st.events.length, wasFixed = g.st.fixed;
         var r0 = {users:g.st.rate.users, asset:g.st.rate.asset};
         E.choose(g.s, g.st, i);
         var added = g.st.events.slice(n), say = added[added.length - 1], out = g.outs[E.stationOf(o)] = g.outs[E.stationOf(o)] || [];
@@ -271,6 +312,7 @@
         ui.panel(g, choose);
         ui.goal(g);
         if (g.st.done) setTimeout(function(){ if (g !== cur || !alive) return; ui.closePanel(); ui.talk(os.t("rpg.fixed")); }, os.still.matches ? 0 : 1100);
+        else if (g.st.fixed && !wasFixed) ui.talk(os.t("rpg.restored"));
       }
 
       function sleep(){
@@ -308,7 +350,7 @@
         ui.loading(false);
         level();
       }, function(){ if (alive) ui.loading("fail"); });
-      return function(){ alive = false; off(); if (world) world.destroy(); };
+      return function(){ alive = false; clearInterval(clockId); off(); if (world) world.destroy(); };
     }
   });
 })();

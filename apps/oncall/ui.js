@@ -94,11 +94,12 @@
 
     /* ----- the bar and the goal ----- */
     function status(g){
-      if (g.st.done) return "up";
+      if (g.st.fixed) return "up";
       var base = g.s.rate || {};
       return ["users", "asset"].some(function(k){ return (base[k] || 0) > g.st.rate[k]; }) ? "part" : "down";
     }
-    function drawBar(g){
+    // `bump` flashes the numbers: a minute just passed on the running clock.
+    function drawBar(g, bump){
       barEl.textContent = "";
       barEl.appendChild(make("b", "", os.t("oc.shift")));
       function cell(label, value, cls, extra){
@@ -115,6 +116,7 @@
       var stt = status(g);
       cell(os.t("oc.status"), os.t("oc.st." + stt), stt);
       barEl.hidden = false;
+      if (bump && !os.still.matches) { barEl.classList.remove("bump"); void barEl.offsetWidth; barEl.classList.add("bump"); }
     }
     function drawGoal(g){
       if (!g.answered) goalEl.textContent = os.fill(os.t("rpg.goalWake"), {name:L(thing(g, g.wake).name)});
@@ -131,7 +133,8 @@
         if (e.r0 && !e.o.fix && e.r1[k] < e.r0[k]) box.appendChild(make("i", "ok", os.fill(os.t(e.r1[k] ? "oc.d.slow" : "oc.d.stop"), {dim:os.t("oc.dim." + k)})));
         if (e.r0 && e.r1[k] > e.r0[k]) box.appendChild(make("i", "hi", os.fill(os.t("oc.d.fast"), {dim:os.t("oc.dim." + k)})));
       });
-      if (e.o.fix) box.appendChild(make("i", "ok", os.t("oc.st.up")));
+      if (e.o.fix && !e.d.after) box.appendChild(make("i", "ok", os.t("oc.st.up")));
+      if (e.o.end || (e.o.fix && !e.o.next)) box.appendChild(make("i", "ok", os.t("oc.d.end")));
       return box;
     }
     function alertLine(cls, a){
@@ -254,7 +257,9 @@
         barO.appendChild(barI);
         r.appendChild(barO);
         r.appendChild(make("b", "", String(sc[k])));
-        var raw = k === "time" ? os.fill(os.t("oc.pm.mins"), {m:st.mins, par:a.par}) : os.fill(os.t("oc.pm.raw"), {n:num(st[k]), best:num(a.ref[k])});
+        var raw = k !== "time" ? os.fill(os.t("oc.pm.raw"), {n:num(st[k]), best:num(a.ref[k])})
+          : a.think ? os.fill(os.t("oc.pm.minsT"), {m:st.fixedAt, w:st.waited.mins, par:a.par + a.think * st.nFix, n:st.nFix, t:a.think})
+          : os.fill(os.t("oc.pm.mins"), {m:st.fixedAt, par:a.par});
         r.appendChild(make("small", "", raw));
         rows.appendChild(r);
       });
@@ -264,14 +269,14 @@
       pmEl.appendChild(make("p", "oc-how", os.t("oc.pm.how")));
 
       section(os.t("oc.pm.costly"));
-      var costs = E.costs(s, st).filter(function(c){ return !c.o.egg; }).slice(0, 3);
+      var costs = E.costs(s, st).filter(function(c){ return !(c.o && c.o.egg); }).slice(0, 3);
       if (costs.length) {
         var cl = make("ul", "oc-costs");
         costs.forEach(function(c){
           var li = make("li");
           li.appendChild(make("b", "", os.fill(os.t("oc.pm.pts"), {n:Math.round(c.total)})));
-          li.appendChild(document.createTextNode(L(c.o.label)));
-          li.appendChild(make("small", "", L(c.o.say)));
+          li.appendChild(document.createTextNode(c.slow ? os.fill(os.t("oc.pm.slow"), {m:c.d.mins}) : L(c.o.label)));
+          li.appendChild(make("small", "", c.slow ? os.fill(os.t("oc.pm.slowWhy"), {t:a.think}) : L(c.o.say)));
           cl.appendChild(li);
         });
         pmEl.appendChild(cl);
@@ -283,6 +288,7 @@
         var li = make("li");
         li.appendChild(make("time", "", clockAt(s, e.t)));
         li.appendChild(document.createTextNode(L(e.o.label)));
+        if (e.o.fix && e.t < st.fixedAt) li.appendChild(make("span", "oc-tag", os.t("oc.pm.restore")));
         ol.appendChild(li);
       });
       pmEl.appendChild(ol);
@@ -293,7 +299,11 @@
 
       section(os.fill(os.t("oc.pm.top"), {m:a.top.mins}));
       var path = make("ol");
-      a.top.path.forEach(function(p){ path.appendChild(make("li", "", L(s.steps[p.phase].opts[p.i].label))); });
+      a.top.path.forEach(function(p){
+        var o = s.steps[p.phase].opts[p.i], li = make("li", "", L(o.label));
+        if (o.fix) li.appendChild(make("span", "oc-tag", os.t("oc.pm.restore")));
+        path.appendChild(li);
+      });
       pmEl.appendChild(path);
 
       section(os.t("oc.pm.todo"));
@@ -328,6 +338,7 @@
     return {
       L:L, talk:talk, advance:advance,
       busy: function(){ return !sayEl.hidden || !panel.hidden || !book.hidden; },
+      talking: function(){ return !sayEl.hidden; },
       // A fresh game: the map showing, every overlay closed.
       reset: function(){
         queue = []; clearInterval(typing); typing = null;

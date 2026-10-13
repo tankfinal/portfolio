@@ -49,7 +49,7 @@ test("an option needing a clue stays hidden until the clue is found", () => {
 test("time passes, impact grows at the rate, and a mitigation stops it", () => {
   const s = sample(), st = E.create(s, 1, zero);
   const d = E.choose(s, st, 2);                      // waste 3 min
-  assert.deepEqual(d, { mins: 3, users: 6, asset: 3 });
+  assert.deepEqual(d, { mins: 3, users: 6, asset: 3, after: false });
   E.choose(s, st, 3);                                // contain: 1 more min, then asset stops
   assert.equal(st.asset, 4);
   E.choose(s, st, 0);
@@ -104,6 +104,60 @@ test("harder difficulties add options and alerts tagged with lv", () => {
   assert.equal(easy.events.filter((e) => e.k === "al").length, 1);
   assert.equal(hell.events.filter((e) => e.k === "al").length, 2);
   assert.notEqual(E.analyse(s, 1), E.analyse(s, 3), "each difficulty is analysed on its own");
+});
+
+test("waiting passes a minute at the current rate, fires timers, and stops once fixed", () => {
+  const s = sample(), st = E.create(s, 2, zero);
+  for (let i = 0; i < 6; i++) E.wait(s, st);
+  assert.equal(st.mins, 6);
+  assert.deepEqual(st.waited, { mins: 6, users: 12, asset: 6 });
+  assert.equal(st.events.filter((e) => e.late).length, 1, "the timer at minute 6 fired");
+  E.choose(s, st, 0); E.choose(s, st, 1); E.choose(s, st, 0);
+  const done = { mins: st.mins, users: st.users };
+  E.wait(s, st);
+  assert.deepEqual({ mins: st.mins, users: st.users }, done);
+});
+
+test("thinking within the allowance is free; beyond it costs and shows in the postmortem", () => {
+  const s = sample(), a = E.analyse(s, 2);
+  function play(think){
+    const st = E.create(s, 2, zero);
+    a.top.path.forEach((p) => { for (let k = 0; k < think; k++) E.wait(s, st); E.choose(s, st, p.i); });
+    return st;
+  }
+  const calm = play(E.THINK[2]);
+  assert.equal(E.score(s, calm).total, 100);
+  assert.ok(!E.costs(s, calm).some((c) => c.slow));
+  const slow = play(E.THINK[2] + 4);
+  assert.ok(E.score(s, slow).total < 100);
+  assert.equal(E.costs(s, slow).find((c) => c.slow).d.mins, 4 * a.top.path.length);
+});
+
+test("restoring stops the growth and the clock score; the clean-up after it costs only users and assets", () => {
+  const s = sample();
+  s.steps.fix.opts[0].next = "clean";
+  s.steps.clean = { ask: T("q3"), opts: [
+    { min: 20, end: true, label: T("tidy"), say: T("x") },
+    { min: 0, end: true, users: 30, label: T("skip"), say: T("x") }
+  ] };
+  const st = E.create(s, 1, zero);
+  E.choose(s, st, 0); E.choose(s, st, 1); E.choose(s, st, 0);   // look, act, sound: restored
+  assert.equal(st.fixed, true);
+  assert.equal(st.done, false);
+  assert.equal(st.phase, "clean");
+  const at = { mins: st.mins, users: st.users };
+  E.wait(s, st);
+  assert.deepEqual({ mins: st.mins, users: st.users }, at, "the clock stops at the restore");
+  E.choose(s, st, 0);   // tidy: 20 minutes that no longer count
+  assert.equal(st.done, true);
+  assert.equal(st.fixedAt, at.mins);
+  assert.equal(E.score(s, st).time, 100);
+  const sloppy = E.create(s, 1, zero);
+  E.choose(s, sloppy, 0); E.choose(s, sloppy, 1); E.choose(s, sloppy, 0); E.choose(s, sloppy, 1);
+  assert.equal(sloppy.users - st.users, 30);
+  assert.ok(E.score(s, sloppy).users < E.score(s, st).users);
+  s.steps.start.opts.push({ min: 1, end: true, label: T("quit"), say: T("x") });
+  assert.match(E.validate({ id: "r", scenarios: [s] }, ["pc", "phone"]).join("\n"), /close without restoring/);
 });
 
 test("validate catches broken content", () => {
