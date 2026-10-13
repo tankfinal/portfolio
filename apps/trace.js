@@ -92,8 +92,6 @@
       "tr.d.tls":   {zh:"加密", en:"Encryption"},
       "tr.d.isp":   {zh:"你的網路業者", en:"Your network"},
       "tr.d.sql":   {zh:"SQL 執行時間", en:"SQL run time"},
-      "tr.d.result":{zh:"查詢結果", en:"Query result"},
-      "tr.d.players":{zh:"排行榜目前有 {n} 位玩家", en:"Players on the leaderboard: {n}"},
       "tr.hist":    {zh:"最近 {n} 次，中位數 {m}：", en:"Last {n}, median {m}: "},
       "tr.tip.h":   {zh:"為什麼 Worker 量不到自己花了多少時間？", en:"Why can't the Worker time its own work?"},
       "tr.tip.b":   {zh:"Cloudflare 為了防範 Spectre 這類 timing 側通道攻擊，Worker 裡的 Date.now() 在程式執行時是凍結的，只有 I/O 完成時才會前進。所以 Worker 量得到「等 D1 回來」花了多久，但自己的 CPU 時間怎麼量都是 0，算在「其他」裡。", en:"To defend against timing side channels such as Spectre, Date.now() inside a Worker stands still while code runs and only moves when I/O completes. The Worker can time its wait on D1, but its own CPU time always measures zero, so it ends up in “Everything else”."},
@@ -346,7 +344,7 @@
         dl.textContent = "";
         var hop = e && e.nextHopProtocol, proto = hop ? ({h3:"HTTP/3", h2:"HTTP/2", "http/1.1":"HTTP/1.1"})[hop] || hop : c.http;
         [["tr.d.http", proto], ["tr.d.tls", [c.tls, c.cipher].filter(Boolean).join(" · ")], ["tr.d.isp", c.isp],
-         ["tr.d.sql", d1.sqlMs != null ? ms(d1.sqlMs) : ""], ["tr.d.result", os.fill(os.t("tr.d.players"), {n:data.players})]
+         ["tr.d.sql", d1.sqlMs != null ? ms(d1.sqlMs) : ""]
         ].forEach(function(r){
           if (!r[1]) return;
           dl.appendChild(make("dt", "", os.t(r[0])));

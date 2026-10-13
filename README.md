@@ -93,7 +93,7 @@ macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.htm
 - **下個連假小工具**（`#wgHol`）：連續放假 3 天以上、且其中有 `HOLIDAYS` 裡的日子才算連假。顯示還有幾天（或「明天」「放假中」）、節日名、連休天數與起訖日，每分鐘重算；點一下開日曆並選在連假第一天。`HOLIDAYS` 的資料用完就自動隱藏。
 - **關於 TankOS**（`about`，點選單列左上的 T，或 Spotlight、`open about`）：版號直接讀 `.mb-ver`；更新紀錄從 GitHub API 抓 commit，只列 subject 結尾有 `（vX.Y.Z）` 的那些，所以版號規則裡「commit subject 標版號」是這個視窗的資料來源，不能省。主機欄依網址判斷是 Cloudflare Workers 還是 GitHub Pages。
 - **Terminal** 是假的，指令寫死在 `run()` 裡；開視窗時會先列出 `HELP`。有幾個吃真資料：`who`（見下一條）、`git log [repo]`（GitHub API，未登入每小時 60 次）、`kubectl get pods`（跟活動監視器同一個 `probe()`）、`neofetch`、`top`。Tab 會補指令、`open` 的 App 名稱和 `git log` 的 repo。彩蛋（不列在 help）：`sudo`、`sudo rm -rf /`、`rm`、`deploy`（禮拜五不同）、`乖乖`、`vim`、`咖啡`、`hi`、`fortune`、`bug`，中文在上、英文在下。
-- **Request 的一生**（`trace`，獨立檔案 App，桌面「實驗區」與 Spotlight）：按「送出請求」打一次 `GET /trace`，畫出三塊：路線圖（你 → Cloudflare 機房，Worker 在這裡跑 → D1 所在機房），每段標實測來回時間、直線距離與光速來回下限（光纖約 200 km/ms），送出時有一顆點沿路線來回（減少動態效果時不跑）；瀑布圖用瀏覽器的 Resource Timing（`PerformanceObserver`，不受 250 筆緩衝上限影響）拆 DNS、連線、TLS、等待回應、下載，「等待回應」再拆成網路來回（Cloudflare 量的 RTT）、Worker 等 D1、其他；細節列協定、TLS、網路業者、SQL 執行時間與查詢結果。選單列的線上人數讓這台 Worker 的連線一直開著，所以通常是連線重用、DNS 與 TLS 為 0，畫面會照實說明，並列出當初開這條連線的那個請求（通常是 `/presence` 的心跳）花了多少 DNS、連線、TLS 時間——找法是這次之前、最後一個有連線時間的 API 請求；瀏覽器的 Resource Timing 緩衝（250 筆）滿了以後只信視窗開著時 `PerformanceObserver` 看到的，找不到就不顯示。網頁沒辦法要求瀏覽器開新連線，所以只能顯示當初那條的數字。機房座標表在 `apps/trace.js` 的 `COLO`，不在表裡的機房只顯示代號、不算距離。最近 10 次的總時間與中位數列在最下面。
+- **Request 的一生**（`trace`，獨立檔案 App，桌面「實驗區」與 Spotlight）：按「送出請求」打一次 `GET /trace`，畫出三塊：路線圖（你 → Cloudflare 機房，Worker 在這裡跑 → D1 所在機房），每段標實測來回時間、直線距離與光速來回下限（光纖約 200 km/ms），送出時有一顆點沿路線來回（減少動態效果時不跑）；瀑布圖用瀏覽器的 Resource Timing（`PerformanceObserver`，不受 250 筆緩衝上限影響）拆 DNS、連線、TLS、等待回應、下載，「等待回應」再拆成網路來回（Cloudflare 量的 RTT）、Worker 等 D1、其他；細節列協定、TLS、網路業者與 SQL 執行時間。選單列的線上人數讓這台 Worker 的連線一直開著，所以通常是連線重用、DNS 與 TLS 為 0，畫面會照實說明，並列出當初開這條連線的那個請求（通常是 `/presence` 的心跳）花了多少 DNS、連線、TLS 時間——找法是這次之前、最後一個有連線時間的 API 請求；瀏覽器的 Resource Timing 緩衝（250 筆）滿了以後只信視窗開著時 `PerformanceObserver` 看到的，找不到就不顯示。網頁沒辦法要求瀏覽器開新連線，所以只能顯示當初那條的數字。機房座標表在 `apps/trace.js` 的 `COLO`，不在表裡的機房只顯示代號、不算距離。最近 10 次的總時間與中位數列在最下面。
 - **線上訪客**（選單列時鐘左邊的綠點與人數、終端機 `who`）：每個分頁每 30 秒向 `/presence` 回報一次（分頁在背景時停止，切回來馬上補一次），回應就是 60 秒內有回報的人；離開頁面時用 `sendBeacon` 打 `/presence/leave` 立刻下線。回報內容是分頁 id 和「現在在看什麼」（最上層視窗的 App id，沒開視窗是 `desktop`，還沒解鎖是 `lock`）。`who` 會重新問一次伺服器，列出 `visitor-xxxx`、城市與國家、上線時間（看的人的當地時間）、在看什麼，自己那列標「← 你」，只有自己時跳彩蛋。點選單列的人數會開終端機並執行 `who`（`initTerm` 把 `exec` 掛在視窗的 `_cmd` 上）。分頁 id 存在 `sessionStorage.who.sid`，新分頁或下次造訪就是新的人，不跨造訪追蹤。API 連不上時人數不顯示，`who` 印錯誤。後端見「API」。
 
 ### 文案與經典版同步
@@ -151,7 +151,7 @@ GET  https://blocks-leaderboard.xarenvich.workers.dev/scores               → {
 POST https://blocks-leaderboard.xarenvich.workers.dev/scores {name, score} → {top, me:{name, score, rank}}
 POST https://blocks-leaderboard.xarenvich.workers.dev/presence {sid, app}   → {me, total, online:[{tag, city, country, app, since}]}
 POST https://blocks-leaderboard.xarenvich.workers.dev/presence/leave {sid} → 204
-GET  https://blocks-leaderboard.xarenvich.workers.dev/trace                → {edge, client, d1, players}
+GET  https://blocks-leaderboard.xarenvich.workers.dev/trace                → {edge, client, d1}
 ```
 
 ### 排行榜（`/scores`）
@@ -172,8 +172,8 @@ GET  https://blocks-leaderboard.xarenvich.workers.dev/trace                → {
 
 ### Request 的一生（`/trace`）
 
-- **一次唯讀查詢**：`SELECT COUNT(*) FROM scores`，用 `Date.now()` 包住量 Worker 到 D1 的來回。Worker 裡的 `Date.now()` 只在 I/O 完成時前進（Cloudflare 防 timing 側通道的設計），所以量得到等 D1 的時間，量不到 Worker 自己的 CPU 時間
-- **回什麼**：`edge` 是 Cloudflare 機房代號（`request.cf.colo`）；`client` 是城市、國家、經緯度、RTT（`clientQuicRtt` 或 `clientTcpRtt`）、HTTP 版本、TLS 版本與加密套件、網路業者（`asOrganization`）；`d1` 是 D1 回報的機房、區域、是否主要資料庫（`meta.served_by_*`）、Worker 量的來回 `ms`、SQL 執行 `sqlMs`；`players` 是查詢結果。都只回給發請求的人，不寫入、不存
+- **到 D1 走一趟**：查詢是 `SELECT 1`，不讀任何表、跟排行榜無關，只為了讓請求真的到 D1 所在機房再回來；用 `Date.now()` 包住量這段來回。Worker 裡的 `Date.now()` 只在 I/O 完成時前進（Cloudflare 防 timing 側通道的設計），所以量得到等 D1 的時間，量不到 Worker 自己的 CPU 時間
+- **回什麼**：`edge` 是 Cloudflare 機房代號（`request.cf.colo`）；`client` 是城市、國家、經緯度、RTT（`clientQuicRtt` 或 `clientTcpRtt`）、HTTP 版本、TLS 版本與加密套件、網路業者（`asOrganization`）；`d1` 是 D1 回報的機房、區域、是否主要資料庫（`meta.served_by_*`）、Worker 量的來回 `ms`、SQL 執行 `sqlMs`。都只回給發請求的人，不寫入、不存
 - **header**：`Server-Timing`（開發者工具的 Timing 分頁看得到 D1 與 SQL 時間）。`Timing-Allow-Origin` 跟 CORS 一樣只給 `ORIGINS` 裡的來源，而且每個路由的回應都帶：沒有它瀏覽器會把跨網域請求的 DNS、連線、TLS、等待時間都回 0，Request 的一生就看不到當初開連線的那個請求（通常是 `/presence`）花了多少
 
 ### 部署

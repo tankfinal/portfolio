@@ -123,13 +123,14 @@ async function leave(request, env, cors) {
   return new Response(null, { status: 204, headers: cors });
 }
 
-// One read against D1, timed from inside the Worker. Date.now() in a Worker only moves when I/O completes,
-// so this measures the wait for D1 and nothing else; the Worker's own CPU time cannot be seen from here.
+// One trip to D1, timed from inside the Worker. SELECT 1 reads no table: the point is the trip, not the data.
+// Date.now() in a Worker only moves when I/O completes, so this measures the wait for D1 and nothing else;
+// the Worker's own CPU time cannot be seen from here.
 // Nothing is stored.
 async function trace(request, env, cors) {
   const cf = request.cf || {};
   const t0 = Date.now();
-  const { results, meta } = await env.DB.prepare("SELECT COUNT(*) AS n FROM scores").all();
+  const { meta } = await env.DB.prepare("SELECT 1").all();
   const d1Ms = Date.now() - t0;
   const sqlMs = meta.timings?.sql_duration_ms ?? meta.duration ?? null;
   const d1 = {
@@ -153,7 +154,6 @@ async function trace(request, env, cors) {
       isp: cleanPlace(cf.asOrganization),
     },
     d1,
-    players: results[0].n,
   };
   const timing = [`d1;dur=${d1Ms};desc="D1 ${d1.colo || "local"}"`];
   if (sqlMs != null) timing.push(`sql;dur=${sqlMs};desc="SQL"`);
