@@ -113,6 +113,10 @@
   .lang button.on{opacity:1;font-weight:600;background:rgba(255,255,255,.18)}
   #clock{white-space:nowrap;font-variant-numeric:tabular-nums}
   .mb-ver{font-family:var(--mono);font-size:11px;opacity:.6;white-space:nowrap}
+  .mb-who{display:inline-flex;align-items:center;gap:6px;padding:1px 7px;border-radius:5px;font-size:12px;font-variant-numeric:tabular-nums;color:#fff}
+  .mb-who:hover{background:rgba(255,255,255,.18)}
+  .mb-who i{width:7px;height:7px;border-radius:50%;background:#34C759;box-shadow:0 0 0 2px rgba(52,199,89,.28)}
+  .mb-who[hidden]{display:none}
 
   /* ---------- desktop icons ---------- */
   .desktop{position:fixed;top:var(--menu-h);left:0;right:0;bottom:0;z-index:1}
@@ -632,6 +636,8 @@
   @media (max-width:600px){
     .mb-l,.mb-r{gap:12px}
     .mb-item{display:none}
+    /* Room for the app name next to the online count; About TankOS and neofetch still show the version. */
+    .mb-ver{display:none}
     .mb-priv{padding:3px 6px}
     .mb-priv span{display:none}
   }
@@ -678,10 +684,11 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v1.6.0</span>
+    <span class="mb-ver">v1.7.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
+    <button class="mb-who" id="mbWho" type="button" hidden><i aria-hidden="true"></i><span></span></button>
     <span id="clock"></span>
   </div>
 </header>
@@ -1091,7 +1098,11 @@
     "os.act.wait": {zh:"檢查中", en:"Checking"},
     "os.act.count":{zh:"{n} 個服務 · {u} 個正常", en:"{n} services · {u} up"},
     "os.act.when": {zh:"更新於 {t}", en:"updated {t}"},
-    "os.act.foot": {zh:"從你的瀏覽器直接向每個站發請求，每 15 秒自動更新。全部都是靜態站，沒有後端。", en:"Requests go straight from your browser to each site and refresh every 15 seconds. All static sites, no backend."}
+    "os.act.foot": {zh:"從你的瀏覽器直接向每個站發請求，每 15 秒自動更新。全部都是靜態站，沒有後端。", en:"Requests go straight from your browser to each site and refresh every 15 seconds. All static sites, no backend."},
+    "os.who.tip":  {zh:"{n} 人在線", en:"{n} online"},
+    "os.who.desk": {zh:"桌面", en:"Desktop"},
+    "os.who.lock": {zh:"鎖定畫面", en:"Lock screen"},
+    "os.who.you":  {zh:"← 你", en:"← you"}
   };
 
   // Site apps run the live page in an iframe; the rest clone a <template id="tpl-{id}">.
@@ -1806,7 +1817,9 @@
   // The game ends when none of the pieces left in the tray fits anywhere.
   var BK_N = 8;
   // Leaderboard Worker (api/ in this repo), backed by Cloudflare D1.
-  var BK_API = "https://blocks-leaderboard.xarenvich.workers.dev/scores";
+  // The leaderboard and who's online share one Worker (api/). Point this at http://localhost:8787 to test locally.
+  var API = "https://blocks-leaderboard.xarenvich.workers.dev";
+  var BK_API = API + "/scores";
   var BK_COLORS = ["gold","red","blue","green","purple","orange","cyan"];
   var BK_SHAPES = [
     [[0,0]],
@@ -2156,10 +2169,67 @@
     paint(); stats();
   }
 
+  /* ---------- who's online (menu bar, Terminal `who`) ---------- */
+  // Each tab reports itself every 30 s while visible, and the reply is everyone seen in the last minute.
+  // The id lives in sessionStorage, so a new tab or a new visit is a new visitor; nothing follows anyone across visits.
+  var PR_API = API + "/presence";
+  var mbWho = document.getElementById("mbWho");
+  var prSid = (function(){
+    var s = null;
+    try { s = sessionStorage.getItem("who.sid"); } catch (e) {}
+    if (!/^[0-9a-f]{32}$/.test(s || "")) {
+      var b = new Uint8Array(16);
+      crypto.getRandomValues(b);
+      s = Array.prototype.map.call(b, function(x){ return ("0" + x.toString(16)).slice(-2); }).join("");
+      try { sessionStorage.setItem("who.sid", s); } catch (e) {}
+    }
+    return s;
+  })();
+  var prNow = null, prTimer = null;
+
+  // What this tab is looking at: the lock screen, the window in front, or the bare desktop.
+  function prApp(){ return locked ? "lock" : focused || "desktop"; }
+  function whatOf(app){
+    if (APPS[app]) return appName(app);
+    return app === "desktop" ? t("os.who.desk") : app === "lock" ? t("os.who.lock") : "—";
+  }
+
+  // text/plain keeps this a simple request, so there is no CORS preflight on every heartbeat.
+  function beat(){
+    return fetch(PR_API, {method:"POST", headers:{"Content-Type":"text/plain"}, body:JSON.stringify({sid:prSid, app:prApp()})})
+      .then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(res){ prNow = res; paintWho(); return res; })
+      .catch(function(){ prNow = null; paintWho(); return null; });
+  }
+  function paintWho(){
+    mbWho.hidden = !prNow;
+    if (!prNow) return;
+    var tip = fill(t("os.who.tip"), {n:prNow.total});
+    mbWho.querySelector("span").textContent = prNow.total;
+    mbWho.title = tip;
+    mbWho.setAttribute("aria-label", tip);
+  }
+  function whoStart(){ if (!prTimer) { beat(); prTimer = setInterval(beat, 30000); } }
+  function whoStop(){ clearInterval(prTimer); prTimer = null; }
+
+  document.addEventListener("visibilitychange", function(){ if (document.hidden) whoStop(); else whoStart(); });
+  // Leaving drops this tab from the list at once rather than after the one-minute window.
+  window.addEventListener("pagehide", function(){
+    whoStop();
+    if (navigator.sendBeacon) navigator.sendBeacon(PR_API + "/leave", JSON.stringify({sid:prSid}));
+  });
+  window.addEventListener("pageshow", function(e){ if (e.persisted && !document.hidden) whoStart(); });
+  mbWho.addEventListener("click", function(){
+    open("terminal");
+    wins.terminal.el._cmd("who");
+  });
+  langHooks.push(paintWho);
+
   /* ---------- terminal ---------- */
   var HELP = [
     ["help",             "show this list"],
     ["whoami",           "who runs this machine"],
+    ["who",              "who else is on this site right now"],
     ["neofetch",         "system info, the classic way"],
     ["ls",               "list what's here"],
     ["open <app>",       "open an app (press Tab to list them)"],
@@ -2172,7 +2242,7 @@
     ["clear",            "clear the screen"],
     ["exit",             "close this window"]
   ];
-  var CMDS = ["help","whoami","neofetch","ls","open","git","kubectl","top","cat","contact","date","clear","exit","sudo"];
+  var CMDS = ["help","whoami","who","neofetch","ls","open","git","kubectl","top","cat","contact","date","clear","exit","sudo"];
   var OPENABLE = ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","calc","calendar","about","readme","contact","private"];
   var REPOS = SERVICES.map(function(s){ return s.repo; });
 
@@ -2295,6 +2365,27 @@
       });
     }
 
+    // Asks the server afresh rather than reusing the last heartbeat, so the list is never 30 s old.
+    function who(){
+      var wait = line("Asking the server who's here…", "dim");
+      beat().then(function(res){
+        wait.remove();
+        if (!res) { line("who: can't reach the server, try again later", "err"); return; }
+        var hm = new Intl.DateTimeFormat(lang === "en" ? "en-US" : "zh-TW", {hour:"2-digit", minute:"2-digit", hour12:false});
+        var rows = res.online.map(function(v){
+          var from = v.city ? v.city.slice(0, 22) + (v.country ? ", " + v.country : "") : v.country || "—";
+          return {user:"visitor-" + v.tag, from:from, since:hm.format(new Date(v.since)), what:whatOf(v.app), me:v.tag === res.me};
+        });
+        var w = Math.max.apply(null, rows.map(function(r){ return r.from.length; }).concat([4])) + 2;
+        line(pad("USER", 14) + pad("FROM", w) + pad("SINCE", 7) + "WHAT", "dim");
+        rows.forEach(function(r){
+          rich([pad(r.user, 14) + pad(r.from, w) + pad(r.since, 7) + r.what].concat(r.me ? [["  " + t("os.who.you"), "grn"]] : []));
+        });
+        if (res.total > rows.length) line("… " + (res.total - rows.length) + " more", "dim");
+        if (res.total <= 1) egg("現在只有你在線上。Tank 大概在開會。", "Just you online right now. Tank is probably in a meeting.", "yel");
+      });
+    }
+
     // Easter eggs: Chinese first, English underneath.
     function egg(zh, en, cls){ line(zh, cls); line(en, "dim"); }
     var FORTUNE = [
@@ -2317,6 +2408,9 @@
           return;
         case "whoami":
           line("Tank Yang — Backend Senior Associate Manager @ XREX");
+          return;
+        case "who":
+          who();
           return;
         case "neofetch":
           neofetch();
@@ -2434,6 +2528,11 @@
       if (e.key !== "Enter") return;
       var raw = input.value.trim();
       input.value = "";
+      exec(raw);
+    });
+
+    // Typed commands and ones run from elsewhere (the menu bar's online count runs `who`) look the same.
+    function exec(raw){
       if (raw) hist.push(raw);
       hi = hist.length;
       var echo = document.createElement("div");
@@ -2442,7 +2541,8 @@
       out.appendChild(echo);
       run(raw);
       body.scrollTop = body.scrollHeight;
-    });
+    }
+    el._cmd = exec;
   }
 
   /* ---------- desktop + dock ---------- */
@@ -2642,6 +2742,7 @@
   });
 
   if (!narrow.matches) open("readme");
+  if (!document.hidden) whoStart();
 })();
 </script>
 </body>
