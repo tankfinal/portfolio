@@ -273,15 +273,8 @@
   .app-load{background:var(--win-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3a9 9 0 1 0 9 9' fill='none' stroke='%238A8A90' stroke-width='2' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 12 12' to='360 12 12' dur='.9s' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E") center / 28px no-repeat}
   .app-load.app-fail{background-image:none;display:grid;place-content:center;justify-items:center;gap:12px;padding:24px;text-align:center;font-size:13px;color:var(--win-soft)}
   .app-fail button{padding:5px 16px;border-radius:7px;border:.5px solid var(--win-line);background:var(--win-side);color:var(--win-fg);cursor:pointer}
-  /* Frame apps: another site's page fills the window, with the same spinner until it has loaded. */
-  .frame-body{overflow:hidden}
-  .frame-body iframe{
-    display:block;width:100%;height:100%;border:0;
-    background:var(--win-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3a9 9 0 1 0 9 9' fill='none' stroke='%238A8A90' stroke-width='2' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 12 12' to='360 12 12' dur='.9s' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E") center / 28px no-repeat;
-  }
-  .frame-body iframe.ready{background-image:none}
   .shield{position:absolute;inset:0;display:none}
-  .win.site:not(.focused) .shield,.win.frame:not(.focused) .shield{display:block}
+  .win.site:not(.focused) .shield{display:block}
 
   /* README.md */
   .doc{padding:28px 36px 44px;font-size:14px;line-height:1.75;color:var(--win-soft)}
@@ -701,7 +694,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v1.16.0</span>
+    <span class="mb-ver">v1.16.1</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -1127,9 +1120,9 @@
     "os.load.retry":{zh:"重試", en:"Retry"}
   };
 
-  // Site apps run the live page in an iframe beside a sidebar about it; `frame` apps are another site's page
-  // filling the whole window (?embed=1&lang=…, and {tankos:"lang"} by postMessage on each switch); `file` apps
-  // load apps/<id>.js the first time they open; the rest clone a <template id="tpl-{id}">.
+  // Site apps run the live page in an iframe beside a sidebar about it; `link` apps open in a new tab
+  // (`lang: true` passes the current language as ?lang=); `file` apps load apps/<id>.js the first time they
+  // open; the rest clone a <template id="tpl-{id}">.
   var APPS = {
     fukuoka: {k:"w1", url:"https://tankfinal.github.io/fukuoka-trip/", src:"https://github.com/tankfinal/fukuoka-trip",
               spec:[["spec.build","w1.s1"], ["spec.feat","w1.s2"], ["spec.size",null,"113 KB"]], w:1080, h:720},
@@ -1142,7 +1135,8 @@
     activity:{w:780, h:430},
     blocks:  {w:420, h:660},
     trace:   {w:760, h:620, file:"apps/trace.js"},
-    shachiku:{w:700, h:640, frame:"https://shachiku.xarenvich.workers.dev/"},
+    // A game with its own site (tankfinal/shachiku): it plays better full size, so it opens in a new tab.
+    shachiku:{link:"https://shachiku.xarenvich.workers.dev/", lang:true},
     readme:  {w:680, h:660},
     terminal:{w:700, h:560, cls:"term-win"},
     contact: {w:440, h:450},
@@ -1214,9 +1208,6 @@
     showApp();
     tick();
     langHooks.forEach(function(f){ f(); });
-    document.querySelectorAll(".win.frame iframe").forEach(function(f){
-      if (f.contentWindow) f.contentWindow.postMessage({tankos:"lang", lang:l}, new URL(f.src).origin);
-    });
   }
 
   /* ---------- window manager ---------- */
@@ -1234,7 +1225,7 @@
   function build(id){
     var a = APPS[id];
     var el = document.createElement("section");
-    el.className = "win" + (a.url ? " site" : "") + (a.frame ? " frame" : "") + (a.cls ? " " + a.cls : "");
+    el.className = "win" + (a.url ? " site" : "") + (a.cls ? " " + a.cls : "");
     el.setAttribute("role", "dialog");
     el.setAttribute("aria-labelledby", "wt-" + id);
     el.innerHTML = BAR;
@@ -1267,10 +1258,6 @@
         '<iframe src="' + a.url + '"></iframe>' +
         '<div class="shield"></div>';
       if (narrow.matches) el.classList.add("noside");
-    } else if (a.frame) {
-      body = document.createElement("div");
-      body.className = "body frame-body";
-      body.innerHTML = '<iframe src="' + a.frame + '?embed=1&lang=' + lang + '"></iframe><div class="shield"></div>';
     } else if (a.file) {
       body = document.createElement("div");
       body.className = "body app-load";
@@ -1280,9 +1267,9 @@
     el.appendChild(body);
     applyI18n(el);
 
-    if (a.url || a.frame) {
+    if (a.url) {
       var frame = el.querySelector("iframe");
-      frame.title = appName(id);
+      frame.title = t(a.k + ".t");
       frame.addEventListener("load", function(){ frame.classList.add("ready"); });
     }
     if (id === "contact") {
@@ -1433,7 +1420,7 @@
 
   function open(id){
     if (!APPS[id]) return;
-    if (APPS[id].link) { window.open(APPS[id].link, "_blank", "noopener"); return; }
+    if (APPS[id].link) { window.open(APPS[id].link + (APPS[id].lang ? "?lang=" + lang : ""), "_blank", "noopener"); return; }
     if (wins[id]) {
       wins[id].el.classList.remove("minimized");
       focused = null;
