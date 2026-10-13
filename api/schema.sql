@@ -1,11 +1,14 @@
--- One row per player name (case-insensitive), holding that name's best score.
-CREATE TABLE IF NOT EXISTS scores (
+-- TankOS's database (D1 `portfolio`). Tables belonging to one app are prefixed with it (blocks_ for Block
+-- Puzzle); presence is TankOS's own.
+
+-- Block Puzzle leaderboard: one row per player name (case-insensitive), holding that name's best score.
+CREATE TABLE IF NOT EXISTS blocks_scores (
   name   TEXT    PRIMARY KEY COLLATE NOCASE,
   score  INTEGER NOT NULL,
   set_at INTEGER NOT NULL  -- epoch ms when this best was reached; earlier wins a tie
 );
 
-CREATE INDEX IF NOT EXISTS scores_by_rank ON scores (score DESC, set_at);
+CREATE INDEX IF NOT EXISTS blocks_scores_by_rank ON blocks_scores (score DESC, set_at);
 
 -- Who is on the site now: one row per browser tab, refreshed by a heartbeat every 30 s and deleted
 -- 5 minutes after the last one. No IP is stored.

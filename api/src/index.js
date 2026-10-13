@@ -1,6 +1,6 @@
 // TankOS's API (Worker `tankos-api`): the Block Puzzle leaderboard, who is on the site right now, and the
-// measurements for Life of a Request. Data lives in D1 (database `blocks-leaderboard`, named when the leaderboard
-// was all there was).
+// measurements for Life of a Request. Data lives in D1 (database `portfolio`; the leaderboard is the table
+// blocks_scores, presence is presence).
 //   GET  /                       -> a page saying what this is and listing the endpoints, for anyone who opens it
 //   GET  /scores                 -> {top}
 //   POST /scores {name, score}   -> {top, me}   keeps the higher of the new and stored score for that name
@@ -50,7 +50,7 @@ const INDEX = `<!doctype html>
 </html>
 `;
 
-const TOP_SQL = "SELECT name, score FROM scores ORDER BY score DESC, set_at LIMIT " + TOP;
+const TOP_SQL = "SELECT name, score FROM blocks_scores ORDER BY score DESC, set_at LIMIT " + TOP;
 
 export default {
   async fetch(request, env) {
@@ -106,15 +106,15 @@ async function submit(request, env, cors) {
 
   const [, me, top] = await env.DB.batch([
     env.DB.prepare(
-      `INSERT INTO scores (name, score, set_at) VALUES (?1, ?2, ?3)
+      `INSERT INTO blocks_scores (name, score, set_at) VALUES (?1, ?2, ?3)
        ON CONFLICT (name) DO UPDATE SET score = excluded.score, set_at = excluded.set_at
-       WHERE excluded.score > scores.score`
+       WHERE excluded.score > blocks_scores.score`
     ).bind(name, score, Date.now()),
     env.DB.prepare(
       `SELECT s.name, s.score,
-              (SELECT COUNT(*) FROM scores o
+              (SELECT COUNT(*) FROM blocks_scores o
                 WHERE o.score > s.score OR (o.score = s.score AND o.set_at < s.set_at)) + 1 AS rank
-         FROM scores s WHERE s.name = ?1`
+         FROM blocks_scores s WHERE s.name = ?1`
     ).bind(name),
     env.DB.prepare(TOP_SQL),
   ]);

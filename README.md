@@ -146,7 +146,7 @@ sips -s format jpeg -s formatOptions 78 shot.png --out out.jpg
 
 ## API（`api/`）
 
-方塊消除的排行榜、線上訪客與 Request 的一生共用一個 Cloudflare Worker `tankos-api`，資料放 Cloudflare D1 的 `blocks-leaderboard` 資料庫（名稱沿用最早只有排行榜的時候），都在免費額度內。直接打開 `https://tankos-api.xarenvich.workers.dev/` 是一頁說明，列出下面這些 API。跟靜態站分開部署（見下方「部署」）：GitHub Pages 與 `portfolio` Worker 都只送靜態檔，`api/` 已列進 `.assetsignore`。
+方塊消除的排行榜、線上訪客與 Request 的一生共用一個 Cloudflare Worker `tankos-api`，資料放 Cloudflare D1 的 `portfolio` 資料庫，都在免費額度內。屬於某個 App 的表用 App 名當前綴（方塊消除的排行榜是 `blocks_scores`），`presence` 是 TankOS 本身的。直接打開 `https://tankos-api.xarenvich.workers.dev/` 是一頁說明，列出下面這些 API。跟靜態站分開部署（見下方「部署」）：GitHub Pages 與 `portfolio` Worker 都只送靜態檔，`api/` 已列進 `.assetsignore`。
 
 ```
 GET  https://tankos-api.xarenvich.workers.dev/                       → 說明頁（HTML）
@@ -163,7 +163,7 @@ GET  https://tankos-api.xarenvich.workers.dev/trace                → {edge, cl
 - **名字沒有登入驗證**：任何人打同一個名字都算同一個玩家，分數也是前端送的，這是給作品集玩的榜，不防作弊
 - **輸入檢查**：名字壓掉空白與控制字元後要 1–12 個字，分數是 1 到 10,000,000 的整數，不符合回 400
 - **CORS** 只開給 `tankfinal.github.io`、`portfolio.xarenvich.workers.dev` 和本機 `localhost:4321`。新增網域時改 `src/index.js` 的 `ORIGINS`
-- 要刪掉某一列（例如不雅的名字）：`npx wrangler d1 execute blocks-leaderboard --remote --command "DELETE FROM scores WHERE name = 'xxx'"`，在 `api/` 底下執行
+- 要刪掉某一列（例如不雅的名字）：`npx wrangler d1 execute portfolio --remote --command "DELETE FROM blocks_scores WHERE name = 'xxx'"`，在 `api/` 底下執行
 
 ### 線上訪客（`/presence`）
 
@@ -194,13 +194,13 @@ Push 到 `main` 且改到 `api/` 底下的檔案 → Cloudflare Workers Builds �
 
 Workers Builds 部署到 Dashboard 上接著的那個 Worker，`wrangler.jsonc` 的 `name` 不一樣也照樣成功（2026-10-13 改名時實測：接在舊 `blocks-leaderboard` 的建置把新程式部署到了舊 Worker），所以 Worker 改名時一定要在 Dashboard 改接，否則會部署到舊的那個。急著上線或 Workers Builds 出狀況時，也可以在 `api/` 底下手動 `npx wrangler login` 再 `npx wrangler deploy`。
 
-第一次建資料庫時，`npx wrangler d1 create blocks-leaderboard` 把產生的 `database_id` 填進 `wrangler.jsonc`，再跑 `npx wrangler d1 execute blocks-leaderboard --remote --file=schema.sql` 建表。`schema.sql` 全部是 `IF NOT EXISTS`，之後加了新表（例如 `presence`）就在 push 之前再跑一次同一行，既有的表和資料不受影響。
+第一次建資料庫時，`npx wrangler d1 create portfolio` 把產生的 `database_id` 填進 `wrangler.jsonc`，再跑 `npx wrangler d1 execute portfolio --remote --file=schema.sql` 建表。`schema.sql` 全部是 `IF NOT EXISTS`，之後加了新表（例如 `presence`）就在 push 之前再跑一次同一行，既有的表和資料不受影響。
 
 本機測試：
 
 ```bash
 cd api
-npx wrangler d1 execute blocks-leaderboard --local --file=schema.sql
+npx wrangler d1 execute portfolio --local --file=schema.sql
 npx wrangler dev                                     # http://localhost:8787
 ```
 

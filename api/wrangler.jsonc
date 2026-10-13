@@ -9,12 +9,11 @@
   "compatibility_date": "2026-10-01",
   // The site calls the workers.dev URL; preview URLs are not needed.
   "preview_urls": false,
-  // The database keeps the name from when it only held the leaderboard.
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "blocks-leaderboard",
-      "database_id": "0a773ca0-b629-49a2-ad46-5e3940267ae6"
+      "database_name": "portfolio",
+      "database_id": "9fa4e442-8026-4efc-b751-3035fbba223c"
     }
   ]
 }
