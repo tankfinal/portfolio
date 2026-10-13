@@ -33,17 +33,7 @@ index.html          # 首頁 TankOS：CSS、JS、i18n 字典都在裡面
 classic/index.html  # 經典版，同樣單檔
 os/index.html       # 只做轉址回首頁，讓已分享出去的 /os/ 連結不失效
 apps/               # 自己一個檔案的 TankOS App，開視窗時才載入，見 TankOS 一節的「獨立檔案 App」
-├── trace.js        # Request 的一生
-├── oncall.js       # 凌晨三點的入口：i18n、版面、載入資料、串起下面三支
-└── oncall/
-    ├── engine.js   # 規則與計分，不碰 DOM（tools/ 在 Node 裡跑它）
-    ├── world.js    # canvas 地圖：畫圖、走路、夜間光影、入睡動畫
-    ├── ui.js       # 對話框、筆電／手機畫面、紀錄、狀態列、結局卡、事故檢討
-    ├── style.css
-    ├── roles/      # 角色：用哪個人物和地圖、有哪些事故（be.json 是後端工程師）
-    ├── maps/       # 地圖：格子、家具、能互動的東西（home.json）
-    ├── art.json    # 素材包沒有的像素圖（床、筆電、手機、機櫃、乖乖、窗）
-    └── indoor.png、urban.png   # Kenney 像素素材（CC0）
+└── trace.js        # Request 的一生
 images/
 ├── fukuoka-trip.jpg      # 經典版的作品縮圖（截自 live 站）
 ├── busan-trip.jpg
@@ -51,7 +41,6 @@ images/
 ├── wallpaper-komezuka.jpg     # TankOS 桌布（1920px）
 ├── wallpaper-komezuka-sm.jpg  # 手機版桌布（1200px）
 └── averlyn-vaccine.jpg
-tools/              # 凌晨三點的內容檢查與單元測試（Node，不上線，列在 .assetsignore）
 api/                # 排行榜、線上訪客、Request 的一生共用的 Worker + D1，獨立部署，見「API」
 ├── src/index.js
 ├── schema.sql
@@ -91,9 +80,10 @@ macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.htm
 
 - **設計語彙跟經典版相反**：漸層桌布、毛玻璃選單列與 Dock、圓角、陰影都在這裡用。桌布是九州自駕時拍的阿蘇米塚（`images/wallpaper-komezuka.jpg`，手機版吃 `-sm`），`background-size:cover` 滿版，上面疊一層白色漸層淡化，讓 icon 和視窗字好讀。
 - **視窗**：紅黃綠三顆鈕分別是關閉、縮到 Dock、放大（雙擊標題列也是放大）。標題列可拖曳，右下角可縮放。768px 以下視窗一律全螢幕、不可拖曳，桌面 icon 改成點一下就開。
-- **桌面分區**：icon 依類型分四區，各區有小標（`os.zone.*`，中英雙語）。左欄由上往下是「作品」（live 站）、「實驗區」（方塊消除、Request 的一生、凌晨三點）；右欄由上往下是「小工具」（終端機、活動監視器、計算機、日曆）、「下個連假」小工具、「關於我」（README 與聯絡我）。四區都是兩欄，不會伸進預設開啟的 README 視窗底下。兩欄都從上往下排、沒有貼底的區塊，最高的右欄底部約在 551px，視窗高度 560px 以上都不會被切到；加 icon 前先量一下，別讓任一欄超過這個高度太多（常見的 1366×768 筆電扣掉瀏覽器工具列只剩約 625–657px）。「關於 TankOS」沒有桌面 icon，由選單列左上的 T、Spotlight、`open about` 開，跟 macOS 一樣。新增 App 時放進對應區塊的 `<ul class="icons">`。768px 以下四區改成由上往下排，每列四顆。
+- **桌面分區**：icon 依類型分四區，各區有小標（`os.zone.*`，中英雙語）。左欄由上往下是「作品」（live 站）、「實驗區」（方塊消除、Request 的一生、我是社畜）；右欄由上往下是「小工具」（終端機、活動監視器、計算機、日曆）、「下個連假」小工具、「關於我」（README 與聯絡我）。四區都是兩欄，不會伸進預設開啟的 README 視窗底下。兩欄都從上往下排、沒有貼底的區塊，最高的右欄底部約在 551px，視窗高度 560px 以上都不會被切到；加 icon 前先量一下，別讓任一欄超過這個高度太多（常見的 1366×768 筆電扣掉瀏覽器工具列只剩約 625–657px）。「關於 TankOS」沒有桌面 icon，由選單列左上的 T、Spotlight、`open about` 開，跟 macOS 一樣。新增 App 時放進對應區塊的 `<ul class="icons">`。768px 以下四區改成由上往下排，每列四顆。
 - **App 視窗用 iframe 直接跑 live 站**，左側欄是經典版同一份作品介紹。新增 App：在 `APPS` 加一筆（`k` 指向經典版的作品 key、`url`、`src`、`spec`），再補桌面 icon 和 Dock 各一顆按鈕；要讓活動監視器和 `kubectl` 看得到，`SERVICES` 也加一筆；Spotlight 的別名寫在 `KW`。被嵌的站不能送 `X-Frame-Options` / `frame-ancestors`，GitHub Pages 預設沒有。
-- **獨立檔案 App**（`APPS` 裡帶 `file` 的，目前有 `trace`、`oncall`）：程式、CSS、中英字串都在 `apps/<id>.js`，第一次開視窗才用 `<script>` 載入（網址帶 `?v=<版號>`，升版就不會吃到舊快取；`file` 也可以是陣列，幾支檔案同時載入，其中一支呼叫 `TankOS.define`），載入中顯示轉圈，失敗顯示重試。檔案呼叫 `TankOS.define(id, {html, css, i18n, init})` 登記自己：`html` 是視窗內容（根元素帶 `body` class），`css` 第一次載入時注入一次，`i18n` 併進 `I18N`（key 用自己的前綴），`init(body, os)` 可以回傳一個關視窗時要跑的函式。`os` 是檔案唯一拿得到的東西：`t`、`fill`、`lang()`、`onLang(f)`（回傳取消函式）、`api`（Worker 網址）、`open`、`still`（減少動態效果的 media query）、`ver`（站台版號，App 自己 fetch 的檔案拿來加 `?v=`）。新增一個：寫 `apps/<id>.js`，`APPS` 加 `{w, h, file:"apps/<id>.js"}`，`I18N` 加 `app.<id>`，桌面 icon（含 `.ic-<id>` 顏色與 SVG symbol）、`KW`、`index()` 的清單、終端機 `OPENABLE` 與 `ls` 各補一處；App 名稱和 icon 留在 `index.html`，因為載入前桌面和 Spotlight 就要顯示。
+- **獨立檔案 App**（`APPS` 裡帶 `file` 的，目前有 `trace`）：程式、CSS、中英字串都在 `apps/<id>.js`，第一次開視窗才用 `<script>` 載入（網址帶 `?v=<版號>`，升版就不會吃到舊快取；`file` 也可以是陣列，幾支檔案同時載入，其中一支呼叫 `TankOS.define`），載入中顯示轉圈，失敗顯示重試。檔案呼叫 `TankOS.define(id, {html, css, i18n, init})` 登記自己：`html` 是視窗內容（根元素帶 `body` class），`css` 第一次載入時注入一次，`i18n` 併進 `I18N`（key 用自己的前綴），`init(body, os)` 可以回傳一個關視窗時要跑的函式。`os` 是檔案唯一拿得到的東西：`t`、`fill`、`lang()`、`onLang(f)`（回傳取消函式）、`api`（Worker 網址）、`open`、`still`（減少動態效果的 media query）、`ver`（站台版號，App 自己 fetch 的檔案拿來加 `?v=`）。新增一個：寫 `apps/<id>.js`，`APPS` 加 `{w, h, file:"apps/<id>.js"}`，`I18N` 加 `app.<id>`，桌面 icon（含 `.ic-<id>` 顏色與 SVG symbol）、`KW`、`index()` 的清單、終端機 `OPENABLE` 與 `ls` 各補一處；App 名稱和 icon 留在 `index.html`，因為載入前桌面和 Spotlight 就要顯示。
+- **嵌入 App**（`APPS` 裡帶 `frame` 的，目前有 `shachiku`）：別的網站的頁面整個放進視窗（iframe，網址加 `?embed=1&lang=zh|en`），切換語言時再用 `postMessage({tankos:"lang", lang})` 通知；跟網站型 App 一樣，視窗沒有焦點時蓋一層 `.shield`，第一下點擊先切焦點。沒有側欄，載入完成前顯示轉圈。
 - **私人版入口**：選單列右側的 🔒「私人版」，開新分頁到 [portfolio-private](https://github.com/tankfinal/portfolio-private)（Cloudflare Access 保護），跟私人版選單列的「公開版」對稱。手機只剩鎖頭。Spotlight 與 `open private` 也能開（`APPS.private` 用 `link` 標記，`open()` 直接開新分頁）。Access 登入頁不能放進 iframe，所以不開視窗。私人內容一律不進這個 repo，這裡只有入口。
 - **鎖定畫面**：每次進站都會出現（米塚模糊背景、時鐘、Tank Yang），點一下或按任意鍵解鎖。markup 帶 `hidden`，由 JS 打開，所以沒有 JS 時不會擋住頁面。
 - **Spotlight**：⌘K / Ctrl+K、`/`，或選單列的放大鏡。索引在 `index()`：App、經歷（`e1`–`e6`）、技術名詞、動作（切語言、經典版、GitHub）。
@@ -104,48 +94,9 @@ macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.htm
 - **下個連假小工具**（`#wgHol`）：連續放假 3 天以上、且其中有 `HOLIDAYS` 裡的日子才算連假。顯示還有幾天（或「明天」「放假中」）、節日名、連休天數與起訖日，每分鐘重算；點一下開日曆並選在連假第一天。`HOLIDAYS` 的資料用完就自動隱藏。
 - **關於 TankOS**（`about`，點選單列左上的 T，或 Spotlight、`open about`）：版號直接讀 `.mb-ver`；更新紀錄從 GitHub API 抓 commit，只列 subject 結尾有 `（vX.Y.Z）` 的那些，所以版號規則裡「commit subject 標版號」是這個視窗的資料來源，不能省。主機欄依網址判斷是 Cloudflare Workers 還是 GitHub Pages。
 - **Terminal** 是假的，指令寫死在 `run()` 裡；開視窗時會先列出 `HELP`。有幾個吃真資料：`who`（見下一條）、`git log [repo]`（GitHub API，未登入每小時 60 次）、`kubectl get pods`（跟活動監視器同一個 `probe()`）、`neofetch`、`top`。Tab 會補指令、`open` 的 App 名稱和 `git log` 的 repo。彩蛋（不列在 help）：`sudo`、`sudo rm -rf /`、`rm`、`deploy`（禮拜五不同）、`乖乖`、`vim`、`咖啡`、`hi`、`fortune`、`bug`，中文在上、英文在下。
-- **凌晨三點**（英文 3 A.M.，`oncall`，獨立檔案 App，桌面「實驗區」與 Spotlight）：半夜被告警叫醒的俯視角像素 RPG，沒有唯一正解，依時間、用戶影響、資產風險三項給分。App id、檔名與 `localStorage` 的 key 沿用最早的名字 `oncall`。打開先選難度（普通／困難／地獄，記住上次選的，`localStorage.oncall.lv`），再隨機丟一個事故（優先挑沒玩過的，`localStorage.oncall.seen`）。右上角依序是目前難度（點了回到選難度，這局作廢）、紀錄、「重新開始」（同難度換一個事故）。程式拆成四支（見 Structure），劇本、地圖、像素圖都是 JSON，加角色或事故不用改程式，格式見下方「凌晨三點的內容」。
-  - **場景**：半夜的家，臥室加書房，20×12 格的 canvas。木地板、牆、地毯用程式畫，家具與角色用 Kenney 的 CC0 素材（`indoor.png` 是 Roguelike Indoors，16px 格、間隔 1px；`urban.png` 是 RPG Urban Pack，16px、無間隔，右邊 6 個人物、每個 3 列，四方向各一欄），兩包都沒有的東西在 `art.json` 用字串畫。夜晚是一層暗色疊上去再挖出光（角色、月光、響鈴的手機、打開後的筆電、機櫃燈號），光的位置寫在地圖資料。
-  - **操作**：方向鍵／WASD 走、空白鍵互動、J 開紀錄；也可以點地板（廣度優先找路走過去）或點東西（走到旁邊並使用）。走路不花遊戲時間。
-  - **流程**：每個事故 5–7 步，照事故處理的順序走：分診、止血、找原因、恢復服務，再來是驗證和善後（補資料、對帳、通知用戶或合作夥伴）。手機響 → 接起來才看得到告警（裡面可能夾著無關的雜訊）→ 去筆電（終端機，選項前面有 `$`）、手機（叫醒同事、聯絡對方）、機櫃做事，每個地點的畫面保留在那裡做過的事，「紀錄」列出全部告警、動作與結果。每個動作花模擬分鐘，恢復服務之前，用戶影響和資產風險照每分鐘的速率增加；恢復之後不再增加，但驗證、善後做得不好一樣會加。做完才看到它花了多少（小標籤：分鐘、影響增加、擴大變慢或不再擴大），按鈕上不標，選項順序每局打亂。有的選項要先查到線索才會出現，有的會止血（改變速率），拖太久會有新的告警、擴大變快（已經止血的那項不受影響）。狀態列是時間、各項累積與速率、服務狀態，事故名稱到結局才揭曉。
-  - **難度**：同一個事故三種難度都能玩，差在看得到哪些選項和告警，以及有沒有計時。普通每一步大多是主線加一個陷阱、沒有雜訊告警、不計時；困難多了岔路、陷阱和雜訊；地獄每一步再多 1–2 個，其中有看起來合理、但代價比較大的做法。困難和地獄從接起手機到恢復服務會計時：現實每 10 秒（`apps/oncall.js` 的 `TICK`）就是遊戲裡 1 分鐘，時鐘、兩項影響、拖太久的告警都照走，狀態列的數字會閃一下；對話框開著、切到別的分頁、視窗沒顯示時暫停。「拿高分的做法」每個難度各算一次。
-  - **計分**（`engine.js`）：時間算到恢復服務為止，在 `par`（穩健處理到恢復服務大約要的分鐘）以內 100 分、到 3 倍歸 0；計時的難度每一步另有 3 分鐘（現實 30 秒，`THINK`）的思考寬限，加進 `par`，也加進「拿高分的做法」的用戶與資產基準，超過寬限的部分會在事故檢討列成一項扣分；用戶與資產跟「拿高分的做法」比，多出 `budget` 歸 0。總分是三項依事故 `weights` 加權平均，90 以上 S、75 以上 A、60 以上 B；權重 30% 以上的一項掉到 0 分，評等最多 C（例如為了快把冷錢包私鑰拿出來用）。「拿高分的做法」由程式窮舉所有路線算出，不用手寫。
-  - **結局**：收尾完成後回床上，角色躺進被窩、熄燈冒 Zzz、天亮，END 卡片依評等給結局（S 一夜好眠／A 大杯咖啡／B 站會主角／C 天亮了）並列出難度與分數，再進事故檢討：總分與三項分數條、代價最大的決定（扣幾分、當時的結果）、做了什麼、真正原因、拿高分的做法、事後待辦、一句話。最佳評等存在 `localStorage.oncall.best`（key 是 `角色/事故@難度`；舊紀錄沒有角色的補上 `be/`、沒有難度的算困難 `@2`）。事故檢討底下可以再來一局、同一個事故再玩一次或換難度。
-  - 減少動態效果時走路直接到位、沒有打字效果與 Zzz、結局直接出卡片。容器 520px 以下面板、紀錄、對話框與結局卡片改放在地圖下方。情境都是業界常見、公開的事故類型改寫，不放公司或系統名稱。
+- **我是社畜**（英文 I'm a Shachiku，`shachiku`，嵌入 App，桌面「實驗區」與 Spotlight）：半夜被告警叫醒的像素 RPG，獨立在私人 repo `tankfinal/shachiku`、部署在 `https://shachiku.xarenvich.workers.dev`，遊戲內容、規則、版號都在那邊。TankOS 這裡只有圖示、名稱和嵌入網址。在 TankOS 視窗裡玩和直接開網站是兩份紀錄（瀏覽器會把嵌在別的網站裡的 iframe 儲存分開）。舊名「凌晨三點」留在 Spotlight 關鍵字裡。
 - **Request 的一生**（`trace`，獨立檔案 App，桌面「實驗區」與 Spotlight）：按「送出請求」打一次 `GET /trace`，畫出三塊：路線圖（你 → Cloudflare 機房，Worker 在這裡跑 → D1 所在機房），每段標實測來回時間、直線距離與光速來回下限（光纖約 200 km/ms），送出時有一顆點沿路線來回（減少動態效果時不跑）；瀑布圖用瀏覽器的 Resource Timing（`PerformanceObserver`，不受 250 筆緩衝上限影響）拆 DNS、連線、TLS、等待回應、下載，「等待回應」再拆成網路來回（Cloudflare 量的 RTT）、Worker 等 D1、其他；細節列協定、TLS、網路業者、資料庫（D1 所在機房、主要或副本）與查詢（`SELECT 1` 與資料庫實際執行的時間）。路線圖、圖例與結論都寫「資料庫」而不是 D1，結論那句直接用兩端的城市（例：從達拉斯到新加坡），讓不懂後端的人也看得懂。選單列的線上人數讓這台 Worker 的連線一直開著，所以通常是連線重用、DNS 與 TLS 為 0，畫面會照實說明，並列出當初開這條連線的那個請求（通常是 `/presence` 的心跳）花了多少 DNS、連線、TLS 時間——找法是這次之前、最後一個有連線時間的 API 請求；瀏覽器的 Resource Timing 緩衝（250 筆）滿了以後只信視窗開著時 `PerformanceObserver` 看到的，找不到就不顯示。網頁沒辦法要求瀏覽器開新連線，所以只能顯示當初那條的數字。機房座標表在 `apps/trace.js` 的 `COLO`，不在表裡的機房只顯示代號、不算距離。最近 10 次的總時間與中位數列在最下面。路線圖、結論和細節以外分三個分頁：**時間軸**（預設，SVG 循序圖，三條泳道「你／Cloudflare／資料庫」由上往下走時間；色塊是實測的建立連線、資料庫執行查詢、其他、下載，虛線箭頭是單程，量不到所以用來回除以 2 並標 ≈；照視窗實際寬度畫、`ResizeObserver` 在寬度變了才重畫）、**瀑布圖**（上面那段）、**原始封包**（請求依 HTTP 版本顯示：HTTP/2、3 用 `:method`、`:path` 這類 pseudo-header，HTTP/1.1 用請求行；瀏覽器自動加的 header 網頁讀不到，畫面上註明。回應列 status、全部 header（Worker 送 `Access-Control-Expose-Headers: *`）和排版過的 JSON，加上內容大小（有壓縮時列壓縮前後）。header 的實際大小瀏覽器不公開：Resource Timing 規格的 `transferSize` 是內容大小加固定 300，避免從大小推出 cookie，所以畫面不拿它算 header，直接照實說明）。
 - **線上訪客**（選單列時鐘左邊的綠點與人數、終端機 `who`）：每個分頁每 30 秒向 `/presence` 回報一次（分頁在背景時停止，切回來馬上補一次），回應就是 60 秒內有回報的人；離開頁面時用 `sendBeacon` 打 `/presence/leave` 立刻下線。回報內容是分頁 id 和「現在在看什麼」（最上層視窗的 App id，沒開視窗是 `desktop`，還沒解鎖是 `lock`）。`who` 會重新問一次伺服器，列出 `visitor-xxxx`、城市與國家、上線時間（看的人的當地時間）、在看什麼，自己那列標「← 你」，只有自己時跳彩蛋。點選單列的人數會開終端機並執行 `who`（`initTerm` 把 `exec` 掛在視窗的 `_cmd` 上）。分頁 id 存在 `sessionStorage.who.sid`，新分頁或下次造訪就是新的人，不跨造訪追蹤。API 連不上時人數不顯示，`who` 印錯誤。後端見「API」。
-
-### 凌晨三點的內容
-
-**角色**（`apps/oncall/roles/<id>.json`）：`{id, name, char, map, scenarios}`。`char` 是 `urban.png` 右邊第幾個人物（0 起算），`map` 對到 `maps/<id>.json`。加一個角色：寫這個檔，把 id 加進 `apps/oncall.js` 的 `ROLES`，跑下面的檢查。所有角色的事故放在同一個隨機池。
-
-**事故**（`scenarios` 的一筆），文字欄位都是 `{zh, en}`：
-
-| 欄位 | 意思 |
-|---|---|
-| `id`、`clock` | 識別、事發時間 `HH:MM` |
-| `name`、`hook`、`cause`、`todo[]`、`lesson` | 名稱（結局才顯示）、一句話描述、真正原因、事後待辦、一句話 |
-| `par` | 穩健處理到恢復服務大約要的分鐘，時間分數的基準 |
-| `weights` | `{time, users, asset}` 三項權重，0 的那項不顯示 |
-| `rate`、`budget` | 每分鐘增加多少；比拿高分的做法多出多少歸 0 分 |
-| `alerts[]` | `{sev: "P1"–"P3", text, noise?, lv?}`，`noise` 是跟這次無關的雜訊 |
-| `timers[]` | `{at, alert, rate}`：第 `at` 分鐘跳出 `alert`，還沒止血的項目速率再加 `rate` |
-| `steps` | `{<step id>: {ask, opts[]}}`，從 `start` 開始 |
-
-選項（`opts` 的一筆）：`label`、`say`（做了之後看到什麼）、`min`（花幾分鐘）、`at`（在哪做，地圖上 station 的 id，預設 `pc`）、`users` / `asset`（當下多加多少）、`rate`（之後的速率，止血用）、`give` / `need`（給出／需要的線索，需要的沒拿到就不顯示）、`next`（下一步）、`fix`（恢復服務：影響停止擴大、計時停止、時間分數在這裡結算，通常同時帶 `next` 進入驗證與善後）、`end`（收尾完成，事故結束；沒有 `next` 的 `fix` 也算結束），都沒有就是做完留在原地、按鈕消失。每條路線都要先 `fix` 才能 `end`。`egg` 是彩蛋，值是事故檢討裡要多寫的那句話。
-
-難度：選項和告警的 `lv` 是從哪個難度開始出現（1 普通、2 困難、3 地獄），沒寫就是三種都有。普通保留主線加一個陷阱，其餘的陷阱、慢一點的替代做法、雜訊告警標 `lv: 2`；地獄專屬的選項標 `lv: 3`，每一步 1–2 個，最好有一個是「看起來合理、但代價比較大」的做法，不要全是浪費時間的陷阱。
-
-**地圖**（`apps/oncall/maps/<id>.json`）：`tiles`（`#` 是牆）、`start`、`wake`（開場那句）、`rugs`、`props`（`sheet: "in"` 用素材格、`art` 用 `art.json` 的圖，`block` 擋路）、`lights`，以及 `things`：能互動的東西，`kind` 是 `station`（做事的地方，`style` 為 `terminal` 或 `phone`；`wake: true` 的那個開場會響，要先接；`idle` 是這次用不到時的那句話）、`bed`（修好後回來睡覺）或 `flavor`（只講一句話），`tiles` 是它佔的格子，`spots` 是能站著使用的位置與面向。
-
-**檢查**：改完內容跑這兩個，都過才 commit。
-
-```bash
-node tools/check-oncall.js -v          # 每個事故、每個難度的選項數、par、最快、最高分路線、各評等有幾條路線，內容有錯會列出來
-node --test tools/oncall.test.js       # 規則與計分的單元測試，也會驗一次所有內容
-```
-
-每個事故在三個難度都要修得好，而且「拿高分的做法」不會有哪一項掉到 0 分；除此之外，最好讓好幾條路線落在不同評等，玩家才有取捨。
 
 ### 文案與經典版同步
 
