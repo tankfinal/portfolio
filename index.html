@@ -694,7 +694,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v1.12.1</span>
+    <span class="mb-ver">v1.12.2</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -983,10 +983,10 @@
     "w4.s1": {zh:"單一 index.html，無框架無 build step", en:"One index.html. No framework, no build step."},
     "w4.s2": {zh:"行程倒數、可勾選清單、手機優先版面", en:"Trip countdown, tickable checklist, mobile-first layout"},
     "w3.t": {zh:"Averlyn 疫苗接種追蹤", en:"Averlyn Vaccine Tracker"},
-    "w3.d": {zh:"追蹤女兒對照台灣公費與自費時程的 36 針接種進度。時間軸依日期分組，可以篩已完成、待施打、逾期，並顯示下一劑倒數。中間曾經長出 FastAPI + Supabase 後端讓任何裝置都能改，後來刻意砍掉退回純靜態，資料在 build 時烘進 bundle，瀏覽器一支 API 都不打。",
-             en:"Tracks my daughter through 36 shots against Taiwan’s public and self-paid vaccine schedule. The timeline groups by date, filters to done, upcoming or overdue, and counts down to the next shot. It grew a FastAPI and Supabase backend for a while so it could be edited from any device, then I tore that out and went back to pure static. Data is baked into the bundle at build time and the browser calls no API at all."},
-    "w3.s2": {zh:"GitHub Actions 自動建置發佈", en:"GitHub Actions builds and publishes"},
-    "w3.s3": {zh:"從有後端退回純靜態", en:"Deliberately reverted from a backend to static"},
+    "w3.d": {zh:"追蹤女兒對照台灣公費與自費時程的 36 針接種進度。時間軸依日期分組，已完成的收成一列，打開就看到下一劑倒數。紀錄只想給家人看，所以放在 Cloudflare Pages 後面加了一道密碼：雜湊存在 D1，登入後才由 Pages Functions 回傳資料，前端 bundle 裡一筆紀錄都沒有。",
+             en:"Tracks my daughter through 36 shots against Taiwan’s public and self-paid vaccine schedule. The timeline groups by date, folds finished shots into one line and opens on the countdown to the next one. The records are for family only, so the site sits behind a password on Cloudflare Pages: the hash lives in D1, Pages Functions return the data only after login, and the frontend bundle holds no records at all."},
+    "w3.s2": {zh:"GitHub Actions 部署到 Cloudflare Pages", en:"GitHub Actions deploys to Cloudflare Pages"},
+    "w3.s3": {zh:"密碼保護，登入後才回傳資料", en:"Password-protected; data only after login"},
     "hero.lede": {zh:"我帶 XREX 的後端團隊，做區塊鏈合規與 AML 風控系統。在這之前是 Binance 的微服務跟資料管線。晚上寫一些自己會用的小網站。",
                    en:"I lead the backend team at XREX, building blockchain compliance and AML risk systems. Before that, microservices and data pipelines at Binance. At night I write small websites I actually use."},
     "exp.now": {zh:"現職", en:"Current"},
@@ -1007,8 +1007,8 @@
                 en:"I joined <b>XREX</b> at the end of 2023, first building AML blockchain risk and compliance forensics systems, then moving into management in 2025. I lead the backend team now. Before that I wrote microservices and data pipelines at <b>Binance</b> while serving as Scrum Master, and earlier worked on high-concurrency payment systems in gaming and delivered government contracts at a systems integrator. Java and Spring have been the through-line for twelve years."},
     "about.p2": {zh:"當了主管之後，判斷事情的標準變成兩件：這個設計三年後還撐不撐得住，還有團隊的人這一季有沒有真的長出東西。技術決策我要求留下記錄，為什麼選 A 不選 B，比選了什麼更重要。",
                 en:"Becoming a manager changed what I measure. Two things now: will this design still hold up in three years, and did the people on my team actually grow something this quarter. I ask for technical decisions to leave a written trace. Why A instead of B matters more than what got picked."},
-    "about.p3": {zh:"下班寫的東西通常很小，而且都是自己會用的。出國前想要一份離線也能翻的行程，就做了一個；女兒出生後要追 36 針疫苗，也做了一個。共同點是沒有後端、不用登入、開網址就能用，因為要給家人用，不能有學習成本。另一條線是把重複的工作做成工具，MCP server、Claude Code 的 agent 模板、可分享的 skill 集合都屬於這類。",
-                en:"What I write after hours is small, and it is always something I use. I wanted an itinerary I could read without signal, so I made one. My daughter was born with 36 shots to track, so I made that too. They have the same shape: no backend, no login, one URL and it works, because my family uses them and there is no room for a learning curve. The other thread is turning repetitive work into tooling. The MCP server, the agent templates for Claude Code and the shareable skill pack all come from that."},
+    "about.p3": {zh:"下班寫的東西通常很小，而且都是自己會用的。出國前想要一份離線也能翻的行程，就做了一個；女兒出生後要追 36 針疫苗，也做了一個。共同點是盡量不靠後端、開網址就能用，因為要給家人用，不能有學習成本；疫苗紀錄只想給家人看，所以多了一道密碼。另一條線是把重複的工作做成工具，MCP server、Claude Code 的 agent 模板、可分享的 skill 集合都屬於這類。",
+                en:"What I write after hours is small, and it is always something I use. I wanted an itinerary I could read without signal, so I made one. My daughter was born with 36 shots to track, so I made that too. They have the same shape: as little backend as possible, one URL and it works, because my family uses them and there is no room for a learning curve. The vaccine one adds a single password, since those records are for family only. The other thread is turning repetitive work into tooling. The MCP server, the agent templates for Claude Code and the shareable skill pack all come from that."},
     "about.p4": {zh:"學歷是朝陽科技大學資訊工程，2012 年畢業。",
                 en:"I studied Information Engineering at Chaoyang University of Technology, graduating in 2012."},
     "st.1": {zh:"後端主力", en:"Core backend"},
@@ -1111,7 +1111,7 @@
     "os.act.wait": {zh:"檢查中", en:"Checking"},
     "os.act.count":{zh:"{n} 個服務 · {u} 個正常", en:"{n} services · {u} up"},
     "os.act.when": {zh:"更新於 {t}", en:"updated {t}"},
-    "os.act.foot": {zh:"從你的瀏覽器直接向每個站發請求，每 15 秒自動更新。全部都是靜態站，沒有後端。", en:"Requests go straight from your browser to each site and refresh every 15 seconds. All static sites, no backend."},
+    "os.act.foot": {zh:"從你的瀏覽器直接向每個站發請求，每 15 秒自動更新。除了 Averlyn 疫苗多一層密碼 API，其他都是沒有後端的靜態站。", en:"Requests go straight from your browser to each site and refresh every 15 seconds. All static sites except Averlyn, which adds a small password-gated API."},
     "os.who.tip":  {zh:"{n} 人在線", en:"{n} online"},
     "os.who.desk": {zh:"桌面", en:"Desktop"},
     "os.who.lock": {zh:"鎖定畫面", en:"Lock screen"},
@@ -1129,7 +1129,7 @@
               spec:[["spec.build","w2.s1"], ["spec.feat","w2.s2"], ["spec.size",null,"136 KB"]], w:1080, h:720},
     yangmingshan: {k:"w4", url:"https://tankfinal.github.io/yangmingshan-trip/", src:"https://github.com/tankfinal/yangmingshan-trip",
               spec:[["spec.build","w4.s1"], ["spec.feat","w4.s2"], ["spec.size",null,"28 KB"]], w:1080, h:720},
-    averlyn: {k:"w3", url:"https://tankfinal.github.io/averlyn-vaccine/", src:"https://github.com/tankfinal/averlyn-vaccine",
+    averlyn: {k:"w3", url:"https://averlyn-vaccine.pages.dev/",
               spec:[["spec.build",null,"React 19 · TypeScript · Vite"], ["spec.deploy","w3.s2"], ["spec.note","w3.s3"]], w:1080, h:720},
     activity:{w:780, h:430},
     blocks:  {w:420, h:660},
@@ -1250,7 +1250,7 @@
           '<dl>' + spec + '</dl>' +
           '<div class="links">' +
             '<a class="primary" href="' + a.url + '" target="_blank" rel="noopener" data-i18n="link.visit"></a>' +
-            '<a href="' + a.src + '" target="_blank" rel="noopener">Source</a>' +
+            (a.src ? '<a href="' + a.src + '" target="_blank" rel="noopener">Source</a>' : '') +
           '</div>' +
         '</aside>' +
         '<iframe src="' + a.url + '"></iframe>' +
@@ -1470,13 +1470,13 @@
   }
 
   /* ---------- live services (Activity Monitor, kubectl) ---------- */
-  // Every site is static on GitHub Pages; the browser probes them directly, nothing in between.
+  // The browser probes every site directly, nothing in between.
   var SERVICES = [
     {app:"portfolio",    repo:"portfolio",          url:"https://tankfinal.github.io/portfolio/"},
     {app:"fukuoka",      repo:"fukuoka-trip",       url:"https://tankfinal.github.io/fukuoka-trip/"},
     {app:"busan",        repo:"busan-trip",         url:"https://tankfinal.github.io/busan-trip/"},
     {app:"yangmingshan", repo:"yangmingshan-trip",  url:"https://tankfinal.github.io/yangmingshan-trip/"},
-    {app:"averlyn",      repo:"averlyn-vaccine",    url:"https://tankfinal.github.io/averlyn-vaccine/"}
+    {app:"averlyn",      repo:"averlyn-vaccine",    url:"https://averlyn-vaccine.pages.dev/"}
   ];
   var langHooks = [];
 
@@ -2408,7 +2408,7 @@
         [["Shell","key"], ": zsh (pretend)"],
         [["Role","key"], ": Backend Senior Associate Manager @ XREX"],
         [["Stack","key"], ": Java · Spring · Kafka · Redis · MySQL · AWS"],
-        [["Apps","key"], ": " + (SERVICES.length - 1) + " live sites · 1 backend (Cloudflare Worker + D1)"],
+        [["Apps","key"], ": " + (SERVICES.length - 1) + " live sites · 2 backends (Cloudflare Workers + D1)"],
         [["Resolution","key"], ": " + window.innerWidth + "x" + window.innerHeight]
       ];
       info.forEach(function(row, i){ rich([[art[i] + "  ", "red"]].concat(row)); });
