@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // TankOS: the site's files plus its API. Workers Builds deploys this on every push to main (dashboard Worker
+  // `portfolio`, root directory /, deploy command `npx wrangler deploy`).
+  "name": "portfolio",
+  "main": "api/src/index.js",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    // The repo root; .assetsignore keeps the API source, docs and config out.
+    "directory": ".",
+    // Only the API runs the script. Every other request is a static file, which is free and unlimited.
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "portfolio",
+      "database_id": "9fa4e442-8026-4efc-b751-3035fbba223c"
+    }
+  ]
+}

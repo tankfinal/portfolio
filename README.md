@@ -2,18 +2,18 @@
 
 Tank Yang 的個人網站 — 經歷、個人專案與開源工具的集合。
 
-> Live: [tankfinal.github.io/portfolio](https://tankfinal.github.io/portfolio/)
+> Live: [portfolio.xarenvich.workers.dev](https://portfolio.xarenvich.workers.dev/)（舊網址 tankfinal.github.io/portfolio 會轉到這裡）
 
 ## About
 
 同一份內容做成兩個版本，都有中英雙語切換：
 
 - **TankOS**（首頁 `/`）：macOS 風格的桌面，作品以 App 視窗開啟、直接跑 live 站。見下方 TankOS 一節。
-- **經典版**（[`/classic/`](https://tankfinal.github.io/portfolio/classic/)）：一頁式排版，收錄六段工作經歷、四個自己在用的個人網站，以及三個開源工具。
+- **經典版**（[`/classic/`](https://portfolio.xarenvich.workers.dev/classic/)）：一頁式排版，收錄六段工作經歷、四個自己在用的個人網站，以及三個開源工具。
 
 `/os/` 是 TankOS 搬到首頁前的網址，已經分享出去過，現在只負責轉址回首頁。
 
-**沒有 build step。** 兩個版本各是一個 HTML 檔（CSS 與 JS 都內嵌），加四張截圖；比較大的 TankOS App 另外放在 `apps/<id>.js`，開視窗時才載入。改完 push 就是部署。
+**沒有 build step。** 兩個版本各是一個 HTML 檔（CSS 與 JS 都內嵌），加四張截圖；比較大的 TankOS App 另外放在 `apps/<id>.js`，開視窗時才載入。整個網站加上 `/api` 是同一個 Cloudflare Worker（`portfolio`），改完 push 就是部署。
 
 ## 設計語彙
 
@@ -40,12 +40,11 @@ images/
 ├── yangmingshan-trip.jpg
 ├── wallpaper-komezuka.jpg     # TankOS 桌布（1920px）
 ├── wallpaper-komezuka-sm.jpg  # 手機版桌布（1200px）
-├── averlyn-vaccine.jpg
 └── shachiku.jpg
-api/                # 排行榜、線上訪客、Request 的一生共用的 Worker + D1，獨立部署，見「API」
-├── src/index.js
-├── schema.sql
-└── wrangler.jsonc
+api/                # /api 的程式：排行榜、線上訪客、Request 的一生，見「API」
+├── src/index.js    # Worker 的程式（只有 /api/* 會執行它，其他都直接送靜態檔）
+└── schema.sql      # D1 `portfolio` 的表
+wrangler.jsonc      # Worker `portfolio`：靜態檔（repo 根目錄）＋ api/src/index.js ＋ D1 綁定
 ```
 
 ## 雙語切換
@@ -146,15 +145,15 @@ sips -s format jpeg -s formatOptions 78 shot.png --out out.jpg
 
 ## API（`api/`）
 
-方塊消除的排行榜、線上訪客與 Request 的一生共用一個 Cloudflare Worker `tankos-api`，資料放 Cloudflare D1 的 `portfolio` 資料庫，都在免費額度內。屬於某個 App 的表用 App 名當前綴（方塊消除的排行榜是 `blocks_scores`），`presence` 是 TankOS 本身的。直接打開 `https://tankos-api.xarenvich.workers.dev/` 是一頁說明，列出下面這些 API。跟靜態站分開部署（見下方「部署」）：GitHub Pages 與 `portfolio` Worker 都只送靜態檔，`api/` 已列進 `.assetsignore`。
+方塊消除的排行榜、線上訪客與 Request 的一生是網站同一個 Worker（`portfolio`）底下的 `/api/*`，資料放 Cloudflare D1 的 `portfolio` 資料庫，都在免費額度內。只有 `/api/*` 會執行程式（`wrangler.jsonc` 的 `run_worker_first`），其他請求都是靜態檔，免費也不限量。屬於某個 App 的表用 App 名當前綴（方塊消除的排行榜是 `blocks_scores`），`presence` 是 TankOS 本身的。直接打開 `/api/` 是一頁說明，列出下面這些 API。跟靜態站分開部署（見下方「部署」）：GitHub Pages 與 `portfolio` Worker 都只送靜態檔，`api/` 已列進 `.assetsignore`。
 
 ```
-GET  https://tankos-api.xarenvich.workers.dev/                       → 說明頁（HTML）
-GET  https://tankos-api.xarenvich.workers.dev/scores               → {top}
-POST https://tankos-api.xarenvich.workers.dev/scores {name, score} → {top, me:{name, score, rank}}
-POST https://tankos-api.xarenvich.workers.dev/presence {sid, app}   → {me, total, online:[{tag, city, country, app, since}]}
-POST https://tankos-api.xarenvich.workers.dev/presence/leave {sid} → 204
-GET  https://tankos-api.xarenvich.workers.dev/trace                → {edge, client, d1}
+GET  /api/                         → 說明頁（HTML）
+GET  /api/scores                   → {top}
+POST /api/scores {name, score}     → {top, me:{name, score, rank}}
+POST /api/presence {sid, app}      → {me, total, online:[{tag, city, country, app, since}]}
+POST /api/presence/leave {sid}     → 204
+GET  /api/trace                    → {edge, client, d1}
 ```
 
 ### 排行榜（`/scores`）
@@ -162,8 +161,8 @@ GET  https://tankos-api.xarenvich.workers.dev/trace                → {edge, cl
 - **一個名字一列，只留最高分**：名字不分大小寫（`Tank` 和 `tank` 算同一人，顯示第一次留下的寫法），新分數比較高才覆蓋。同分時先達到的排前面
 - **名字沒有登入驗證**：任何人打同一個名字都算同一個玩家，分數也是前端送的，這是給作品集玩的榜，不防作弊
 - **輸入檢查**：名字壓掉空白與控制字元後要 1–12 個字，分數是 1 到 10,000,000 的整數，不符合回 400
-- **CORS** 只開給 `tankfinal.github.io`、`portfolio.xarenvich.workers.dev` 和本機 `localhost:4321`。新增網域時改 `src/index.js` 的 `ORIGINS`
-- 要刪掉某一列（例如不雅的名字）：`npx wrangler d1 execute portfolio --remote --command "DELETE FROM blocks_scores WHERE name = 'xxx'"`，在 `api/` 底下執行
+- **CORS**：網站跟 API 同網域，用不到；`src/index.js` 的 `ORIGINS` 只留本機 `localhost:4321`，給頁面跟 API 分開跑的本機測試用
+- 要刪掉某一列（例如不雅的名字）：`npx wrangler d1 execute portfolio --remote --command "DELETE FROM blocks_scores WHERE name = 'xxx'"`，在 repo 根目錄執行
 
 ### 線上訪客（`/presence`）
 
@@ -177,43 +176,37 @@ GET  https://tankos-api.xarenvich.workers.dev/trace                → {edge, cl
 
 - **到 D1 走一趟**：查詢是 `SELECT 1`，不讀任何表、跟排行榜無關，只為了讓請求真的到 D1 所在機房再回來；用 `Date.now()` 包住量這段來回。Worker 裡的 `Date.now()` 只在 I/O 完成時前進（Cloudflare 防 timing 側通道的設計），所以量得到等 D1 的時間，量不到 Worker 自己的 CPU 時間
 - **回什麼**：`edge` 是 Cloudflare 機房代號（`request.cf.colo`）；`client` 是城市、國家、經緯度、RTT（`clientQuicRtt` 或 `clientTcpRtt`）、HTTP 版本、TLS 版本與加密套件、網路業者（`asOrganization`）；`d1` 是 D1 回報的機房、區域、是否主要資料庫（`meta.served_by_*`）、Worker 量的來回 `ms`、SQL 執行 `sqlMs`。都只回給發請求的人，不寫入、不存
-- **header**：`Server-Timing`（開發者工具的 Timing 分頁看得到 D1 與 SQL 時間）。`Timing-Allow-Origin` 跟 CORS 一樣只給 `ORIGINS` 裡的來源，而且每個路由的回應都帶：沒有它瀏覽器會把跨網域請求的 DNS、連線、TLS、等待時間都回 0，Request 的一生就看不到當初開連線的那個請求（通常是 `/presence`）花了多少。`Access-Control-Expose-Headers: *` 也是每個回應都帶，網頁才讀得到 `cf-ray`、`alt-svc`、`Server-Timing` 這些 header（不帶 credentials 的請求，`*` 涵蓋 Set-Cookie 以外的全部）
+- **header**：`Server-Timing`（開發者工具的 Timing 分頁看得到 D1 與 SQL 時間）。`Access-Control-Expose-Headers: *` 每個回應都帶，網頁才讀得到 `cf-ray`、`alt-svc`、`Server-Timing` 這些 header。網站和 API 同網域，瀏覽器本來就給得出每段時間；`Timing-Allow-Origin` 只在本機測試跨 port 時用得到（跟 CORS 一樣只給 `ORIGINS`）
 
 ### 部署
 
-Push 到 `main` 且改到 `api/` 底下的檔案 → Cloudflare Workers Builds 自動部署 `tankos-api`。只改網頁的 push 不會觸發它。Dashboard 上的設定（`tankos-api` → Settings → Build）：
-
-| 設定 | 值 |
-|---|---|
-| Git branch | `main` |
-| Root directory | `/api/` |
-| Build command | 空白 |
-| Deploy command | `npx wrangler deploy` |
-| Build watch paths | Include `api/*` |
-| Enable Preview Builds | 關閉 |
-
-Workers Builds 部署到 Dashboard 上接著的那個 Worker，`wrangler.jsonc` 的 `name` 不一樣也照樣成功（2026-10-13 改名時實測：接在舊 `blocks-leaderboard` 的建置把新程式部署到了舊 Worker），所以 Worker 改名時一定要在 Dashboard 改接，否則會部署到舊的那個。急著上線或 Workers Builds 出狀況時，也可以在 `api/` 底下手動 `npx wrangler login` 再 `npx wrangler deploy`。
-
-第一次建資料庫時，`npx wrangler d1 create portfolio` 把產生的 `database_id` 填進 `wrangler.jsonc`，再跑 `npx wrangler d1 execute portfolio --remote --file=schema.sql` 建表。`schema.sql` 全部是 `IF NOT EXISTS`，之後加了新表（例如 `presence`）就在 push 之前再跑一次同一行，既有的表和資料不受影響。
-
-本機測試：
+API 跟網站一起部署，見下方「Deploy」。表結構改了就在 push 之前跑一次：
 
 ```bash
-cd api
-npx wrangler d1 execute portfolio --local --file=schema.sql
-npx wrangler dev                                     # http://localhost:8787
+npx wrangler d1 execute portfolio --remote --file=api/schema.sql   # 全部是 IF NOT EXISTS，既有資料不受影響
 ```
-
-前端寫死打正式網址（`index.html` 的 `API`，排行榜與線上訪客都從它組網址），要讓本機頁面打本機 API，暫時把它改成 `http://localhost:8787`。
 
 ## Local
 
 ```bash
-python3 -m http.server 4321   # http://localhost:4321
+npx wrangler d1 execute portfolio --local --file=api/schema.sql   # 第一次
+npx wrangler dev                                                  # http://localhost:8787，網站和 /api 都在
 ```
+
+只看畫面、不需要 API 的話，`python3 -m http.server 4321` 也行（排行榜、線上人數會讀不到）。
 
 ## Deploy
 
-Push 到 `main` → GitHub Pages（Deploy from a branch，`main` / root）自動發佈。
+Push 到 `main` → Cloudflare Workers Builds 自動部署 Worker `portfolio`（網址 `portfolio.xarenvich.workers.dev`）。Dashboard 上的設定（`portfolio` → Settings → Build）：
 
-同一個 push 也會觸發 Cloudflare Worker `portfolio`（網址 `portfolio.xarenvich.workers.dev`，Workers Builds，repo 根目錄整個當靜態檔上傳）。Workers 不會自動略過 `.git` 這類檔案，不是網站的檔案要列進 `.assetsignore`。
+| 設定 | 值 |
+|---|---|
+| Git branch | `main` |
+| Root directory | `/` |
+| Build command | 空白 |
+| Deploy command | `npx wrangler deploy`（讀 repo 根目錄的 `wrangler.jsonc`） |
+
+- **靜態檔**是 repo 根目錄整個上傳，不是網站的檔案（文件、設定、`api/` 原始碼、本機的 `.wrangler`、截圖資料夾）列在 `.assetsignore`。新增這類檔案記得加進去
+- **Workers Builds 部署到 Dashboard 上接著的那個 Worker**，`wrangler.jsonc` 的 `name` 不一樣也照樣成功（2026-10-13 實測），所以 Worker 改名一定要在 Dashboard 改接
+- **舊網址**：repo 改成私人後 GitHub Pages 停用；`tankfinal.github.io/portfolio` 由另一個公開 repo `tankfinal/tankfinal.github.io` 轉址到這裡（含 `/classic/` 等路徑）
+- 急著上線或 Workers Builds 出狀況時，可以在 repo 根目錄手動 `npx wrangler deploy`

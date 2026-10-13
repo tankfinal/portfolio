@@ -1,12 +1,13 @@
-// TankOS's API (Worker `tankos-api`): the Block Puzzle leaderboard, who is on the site right now, and the
-// measurements for Life of a Request. Data lives in D1 (database `portfolio`; the leaderboard is the table
-// blocks_scores, presence is presence).
-//   GET  /                       -> a page saying what this is and listing the endpoints, for anyone who opens it
-//   GET  /scores                 -> {top}
-//   POST /scores {name, score}   -> {top, me}   keeps the higher of the new and stored score for that name
-//   POST /presence {sid, app}    -> {me, total, online}   heartbeat, every 30 s while the page is visible
-//   POST /presence/leave {sid}   -> 204   the tab is closing; drop it now instead of after the timeout
-//   GET  /trace                  -> where this request went and how long each leg took (Life of a Request)
+// TankOS's API: the script of the `portfolio` Worker, which otherwise just serves the site's files. Only
+// /api/* runs it (wrangler.jsonc: run_worker_first), so page loads stay free static-asset requests. It holds
+// the Block Puzzle leaderboard, who is on the site right now, and the measurements for Life of a Request.
+// Data lives in D1 (database `portfolio`; the leaderboard is the table blocks_scores, presence is presence).
+//   GET  /api/                       -> a page saying what this is and listing the endpoints
+//   GET  /api/scores                 -> {top}
+//   POST /api/scores {name, score}   -> {top, me}   keeps the higher of the new and stored score for that name
+//   POST /api/presence {sid, app}    -> {me, total, online}   heartbeat, every 30 s while the page is visible
+//   POST /api/presence/leave {sid}   -> 204   the tab is closing; drop it now instead of after the timeout
+//   GET  /api/trace                  -> where this request went and how long each leg took (Life of a Request)
 // Names are not authenticated: typing the same name counts as the same player.
 // Presence bodies arrive as text/plain, so neither call needs a CORS preflight (sendBeacon cannot send one).
 
@@ -20,9 +21,9 @@ const MAX_ONLINE = 30;        // rows returned; `total` still counts everyone
 const SID = /^[0-9a-f]{32}$/;
 const APP = /^[a-z]{1,20}$/;  // an app id, "desktop" or "lock"; the page only ever shows names it knows
 
+// The site calls this from its own origin, which needs no CORS. These are for local development with the
+// page served from another port (python3 -m http.server 4321) and the API from `wrangler dev`.
 const ORIGINS = [
-  "https://tankfinal.github.io",
-  "https://portfolio.xarenvich.workers.dev",
   "http://localhost:4321",
   "http://127.0.0.1:4321",
 ];
@@ -39,12 +40,12 @@ const INDEX = `<!doctype html>
   @media (prefers-color-scheme:dark){body{color:#f2f2f4;background:#1f1f22}a{color:#6cb4ff}}
 </style>
 <h1>TankOS API</h1>
-<p>給 <a href="https://tankfinal.github.io/portfolio/">TankOS</a> 用的後端，資料存在 Cloudflare D1。只接受 TankOS 自己的網域呼叫。</p>
+<p>給 <a href="/">TankOS</a> 用的後端，跟網站是同一個 Cloudflare Worker，資料存在 Cloudflare D1。</p>
 <ul>
-  <li><code>GET /scores</code>：方塊消除排行榜前 10 名</li>
-  <li><code>POST /scores</code>：送出分數</li>
-  <li><code>POST /presence</code>、<code>POST /presence/leave</code>：線上訪客的心跳與離線</li>
-  <li><code>GET /trace</code>：Request 的一生，這次請求經過哪裡、每段花多久</li>
+  <li><code>GET /api/scores</code>：方塊消除排行榜前 10 名</li>
+  <li><code>POST /api/scores</code>：送出分數</li>
+  <li><code>POST /api/presence</code>、<code>POST /api/presence/leave</code>：線上訪客的心跳與離線</li>
+  <li><code>GET /api/trace</code>：Request 的一生，這次請求經過哪裡、每段花多久</li>
 </ul>
 <p><small>The backend for TankOS: Block Puzzle leaderboard, who's online, and Life of a Request.</small></p>
 </html>
@@ -71,7 +72,11 @@ export default {
         }
       : { Vary: "Origin" };
 
-    const path = new URL(request.url).pathname;
+    // A path that is neither a file nor under /api ends up here too: a plain 404, like a static site.
+    const full = new URL(request.url).pathname;
+    if (!/^\/api(\/|$)/.test(full)) return new Response("Not found", { status: 404, headers: { "Content-Type": "text/plain; charset=utf-8" } });
+    // Routes below are written without the /api prefix the site puts in front of them.
+    const path = full.replace(/^\/api/, "") || "/";
     if (path === "/" && request.method === "GET") {
       return new Response(INDEX, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=3600" } });
     }

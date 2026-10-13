@@ -5,3 +5,8 @@ README.md
 wrangler.jsonc
 CLAUDE.md
 api/
+.wrangler
+.playwright-mcp
+claude_task
+node_modules
+.DS_Store

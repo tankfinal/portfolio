@@ -427,28 +427,6 @@
       <div class="w-num mono">04</div>
       <div>
         <div class="w-head">
-          <h3 class="w-title" data-i18n="w3.t">Averlyn 疫苗接種追蹤</h3>
-          <span class="w-year mono">2026</span>
-        </div>
-        <p class="w-desc" data-i18n="w3.d">追蹤女兒對照台灣公費與自費時程的 36 針接種進度。時間軸依日期分組，已完成的收成一列，打開就看到下一劑倒數。紀錄只想給家人看，所以放在 Cloudflare Worker 後面加了一道密碼：雜湊存在 D1，登入後才由 Worker 回傳資料，前端 bundle 裡一筆紀錄都沒有。</p>
-        <dl class="w-spec mono">
-          <dt data-i18n="spec.build">Build</dt><dd>React 19 · TypeScript · Vite</dd>
-          <dt data-i18n="spec.deploy">Deploy</dt><dd data-i18n="w3.s2">Cloudflare Workers，push 到 main 自動部署</dd>
-          <dt data-i18n="spec.note">Note</dt><dd data-i18n="w3.s3">密碼保護，登入後才回傳資料</dd>
-        </dl>
-        <div class="w-links">
-          <a href="https://averlyn-vaccine.xarenvich.workers.dev/" target="_blank" rel="noopener" data-i18n="link.visit">開啟網站</a>
-        </div>
-      </div>
-      <a class="w-shot" href="https://averlyn-vaccine.xarenvich.workers.dev/" target="_blank" rel="noopener">
-        <img src="../images/averlyn-vaccine.jpg" alt="Averlyn Vaccine Tracker 登入畫面" loading="lazy" width="900" height="562">
-      </a>
-    </article>
-
-    <article class="work-item">
-      <div class="w-num mono">05</div>
-      <div>
-        <div class="w-head">
           <h3 class="w-title" data-i18n="w5.t">我是社畜：半夜值班的像素 RPG</h3>
           <span class="w-year mono">2026</span>
         </div>
@@ -850,11 +828,6 @@
              en:"An overnight trip up Yangmingshan for my wife’s birthday. Seven tabs hold a timeline for each day, places in Zhuzihu that are good without ordering chicken, parking and traffic windows, and a booking checklist you can tick off. Sunset is worked out with the NOAA formula, so the birthday dinner booking lands right as daylight turns into city lights."},
     "w4.s1":{zh:"單一 index.html，無框架無 build step", en:"One index.html. No framework, no build step."},
     "w4.s2":{zh:"行程倒數、可勾選清單、手機優先版面", en:"Trip countdown, tickable checklist, mobile-first layout"},
-    "w3.t": {zh:"Averlyn 疫苗接種追蹤", en:"Averlyn Vaccine Tracker"},
-    "w3.d": {zh:"追蹤女兒對照台灣公費與自費時程的 36 針接種進度。時間軸依日期分組，已完成的收成一列，打開就看到下一劑倒數。紀錄只想給家人看，所以放在 Cloudflare Worker 後面加了一道密碼：雜湊存在 D1，登入後才由 Worker 回傳資料，前端 bundle 裡一筆紀錄都沒有。",
-             en:"Tracks my daughter through 36 shots against Taiwan’s public and self-paid vaccine schedule. The timeline groups by date, folds finished shots into one line and opens on the countdown to the next one. The records are for family only, so the site sits behind a password on a Cloudflare Worker: the hash lives in D1, the Worker returns the data only after login, and the frontend bundle holds no records at all."},
-    "w3.s2":{zh:"Cloudflare Workers，push 到 main 自動部署", en:"Cloudflare Workers, deployed on every push to main"},
-    "w3.s3":{zh:"密碼保護，登入後才回傳資料", en:"Password-protected; data only after login"},
     "w5.t":{zh:"我是社畜：半夜值班的像素 RPG", en:"I'm a Shachiku: an On-Call Pixel RPG"},
     "w5.d":{zh:"半夜被告警叫醒的俯視角像素 RPG。九個交易所後端事故，每個都要走完分診、止血、找原因、恢復服務、驗證、善後，沒有唯一正解，依時間、用戶影響、資產風險三項計分。分普通、困難、地獄三種難度，困難以上即時計時，現實每 10 秒就是遊戲裡 1 分鐘。劇本和地圖都是 JSON，加角色不用改程式。", en:"A top-down pixel RPG about being woken at night by alerts. Nine exchange-backend incidents, each taken from triage and containment through the cause, the restore, the checks and the clean-up, with no single right answer: you are scored on time, user impact and asset risk. Normal, Hard and Hell; from Hard up the clock runs in real time, ten seconds to a game minute. Scenarios and maps are JSON, so a new role needs no code."},
     "w5.s2":{zh:"Cloudflare Workers，push 到 main 自動部署", en:"Cloudflare Workers, deployed on every push to main"},

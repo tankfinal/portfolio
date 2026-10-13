@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a1238">
 <title>TankOS · Tank Yang</title>
-<meta name="description" content="Tank Yang 的桌面版作品集。福岡自駕、釜山清單、陽明山慶生、Averlyn 疫苗追蹤四個作品直接在視窗裡跑，另有即時監控各站狀態的活動監視器、Spotlight 搜尋、經歷與聯絡方式。">
+<meta name="description" content="Tank Yang 的桌面版作品集。福岡自駕、釜山清單、陽明山慶生、我是社畜四個作品直接在視窗裡跑，另有即時監控各站狀態的活動監視器、Spotlight 搜尋、經歷與聯絡方式。">
 <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23D62828'/><text x='16' y='23' font-size='19' font-family='Helvetica,Arial,sans-serif' font-weight='700' text-anchor='middle' fill='%23fff'>T</text></svg>">
 <style>
   :root{
@@ -159,7 +159,6 @@
   .ic-fukuoka{background:linear-gradient(160deg,#FF7A50,#D62828 68%,#A3141E)}
   .ic-busan{background:linear-gradient(160deg,#4FE0D0,#1593C9 60%,#0D5FA8)}
   .ic-yms{background:linear-gradient(160deg,#F2B263,#C9667A 45%,#5A3E7A 78%,#2B2350)}
-  .ic-averlyn{background:linear-gradient(160deg,#FFB0C8,#F0628E 60%,#C93C6C)}
   .ic-trace{background:linear-gradient(160deg,#8E8CFF,#5E5CE6 55%,#3634A3)}
   .ic-shachiku{background:linear-gradient(160deg,#5B1F24,#2A0E12);color:#FF6B5E;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
   .ic-terminal{background:linear-gradient(180deg,#3A3A3E,#151517);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
@@ -624,8 +623,8 @@
 
   /* ---------- phones ---------- */
   @media (max-width:768px){
-    /* Nine Dock icons share the width left after the ten 6px gaps, the padding, the separator and a margin. */
-    :root{--ds:clamp(28px,calc((100vw - 110px) / 9),52px)}
+    /* Eight Dock icons share the width left after the nine 6px gaps, the padding, the separator and a margin. */
+    :root{--ds:clamp(28px,calc((100vw - 104px) / 8),52px)}
     .desktop{overflow-y:auto;overscroll-behavior:contain;padding:14px 6px calc(var(--dock-space) + 8px)}
     .zones-l,.zones-r,.zone-about{position:static}
     .zones-l{gap:16px}
@@ -662,7 +661,6 @@
   <symbol id="g-torii" viewBox="0 0 24 24"><path d="M3 6.2c5.6 1.3 12.4 1.3 18 0"/><path d="M5 10.2h14"/><path d="M7.4 7.3v13.2M16.6 7.3v13.2"/><path d="M12 7.6v2.6"/></symbol>
   <symbol id="g-wave" viewBox="0 0 24 24"><path d="M7 12.5a5 5 0 0 1 10 0"/><path d="M12 4.5v1.8M6.3 6.8l1.2 1.2M17.7 6.8l-1.2 1.2"/><path d="M2.5 16c1.6 0 1.6-1.4 3.2-1.4s1.6 1.4 3.2 1.4 1.6-1.4 3.1-1.4 1.6 1.4 3.2 1.4 1.6-1.4 3.2-1.4 1.6 1.4 3.1 1.4"/><path d="M2.5 20c1.6 0 1.6-1.4 3.2-1.4s1.6 1.4 3.2 1.4 1.6-1.4 3.1-1.4 1.6 1.4 3.2 1.4 1.6-1.4 3.2-1.4 1.6 1.4 3.1 1.4"/></symbol>
   <symbol id="g-mountain" viewBox="0 0 24 24"><path d="M2.5 19.5 9 9.5l3.6 5.4 2.6-3.6 6.3 8.2Z"/><circle cx="17" cy="6" r="2.2"/></symbol>
-  <symbol id="g-syringe" viewBox="0 0 24 24"><path d="M13 3l8 8"/><path d="M15 5l-8.5 8.5a1.5 1.5 0 0 0 0 2.1l1.9 1.9a1.5 1.5 0 0 0 2.1 0L19 9"/><path d="M17 7l3.5-3.5M19 2l3 3"/><path d="M7.4 16.6L3 21"/><path d="M12.2 7.8l1.6 1.6M10 10l1.6 1.6"/></symbol>
   <symbol id="g-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></symbol>
   <symbol id="g-pulse" viewBox="0 0 24 24"><path d="M2.5 12.5h4l2.2-5.5 4 11 2.6-7 1.6 1.5h4.6"/></symbol>
   <symbol id="g-bell" viewBox="0 0 24 24"><path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 2h-14z"/><path d="M10 20.5a2 2 0 0 0 4 0"/><path d="M3.5 8a8.5 8.5 0 0 1 2.3-3.6M20.5 8a8.5 8.5 0 0 0-2.3-3.6" opacity=".7"/></symbol>
@@ -695,7 +693,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v1.17.1</span>
+    <span class="mb-ver">v2.0.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -713,7 +711,6 @@
         <li><button class="dicon" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="lbl" data-i18n="app.fukuoka">福岡自駕</span></button></li>
         <li><button class="dicon" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="lbl" data-i18n="app.busan">釜山清單</span></button></li>
         <li><button class="dicon" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="lbl" data-i18n="app.yangmingshan">陽明山慶生</span></button></li>
-        <li><button class="dicon" type="button" data-open="averlyn"><span class="ic ic-averlyn"><svg><use href="#g-syringe"/></svg></span><span class="lbl" data-i18n="app.averlyn">Averlyn 疫苗</span></button></li>
       </ul>
     </section>
     <section class="zone zone-lab" aria-labelledby="zLab">
@@ -779,7 +776,6 @@
   <button class="dk" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="tip" data-i18n="app.fukuoka">福岡自駕</span></button>
   <button class="dk" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="tip" data-i18n="app.busan">釜山清單</span></button>
   <button class="dk" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="tip" data-i18n="app.yangmingshan">陽明山慶生</span></button>
-  <button class="dk" type="button" data-open="averlyn"><span class="ic ic-averlyn"><svg><use href="#g-syringe"/></svg></span><span class="tip" data-i18n="app.averlyn">Averlyn 疫苗</span></button>
   <button class="dk" type="button" data-open="shachiku"><span class="ic ic-shachiku"><svg><use href="#g-bell"/></svg></span><span class="tip" data-i18n="app.shachiku">我是社畜</span></button>
   <button class="dk" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="tip">README.md</span></button>
   <button class="dk" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="tip" data-i18n="app.terminal">終端機</span></button>
@@ -909,7 +905,6 @@
       <dt data-i18n="os.ab.updated"></dt><dd class="ab-updated">—</dd>
       <dt data-i18n="os.ab.host"></dt><dd class="ab-host"></dd>
       <dt data-i18n="os.ab.build"></dt><dd data-i18n="os.ab.buildv"></dd>
-      <dt data-i18n="os.ab.src"></dt><dd><a href="https://github.com/tankfinal/portfolio" target="_blank" rel="noopener">tankfinal/portfolio</a></dd>
     </dl>
     <h3 data-i18n="os.ab.log"></h3>
     <ol class="ab-log"><li class="ab-note" data-i18n="os.ab.wait"></li></ol>
@@ -984,11 +979,6 @@
              en:"An overnight trip up Yangmingshan for my wife’s birthday. Seven tabs hold a timeline for each day, places in Zhuzihu that are good without ordering chicken, parking and traffic windows, and a booking checklist you can tick off. Sunset is worked out with the NOAA formula, so the birthday dinner booking lands right as daylight turns into city lights."},
     "w4.s1": {zh:"單一 index.html，無框架無 build step", en:"One index.html. No framework, no build step."},
     "w4.s2": {zh:"行程倒數、可勾選清單、手機優先版面", en:"Trip countdown, tickable checklist, mobile-first layout"},
-    "w3.t": {zh:"Averlyn 疫苗接種追蹤", en:"Averlyn Vaccine Tracker"},
-    "w3.d": {zh:"追蹤女兒對照台灣公費與自費時程的 36 針接種進度。時間軸依日期分組，已完成的收成一列，打開就看到下一劑倒數。紀錄只想給家人看，所以放在 Cloudflare Worker 後面加了一道密碼：雜湊存在 D1，登入後才由 Worker 回傳資料，前端 bundle 裡一筆紀錄都沒有。",
-             en:"Tracks my daughter through 36 shots against Taiwan’s public and self-paid vaccine schedule. The timeline groups by date, folds finished shots into one line and opens on the countdown to the next one. The records are for family only, so the site sits behind a password on a Cloudflare Worker: the hash lives in D1, the Worker returns the data only after login, and the frontend bundle holds no records at all."},
-    "w3.s2": {zh:"Cloudflare Workers，push 到 main 自動部署", en:"Cloudflare Workers, deployed on every push to main"},
-    "w3.s3": {zh:"密碼保護，登入後才回傳資料", en:"Password-protected; data only after login"},
     "w5.t": {zh:"我是社畜：半夜值班的像素 RPG", en:"I'm a Shachiku: an On-Call Pixel RPG"},
     "w5.d": {zh:"半夜被告警叫醒的俯視角像素 RPG。九個交易所後端事故，每個都要走完分診、止血、找原因、恢復服務、驗證、善後，沒有唯一正解，依時間、用戶影響、資產風險三項計分。分普通、困難、地獄三種難度，困難以上即時計時，現實每 10 秒就是遊戲裡 1 分鐘。劇本和地圖都是 JSON，加角色不用改程式。", en:"A top-down pixel RPG about being woken at night by alerts. Nine exchange-backend incidents, each taken from triage and containment through the cause, the restore, the checks and the clean-up, with no single right answer: you are scored on time, user impact and asset risk. Normal, Hard and Hell; from Hard up the clock runs in real time, ten seconds to a game minute. Scenarios and maps are JSON, so a new role needs no code."},
     "w5.s2": {zh:"Cloudflare Workers，push 到 main 自動部署", en:"Cloudflare Workers, deployed on every push to main"},
@@ -1029,7 +1019,6 @@
     "app.fukuoka": {zh:"福岡自駕", en:"Fukuoka"},
     "app.busan":   {zh:"釜山清單", en:"Busan"},
     "app.yangmingshan": {zh:"陽明山慶生", en:"Yangmingshan"},
-    "app.averlyn": {zh:"Averlyn 疫苗", en:"Averlyn"},
     "app.readme":  {zh:"README.md", en:"README.md"},
     "app.terminal":{zh:"終端機", en:"Terminal"},
     "app.contact": {zh:"聯絡我", en:"Contact"},
@@ -1092,7 +1081,6 @@
     "os.ab.host":  {zh:"主機", en:"Hosted on"},
     "os.ab.build": {zh:"建置", en:"Build"},
     "os.ab.buildv":{zh:"HTML + 按需載入的 App 檔 · 無 build step", en:"HTML + on-demand app files · no build step"},
-    "os.ab.src":   {zh:"原始碼", en:"Source"},
     "os.ab.log":   {zh:"更新紀錄", en:"Changelog"},
     "os.ab.wait":  {zh:"從 GitHub 讀取中…", en:"Loading from GitHub…"},
     "os.ab.err":   {zh:"暫時讀不到 GitHub（未登入每小時限 60 次），稍後再試。", en:"Couldn't reach GitHub (60 requests an hour without sign-in). Try again later."},
@@ -1117,7 +1105,7 @@
     "os.act.wait": {zh:"檢查中", en:"Checking"},
     "os.act.count":{zh:"{n} 個服務 · {u} 個正常", en:"{n} services · {u} up"},
     "os.act.when": {zh:"更新於 {t}", en:"updated {t}"},
-    "os.act.foot": {zh:"從你的瀏覽器直接向每個站發請求，每 15 秒自動更新。除了 Averlyn 疫苗多一層密碼 API，其他都是沒有後端的靜態站。", en:"Requests go straight from your browser to each site and refresh every 15 seconds. All static sites except Averlyn, which adds a small password-gated API."},
+    "os.act.foot": {zh:"從你的瀏覽器直接向每個站發請求，每 15 秒自動更新。都是靜態站；TankOS 本身另外有一支 /api，給排行榜、線上人數和 Request 的一生用。", en:"Requests go straight from your browser to each site and refresh every 15 seconds. All are static sites; TankOS itself also has an /api for the leaderboard, who's online and Life of a Request."},
     "os.who.tip":  {zh:"{n} 人在線", en:"{n} online"},
     "os.who.desk": {zh:"桌面", en:"Desktop"},
     "os.who.lock": {zh:"鎖定畫面", en:"Lock screen"},
@@ -1135,8 +1123,6 @@
               spec:[["spec.build","w2.s1"], ["spec.feat","w2.s2"], ["spec.size",null,"136 KB"]], w:1080, h:720},
     yangmingshan: {k:"w4", url:"https://tankfinal.github.io/yangmingshan-trip/", src:"https://github.com/tankfinal/yangmingshan-trip",
               spec:[["spec.build","w4.s1"], ["spec.feat","w4.s2"], ["spec.size",null,"28 KB"]], w:1080, h:720},
-    averlyn: {k:"w3", url:"https://averlyn-vaccine.xarenvich.workers.dev/",
-              spec:[["spec.build",null,"React 19 · TypeScript · Vite"], ["spec.deploy","w3.s2"], ["spec.note","w3.s3"]], w:1080, h:720},
     activity:{w:780, h:430},
     blocks:  {w:420, h:660},
     trace:   {w:760, h:620, file:"apps/trace.js"},
@@ -1485,12 +1471,11 @@
   /* ---------- live services (Activity Monitor, kubectl) ---------- */
   // The browser probes every site directly, nothing in between.
   var SERVICES = [
-    {app:"portfolio",    repo:"portfolio",          url:"https://tankfinal.github.io/portfolio/"},
+    {app:"portfolio",    repo:"portfolio",          url:"https://portfolio.xarenvich.workers.dev/"},
     {app:"fukuoka",      repo:"fukuoka-trip",       url:"https://tankfinal.github.io/fukuoka-trip/"},
     {app:"busan",        repo:"busan-trip",         url:"https://tankfinal.github.io/busan-trip/"},
     {app:"yangmingshan", repo:"yangmingshan-trip",  url:"https://tankfinal.github.io/yangmingshan-trip/"},
-    {app:"averlyn",      repo:"averlyn-vaccine",    url:"https://averlyn-vaccine.xarenvich.workers.dev/"},
-    {app:"shachiku",     repo:"shachiku",           url:"https://shachiku.xarenvich.workers.dev/"}
+    {app:"shachiku",     repo:"shachiku",           url:"https://shachiku.xarenvich.workers.dev/", private:true}
   ];
   var langHooks = [];
 
@@ -1913,7 +1898,9 @@
   var BK_N = 8;
   // Leaderboard Worker (api/ in this repo), backed by Cloudflare D1.
   // The leaderboard and who's online share one Worker (api/). Point this at http://localhost:8787 to test locally.
-  var API = "https://tankos-api.xarenvich.workers.dev";
+  // The API is this same Worker under /api (api/src/index.js). Absolute, because Request 的一生 matches the
+  // browser's timing entries, which carry full URLs, against it.
+  var API = location.origin + "/api";
   var BK_API = API + "/scores";
   var BK_COLORS = ["gold","red","blue","green","purple","orange","cyan"];
   var BK_SHAPES = [
@@ -2338,8 +2325,9 @@
     ["exit",             "close this window"]
   ];
   var CMDS = ["help","whoami","who","neofetch","ls","open","git","kubectl","top","cat","contact","date","clear","exit","sudo"];
-  var OPENABLE = ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","trace","shachiku","calc","calendar","about","readme","contact","private"];
-  var REPOS = SERVICES.map(function(s){ return s.repo; });
+  var OPENABLE = ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","calc","calendar","about","readme","contact","private"];
+  // `git log` reads GitHub's public API without signing in, so it only offers the public repos.
+  var REPOS = SERVICES.filter(function(s){ return !s.private; }).map(function(s){ return s.repo; });
 
   function pad(s, n){ s = String(s); while (s.length < n) s += " "; return s; }
 
@@ -2422,7 +2410,7 @@
         [["Shell","key"], ": zsh (pretend)"],
         [["Role","key"], ": Backend Senior Associate Manager @ XREX"],
         [["Stack","key"], ": Java · Spring · Kafka · Redis · MySQL · AWS"],
-        [["Apps","key"], ": " + (SERVICES.length - 1) + " live sites · 2 backends (Cloudflare Workers + D1)"],
+        [["Apps","key"], ": " + (SERVICES.length - 1) + " live sites · 1 backend (Cloudflare Worker + D1)"],
         [["Resolution","key"], ": " + window.innerWidth + "x" + window.innerHeight]
       ];
       info.forEach(function(row, i){ rich([[art[i] + "  ", "red"]].concat(row)); });
@@ -2430,6 +2418,7 @@
 
     function gitLog(arg){
       var repo = repoOf(arg);
+      if (repo && REPOS.indexOf(repo) < 0) { line("git log: tankfinal/" + repo + " is a private repository", "err"); return; }
       if (!repo) { line("fatal: '" + arg + "' does not appear to be a git repository", "err"); line("repos: " + REPOS.join(" · "), "dim"); return; }
       var wait = line("Fetching tankfinal/" + repo + "…", "dim");
       fetch("https://api.github.com/repos/tankfinal/" + repo + "/commits?per_page=6").then(function(r){
@@ -2511,7 +2500,7 @@
           neofetch();
           return;
         case "ls":
-          line("fukuoka/   busan/   yangmingshan/   averlyn/   activity   blocks   trace   shachiku   calc   calendar   README.md   contact   private/ 🔒");
+          line("fukuoka/   busan/   yangmingshan/   activity   blocks   trace   shachiku   calc   calendar   README.md   contact   private/ 🔒");
           return;
         case "open":
           var id = resolveApp(rest);
@@ -2719,7 +2708,6 @@
     fukuoka:"福岡 九州 日本 自駕 熊本 別府 阿蘇 japan kyushu road trip",
     busan:"釜山 韓國 korea checklist 海",
     yangmingshan:"陽明山 慶生 生日 芒草 溫泉 birthday taipei",
-    averlyn:"疫苗 女兒 寶寶 vaccine baby react vite",
     activity:"活動監視器 監控 狀態 延遲 uptime monitor status health top",
     blocks:"方塊 消除 遊戲 小遊戲 益智 俄羅斯方塊 排行榜 block puzzle game 1010 leaderboard",
     trace:"request trace 請求 延遲 網路 封包 連線 latency network ttfb waterfall 瀑布 cloudflare d1 ping",
@@ -2745,7 +2733,7 @@
 
   function index(){
     var items = [];
-    ["fukuoka","busan","yangmingshan","averlyn","activity","blocks","trace","shachiku","terminal","calc","calendar","about","readme","contact","private"].forEach(function(id){
+    ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","terminal","calc","calendar","about","readme","contact","private"].forEach(function(id){
       items.push({label:appName(id), sub:"", kind:t("os.spot.app"), icon:iconOf(id), keys:(id + " " + KW[id]).toLowerCase(), go:function(){ open(id); }});
     });
     EXP.forEach(function(e){

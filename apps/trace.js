@@ -1,7 +1,6 @@
-// Life of a Request（Request 的一生）. One GET to the API Worker's /trace, shown three ways: a route diagram
-// (you → Cloudflare's data centre → D1), the browser's own timing of each phase from Resource Timing (the
-// Worker sends Timing-Allow-Origin on every response; without it a cross-origin request reports every phase
-// as 0), and what the Worker measured on its side. When the connection is reused, the request that opened it
+// Life of a Request（Request 的一生）. One GET to TankOS's own /api/trace (the same Worker that serves the
+// site), shown three ways: a route diagram (you → Cloudflare's data centre → D1), the browser's own timing of
+// each phase from Resource Timing, and what the Worker measured on its side. When the connection is reused, the request that opened it
 // (usually the menu bar's heartbeat) still has its DNS / connect / TLS times, so those are shown too.
 // Three tabs: a timeline (sequence diagram, one-way legs estimated as half a round trip), the waterfall, and
 // the raw request and response (the Worker sends Access-Control-Expose-Headers: * so every header is readable).
@@ -298,7 +297,8 @@
         leg(2, "…", "");
       }
 
-      // Phases as the browser saw them. Without Timing-Allow-Origin, requestStart is 0 and there are none.
+      // Phases as the browser saw them. A cross-origin request (local dev, with the API on another port) would need
+      // Timing-Allow-Origin, or requestStart is 0 and there are none.
       function phases(e){
         if (!e || !e.requestStart) return null;
         var s = e.startTime, from = function(v){ return Math.max(v || s, s); };
