@@ -38,6 +38,9 @@ export default {
           // Without this a cross-origin response reports DNS / connect / TLS / TTFB as 0 to the page. Life of a
           // Request reads it on /trace, and on whichever earlier request opened the connection it reuses.
           "Timing-Allow-Origin": origin,
+          // Lets the page read every response header (Life of a Request shows them raw). "*" covers all but
+          // Set-Cookie for requests sent without credentials, which all of these are.
+          "Access-Control-Expose-Headers": "*",
           Vary: "Origin",
         }
       : { Vary: "Origin" };

@@ -3,6 +3,8 @@
 // Worker sends Timing-Allow-Origin on every response; without it a cross-origin request reports every phase
 // as 0), and what the Worker measured on its side. When the connection is reused, the request that opened it
 // (usually the menu bar's heartbeat) still has its DNS / connect / TLS times, so those are shown too.
+// Three tabs: a timeline (sequence diagram, one-way legs estimated as half a round trip), the waterfall, and
+// the raw request and response (the Worker sends Access-Control-Expose-Headers: * so every header is readable).
 // index.html loads this file the first time the window opens.
 (function(){
   // Cloudflare data centres a request is likely to reach, by IATA code: [lat, lon, 中文, English].
@@ -72,7 +74,19 @@
       "tr.dist":    {zh:"直線 {km} km，光速來回至少 {min}", en:"{km} km apart; light needs {min} there and back"},
       "tr.same":    {zh:"同一個機房", en:"Same data centre"},
       "tr.punch":   {zh:"慢的不是資料庫，是距離：資料庫執行查詢只花了 {sql}，但從{from}到{to}來回一趟就要 {d1}。", en:"The database isn't the slow part, distance is: running the query took {sql}, but one round trip from {from} to {to} took {d1}."},
-      "tr.wf":      {zh:"瀏覽器量到的時間", en:"What your browser timed"},
+      "tr.tab.tl":  {zh:"時間軸", en:"Timeline"},
+      "tr.tab.wf":  {zh:"瀑布圖", en:"Waterfall"},
+      "tr.tab.raw": {zh:"原始封包", en:"Raw request"},
+      "tr.tl.hs":   {zh:"建立連線 {ms}", en:"Connect {ms}"},
+      "tr.tl.exec": {zh:"執行查詢 {ms}", en:"Query {ms}"},
+      "tr.tl.other":{zh:"其他 {ms}", en:"Other {ms}"},
+      "tr.tl.dl":   {zh:"下載 {ms}", en:"Download {ms}"},
+      "tr.tl.key":  {zh:"色塊是實測，虛線箭頭是估算：單程時間量不到（兩端的時鐘沒有對齊），只能用來回時間除以 2。實測的有：瀏覽器等待回應 {wait}、Worker 到資料庫來回 {d1}、資料庫執行查詢 {sql}。", en:"Coloured blocks are measured; dashed arrows are estimates. A one-way trip can't be timed (the two clocks aren't in sync), so each is half its round trip. Measured: the browser waited {wait}, the Worker's round trip to the database took {d1}, the query ran in {sql}."},
+      "tr.raw.req": {zh:"請求（你的瀏覽器送出）", en:"Request (sent by your browser)"},
+      "tr.raw.reqNote":{zh:"瀏覽器還會自動加上 user-agent、accept 這類 header，網頁讀不到，所以只列得出這幾行。", en:"Your browser also adds headers such as user-agent and accept on its own. A page can't read those, so only these lines are shown."},
+      "tr.raw.res": {zh:"回應（伺服器傳回）", en:"Response (from the server)"},
+      "tr.raw.size":{zh:"內容 {body}{gz}。header 的實際大小瀏覽器不公開：規格一律算成 300 bytes，避免網頁從大小推出你帶了哪些 cookie。", en:"Body {body}{gz}. Browsers don't reveal the real header size: the spec always counts it as 300 bytes, so a page can't infer which cookies were sent."},
+      "tr.raw.gz":  {zh:"（壓縮前 {raw}）", en:" ({raw} before compression)"},
       "tr.p.dns":   {zh:"DNS 查詢", en:"DNS lookup"},
       "tr.p.tcp":   {zh:"建立連線", en:"Connect"},
       "tr.p.tls":   {zh:"TLS 握手", en:"TLS handshake"},
@@ -160,6 +174,24 @@
       ".tr-tip{margin-top:18px;padding-top:14px;border-top:.5px solid var(--win-line);font-size:12.5px;color:var(--win-soft)}",
       ".tr-tip summary{cursor:pointer;color:var(--win-fg);font-weight:500}",
       ".tr-tip p{margin-top:8px}",
+      ".tr-tabs{display:inline-flex;gap:2px;margin:22px 0 14px;padding:2px;border-radius:8px;background:rgba(127,127,127,.14);max-width:100%;overflow-x:auto}",
+      ".tr-tabs button{padding:4px 14px;border-radius:6px;font-size:12.5px;color:var(--win-soft);cursor:pointer;white-space:nowrap}",
+      ".tr-tabs button[aria-selected='true']{background:var(--win-bg);color:var(--win-fg);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.18)}",
+      ".tr-pane[hidden]{display:none}",
+      ".tr h4{margin:16px 0 6px;font-size:12px;font-weight:600;color:var(--win-mute)}",
+      ".tr-pane h4:first-child{margin-top:0}",
+      ".tr-req,.tr-resp{margin:0;padding:10px 12px;border-radius:8px;background:var(--win-side);border:.5px solid var(--win-line);font:12px/1.5 var(--mono);color:var(--win-fg);white-space:pre-wrap;word-break:break-all;max-height:340px;overflow:auto}",
+      ".tr-small{margin-top:6px;font-size:12px;color:var(--win-mute)}",
+      ".tr-tl svg{display:block;overflow:visible}",
+      ".tr-tlkey{margin-top:8px;font-size:12.5px;color:var(--win-soft)}",
+      ".tr-tl .tl-lane{stroke:var(--win-line);stroke-width:1.5}",
+      ".tr-tl .tl-grid{stroke:var(--win-line);stroke-width:.6;stroke-dasharray:2 4}",
+      ".tr-tl .tl-head{font-size:12px;font-weight:600;fill:var(--win-fg)}",
+      ".tr-tl .tl-sub{font-size:11px;fill:var(--win-mute)}",
+      ".tr-tl .tl-tick{font:10.5px var(--mono);fill:var(--win-mute)}",
+      ".tr-tl .tl-msg{stroke:var(--win-soft);stroke-width:1.5;fill:none;stroke-dasharray:5 4}",
+      ".tr-tl .tl-ah{fill:var(--win-soft)}",
+      ".tr-tl .tl-lab{font:11px var(--mono);fill:var(--win-fg);paint-order:stroke;stroke:var(--win-bg);stroke-width:4px;stroke-linejoin:round}",
       "@media (prefers-reduced-motion:reduce){.tr-dot{animation:none!important}}"
     ].join("\n"),
 
@@ -177,7 +209,17 @@
           '</div>' +
           '<div class="tr-res" hidden>' +
             '<p class="tr-punch"></p>' +
-            '<h3 data-i18n="tr.wf"></h3><div class="tr-bars"></div><div class="tr-legend"></div><p class="tr-note"></p><p class="tr-conn" hidden></p>' +
+            '<div class="tr-tabs" role="tablist">' +
+              '<button type="button" role="tab" data-tab="tl" data-i18n="tr.tab.tl"></button>' +
+              '<button type="button" role="tab" data-tab="wf" data-i18n="tr.tab.wf"></button>' +
+              '<button type="button" role="tab" data-tab="raw" data-i18n="tr.tab.raw"></button>' +
+            '</div>' +
+            '<div class="tr-pane" data-pane="tl" role="tabpanel"><div class="tr-tl"></div><p class="tr-tlkey"></p></div>' +
+            '<div class="tr-pane" data-pane="wf" role="tabpanel" hidden><div class="tr-bars"></div><div class="tr-legend"></div><p class="tr-note"></p><p class="tr-conn" hidden></p></div>' +
+            '<div class="tr-pane" data-pane="raw" role="tabpanel" hidden>' +
+              '<h4 data-i18n="tr.raw.req"></h4><pre class="tr-req"></pre><p class="tr-small" data-i18n="tr.raw.reqNote"></p>' +
+              '<h4 data-i18n="tr.raw.res"></h4><pre class="tr-resp"></pre><p class="tr-small tr-size"></p>' +
+            '</div>' +
             '<h3 data-i18n="tr.more"></h3><dl class="tr-dl"></dl><p class="tr-hist"></p>' +
             '<details class="tr-tip"><summary data-i18n="tr.tip.h"></summary><p data-i18n="tr.tip.b"></p><p data-i18n="tr.tip.dev"></p></details>' +
           '</div>' +
@@ -188,7 +230,9 @@
       var go = el.querySelector(".tr-go"), out = el.querySelector(".tr-out"), res = el.querySelector(".tr-res"), err = el.querySelector(".tr-err");
       var route = el.querySelector(".tr-route"), bars = el.querySelector(".tr-bars"), legend = el.querySelector(".tr-legend");
       var note = el.querySelector(".tr-note"), conn = el.querySelector(".tr-conn"), punch = el.querySelector(".tr-punch"), dl = el.querySelector(".tr-dl"), hist = el.querySelector(".tr-hist");
-      var seen = {}, live = [], runs = [], last = null, busy = false, seq = 0;
+      var tabs = el.querySelector(".tr-tabs"), tl = el.querySelector(".tr-tl"), tlKey = el.querySelector(".tr-tlkey");
+      var reqPre = el.querySelector(".tr-req"), resPre = el.querySelector(".tr-resp"), size = el.querySelector(".tr-size");
+      var seen = {}, live = [], runs = [], last = null, busy = false, seq = 0, tab = "tl", tlWidth = 0;
 
       // The observer still sees entries once the page's resource-timing buffer (250 entries) is full,
       // which the menu bar's 30-second heartbeat gets to after about two hours. `live` keeps every API
@@ -227,6 +271,9 @@
       }
       function cityOf(code){ var c = COLO[code]; return c ? c[en() ? 3 : 2] : code; }
       function at(code){ var c = COLO[code]; return c ? [c[0], c[1]] : null; }
+      function dbName(d1){ return d1.colo ? cityOf(d1.colo) : d1.region && REGION[d1.region] ? REGION[d1.region][en() ? 1 : 0] : os.t("tr.local"); }
+      function protoOf(e, c){ var hop = e && e.nextHopProtocol; return hop ? ({h3:"HTTP/3", h2:"HTTP/2", "http/1.1":"HTTP/1.1"})[hop] || hop : c.http || "HTTP"; }
+      function bytes(n){ return n ? new Intl.NumberFormat(en() ? "en-US" : "zh-TW").format(n) + " bytes" : "—"; }
       function dist(a, b){
         if (!a || !b) return "";
         var d = km(a, b);
@@ -289,10 +336,14 @@
 
       // Waiting = one network round trip (Cloudflare's RTT for this connection) + the Worker's wait on D1
       // + everything the Worker can't time, its own CPU included.
-      function splitWait(bar, w, rtt, d1ms){
+      function split(w, rtt, d1ms){
         var net = rtt == null ? Math.max(0, w - d1ms) : Math.min(rtt, w);
-        var d1 = Math.min(d1ms, Math.max(0, w - net)), other = Math.max(0, w - net - d1);
-        [["net", net], ["d1", d1], ["other", other]].forEach(function(s){
+        var d1 = Math.min(d1ms, Math.max(0, w - net));
+        return {net:net, d1:d1, other:Math.max(0, w - net - d1)};
+      }
+      function splitWait(bar, w, rtt, d1ms){
+        var p = split(w, rtt, d1ms);
+        [["net", p.net], ["d1", p.d1], ["other", p.other]].forEach(function(s){
           var seg = document.createElement("i");
           seg.style.background = COLOR[s[0]];
           seg.style.flex = s[1] + " 1 0";
@@ -307,7 +358,7 @@
       function render(){
         var data = last.data, c = data.client, d1 = data.d1, e = last.e;
         var you = c.lat != null && c.lon != null ? [c.lat, c.lon] : null;
-        var d1Name = d1.colo ? cityOf(d1.colo) : d1.region && REGION[d1.region] ? REGION[d1.region][en() ? 1 : 0] : os.t("tr.local");
+        var d1Name = dbName(d1);
         var role = d1.primary === true ? os.t("tr.primary") : d1.primary === false ? os.t("tr.replica") : "";
 
         node("you", os.t("tr.you"), [c.city, c.country].filter(Boolean).join(", "));
@@ -346,8 +397,7 @@
         if (from) conn.textContent = connLine(from);
 
         dl.textContent = "";
-        var hop = e && e.nextHopProtocol, proto = hop ? ({h3:"HTTP/3", h2:"HTTP/2", "http/1.1":"HTTP/1.1"})[hop] || hop : c.http;
-        [["tr.d.http", proto], ["tr.d.tls", [c.tls, c.cipher].filter(Boolean).join(" · ")], ["tr.d.isp", c.isp && c.isp.replace(/[\s,;]+$/, "")],   // registry names can end in a stray comma
+        [["tr.d.http", protoOf(e, c)], ["tr.d.tls", [c.tls, c.cipher].filter(Boolean).join(" · ")], ["tr.d.isp", c.isp && c.isp.replace(/[\s,;]+$/, "")],   // registry names can end in a stray comma
          ["tr.d.db", ["Cloudflare D1 (SQLite)", d1Name + (d1.colo && COLO[d1.colo] ? " " + d1.colo : ""), role].filter(Boolean).join(" · ")],
          ["tr.d.sql", d1.sqlMs != null ? os.fill(os.t("tr.d.sqlv"), {ms:ms(d1.sqlMs)}) : ""]
         ].forEach(function(r){
@@ -359,7 +409,106 @@
         hist.textContent = os.fill(os.t("tr.hist"), {n:runs.length, m:ms(median(runs))}) +
           runs.map(function(v){ return Math.round(v); }).join(" · ");
         res.hidden = false;
+        if (tab === "tl") drawTimeline();
+        fillRaw();
       }
+
+      var SVG = "http://www.w3.org/2000/svg";
+      function svg(tag, attrs, text){
+        var x = document.createElementNS(SVG, tag);
+        Object.keys(attrs || {}).forEach(function(k){ x.setAttribute(k, attrs[k]); });
+        if (text != null) x.textContent = text;
+        return x;
+      }
+      // A grid step that draws at most six lines.
+      function gridStep(total){
+        var s = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000];
+        for (var i = 0; i < s.length; i++) if (total / s[i] <= 6) return s[i];
+        return 10000;
+      }
+
+      // Three lanes, time running down, drawn in real pixels so the text stays readable. Coloured blocks are
+      // measured. The dashed arrows are one-way trips, which can't be measured (the two clocks aren't in sync),
+      // so each is half its round trip; the Worker is assumed to call D1 as soon as the request arrives, since
+      // its own CPU time reads as zero anyway.
+      function drawTimeline(){
+        var W = tl.clientWidth, data = last.data, c = data.client, d1 = data.d1, ph = phases(last.e);
+        tlWidth = W;
+        tl.textContent = "";
+        if (!ph) { tlKey.textContent = os.t("tr.notao"); return; }
+        if (!W) return;
+        var hs = ph[0].d + ph[1].d + ph[2].d, wait = ph[3].d, dlMs = ph[4].d, sql = Math.min(d1.sqlMs || 0, d1.ms);
+        var p = split(wait, c.rtt, d1.ms), hop = Math.max(0, p.d1 - sql) / 2;
+        var tReq = hs, tEdge = tReq + p.net / 2, tDbIn = tEdge + hop, tDbOut = tDbIn + sql, tBack = tEdge + p.d1,
+            tOut = tBack + p.other, tFirst = tReq + wait, tDone = tFirst + dlMs;
+        var top = 50, H = 320, k = H / (tDone || 1), y = function(t){ return top + t * k; };
+        var axis = 52, xs = [0.14, 0.52, 0.88].map(function(f){ return axis + (W - axis) * f; });
+        var root = svg("svg", {width:W, height:top + H + 18, viewBox:"0 0 " + W + " " + (top + H + 18), role:"img", "aria-label":os.t("tr.tab.tl")});
+        var defs = svg("defs"), mk = svg("marker", {id:"tr-ah", viewBox:"0 0 8 8", refX:"7.5", refY:"4", markerWidth:"7", markerHeight:"7", orient:"auto"});
+        mk.appendChild(svg("path", {d:"M0 0L8 4L0 8z", "class":"tl-ah"}));
+        defs.appendChild(mk);
+        root.appendChild(defs);
+        for (var g = gridStep(tDone), t = 0; t <= tDone + 1e-6; t += g) {
+          root.appendChild(svg("line", {x1:axis, x2:W, y1:y(t), y2:y(t), "class":"tl-grid"}));
+          root.appendChild(svg("text", {x:axis - 8, y:y(t) + 3.5, "text-anchor":"end", "class":"tl-tick"}, t + " ms"));
+        }
+        [[os.t("tr.you"), c.city || ""], ["Cloudflare", data.edge ? cityOf(data.edge) : ""], [os.t("tr.db"), dbName(d1)]].forEach(function(h, i){
+          root.appendChild(svg("line", {x1:xs[i], x2:xs[i], y1:top - 8, y2:top + H + 10, "class":"tl-lane"}));
+          root.appendChild(svg("text", {x:xs[i], y:16, "text-anchor":"middle", "class":"tl-head"}, h[0]));
+          root.appendChild(svg("text", {x:xs[i], y:32, "text-anchor":"middle", "class":"tl-sub"}, h[1]));
+        });
+        function arrow(a, ta, b, tb, text){
+          root.appendChild(svg("line", {x1:xs[a], y1:y(ta), x2:xs[b], y2:y(tb), "class":"tl-msg", "marker-end":"url(#tr-ah)"}));
+          root.appendChild(svg("text", {x:(xs[a] + xs[b]) / 2, y:(y(ta) + y(tb)) / 2 - 6, "text-anchor":"middle", "class":"tl-lab"}, text));
+        }
+        function block(lane, ta, tb, color, text, left){
+          var h = Math.max(3, y(tb) - y(ta));
+          root.appendChild(svg("rect", {x:xs[lane] - 5, y:y(ta), width:10, height:h, rx:2, fill:color}));
+          root.appendChild(svg("text", {x:xs[lane] + (left ? -10 : 10), y:y(ta) + h / 2 + 3.5, "text-anchor":left ? "end" : "start", "class":"tl-lab"}, text));
+        }
+        if (hs >= 0.5) block(0, 0, hs, COLOR.tls, os.fill(os.t("tr.tl.hs"), {ms:ms(hs)}));
+        arrow(0, tReq, 1, tEdge, "≈ " + ms(p.net / 2));
+        arrow(1, tEdge, 2, tDbIn, "≈ " + ms(hop));
+        block(2, tDbIn, tDbOut, COLOR.d1, os.fill(os.t("tr.tl.exec"), {ms:ms(sql)}), true);
+        arrow(2, tDbOut, 1, tBack, "≈ " + ms(hop));
+        if (p.other >= 0.5) block(1, tBack, tOut, COLOR.other, os.fill(os.t("tr.tl.other"), {ms:ms(p.other)}));
+        arrow(1, tOut, 0, tFirst, "≈ " + ms(p.net / 2));
+        block(0, tFirst, tDone, COLOR.dl, os.fill(os.t("tr.tl.dl"), {ms:ms(dlMs)}));
+        tl.appendChild(root);
+        tlKey.textContent = os.fill(os.t("tr.tl.key"), {wait:ms(wait), d1:ms(d1.ms), sql:ms(d1.sqlMs)});
+      }
+
+      // What went over the wire, as far as a page can see it. HTTP/2 and HTTP/3 carry the request line as
+      // pseudo-headers (:method, :path...), so it is shown that way, the same as browser developer tools.
+      function fillRaw(){
+        var r = last, u = new URL(r.url), proto = protoOf(r.e, r.data.client), h1 = proto === "HTTP/1.1";
+        reqPre.textContent = (h1
+          ? ["GET " + u.pathname + u.search + " HTTP/1.1", "host: " + u.host]
+          : [":method: GET", ":authority: " + u.host, ":scheme: https", ":path: " + u.pathname + u.search]
+        ).concat(["origin: " + location.origin]).join("\n");
+        resPre.textContent = [h1 ? "HTTP/1.1 " + r.status : ":status: " + r.status]
+          .concat(r.headers.map(function(x){ return x[0] + ": " + x[1]; })).join("\n") +
+          "\n\n" + JSON.stringify(r.data, null, 2);
+        // transferSize is the body plus a flat 300 (Resource Timing hides real header sizes), so only the body
+        // sizes say anything.
+        var e = r.e, gz = e && e.decodedBodySize && e.decodedBodySize !== e.encodedBodySize;
+        size.textContent = e && e.encodedBodySize
+          ? os.fill(os.t("tr.raw.size"), {body:bytes(e.encodedBodySize), gz:gz ? os.fill(os.t("tr.raw.gz"), {raw:bytes(e.decodedBodySize)}) : ""})
+          : "";
+      }
+
+      function show(name){
+        tab = name;
+        tabs.querySelectorAll("button").forEach(function(b){ b.setAttribute("aria-selected", String(b.getAttribute("data-tab") === name)); });
+        el.querySelectorAll(".tr-pane").forEach(function(x){ x.hidden = x.getAttribute("data-pane") !== name; });
+        if (name === "tl" && last) drawTimeline();
+      }
+      tabs.addEventListener("click", function(ev){ var b = ev.target.closest("button"); if (b) show(b.getAttribute("data-tab")); });
+      // Redraw the timeline when the window is resized; the check stops its own redraw from looping.
+      var ro = window.ResizeObserver ? new ResizeObserver(function(){
+        if (tab === "tl" && last && tl.clientWidth !== tlWidth) drawTimeline();
+      }) : null;
+      if (ro) ro.observe(tl);
 
       function label(){
         go.disabled = busy;
@@ -377,13 +526,18 @@
           void route.offsetWidth;   // restart the animation
           route.classList.add("run");
         }
-        var url = os.api + "/trace?n=" + Date.now().toString(36) + "-" + (++seq), t0 = performance.now();
+        var url = os.api + "/trace?n=" + Date.now().toString(36) + "-" + (++seq), t0 = performance.now(), got = {};
         fetch(url, {cache:"no-store"}).then(function(r){
           if (!r.ok) throw new Error(r.status);
+          got.status = r.status;
+          got.headers = [];
+          r.headers.forEach(function(v, k){ got.headers.push([k, v]); });
           return r.json();
         }).then(function(data){
           var t1 = performance.now();
-          return timingOf(url).then(function(e){ return {data:data, e:e, total:e ? e.responseEnd - e.startTime : t1 - t0}; });
+          return timingOf(url).then(function(e){
+            return {data:data, e:e, total:e ? e.responseEnd - e.startTime : t1 - t0, url:url, status:got.status, headers:got.headers};
+          });
         }).then(function(run){
           last = run;
           runs.push(run.total);
@@ -402,7 +556,8 @@
       var off = os.onLang(function(){ label(); if (last) render(); else skeleton(); });
       label();
       skeleton();
-      return function(){ off(); if (obs) obs.disconnect(); };
+      show("tl");
+      return function(){ off(); if (obs) obs.disconnect(); if (ro) ro.disconnect(); };
     }
   });
 })();
