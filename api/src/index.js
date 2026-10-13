@@ -3,6 +3,7 @@
 //   POST /scores {name, score}   -> {top, me}   keeps the higher of the new and stored score for that name
 //   POST /presence {sid, app}    -> {me, total, online}   heartbeat, every 30 s while the page is visible
 //   POST /presence/leave {sid}   -> 204   the tab is closing; drop it now instead of after the timeout
+//   GET  /trace                  -> where this request went and how long each leg took (Life of a Request)
 // Names are not authenticated: typing the same name counts as the same player.
 // Presence bodies arrive as text/plain, so neither call needs a CORS preflight (sendBeacon cannot send one).
 
@@ -39,11 +40,14 @@ export default {
       : { Vary: "Origin" };
 
     const path = new URL(request.url).pathname;
-    if (!["/scores", "/presence", "/presence/leave"].includes(path)) return json({ error: "not found" }, 404, cors);
+    if (!["/scores", "/presence", "/presence/leave", "/trace"].includes(path)) return json({ error: "not found" }, 404, cors);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
     if (path === "/scores" && request.method === "GET") {
       const { results } = await env.DB.prepare(TOP_SQL).all();
       return json({ top: results }, 200, cors);
+    }
+    if (path === "/trace") {
+      return request.method === "GET" ? trace(request, env, cors) : json({ error: "method not allowed" }, 405, cors);
     }
     if (request.method !== "POST") return json({ error: "method not allowed" }, 405, cors);
     if (path === "/scores") return submit(request, env, cors);
@@ -114,6 +118,51 @@ async function leave(request, env, cors) {
   if (typeof sid !== "string" || !SID.test(sid)) return json({ error: "invalid sid" }, 400, cors);
   await env.DB.prepare("DELETE FROM presence WHERE sid = ?1").bind(sid).run();
   return new Response(null, { status: 204, headers: cors });
+}
+
+// One read against D1, timed from inside the Worker. Date.now() in a Worker only moves when I/O completes,
+// so this measures the wait for D1 and nothing else; the Worker's own CPU time cannot be seen from here.
+// Timing-Allow-Origin lets the page read the browser's per-phase timing (DNS, TLS, TTFB...) for this
+// response; without it a cross-origin request reports those phases as 0. Nothing is stored.
+async function trace(request, env, cors) {
+  const cf = request.cf || {};
+  const t0 = Date.now();
+  const { results, meta } = await env.DB.prepare("SELECT COUNT(*) AS n FROM scores").all();
+  const d1Ms = Date.now() - t0;
+  const sqlMs = meta.timings?.sql_duration_ms ?? meta.duration ?? null;
+  const d1 = {
+    colo: meta.served_by_colo || null,
+    region: meta.served_by_region || null,
+    primary: meta.served_by_primary ?? null,
+    ms: d1Ms,
+    sqlMs,
+  };
+  const body = {
+    edge: cf.colo || null,
+    client: {
+      city: cleanPlace(cf.city),
+      country: cleanPlace(cf.country),
+      lat: coord(cf.latitude),
+      lon: coord(cf.longitude),
+      rtt: cf.clientQuicRtt || cf.clientTcpRtt || null,
+      http: cf.httpProtocol || null,
+      tls: cf.tlsVersion || null,
+      cipher: cf.tlsCipher || null,
+      isp: cleanPlace(cf.asOrganization),
+    },
+    d1,
+    players: results[0].n,
+  };
+  const timing = [`d1;dur=${d1Ms};desc="D1 ${d1.colo || "local"}"`];
+  if (sqlMs != null) timing.push(`sql;dur=${sqlMs};desc="SQL"`);
+  if (body.edge) timing.push(`edge;desc="Cloudflare ${body.edge}"`);
+  const origin = cors["Access-Control-Allow-Origin"];
+  return json(body, 200, { ...cors, ...(origin ? { "Timing-Allow-Origin": origin } : {}), "Server-Timing": timing.join(", ") });
+}
+
+function coord(v) {
+  const n = parseFloat(v);
+  return Number.isFinite(n) ? n : null;
 }
 
 // What other visitors see instead of the sid: the first 4 hex digits of its SHA-256.
