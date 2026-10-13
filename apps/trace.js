@@ -63,13 +63,15 @@
       "tr.fail":    {zh:"送不出去：連不上伺服器，稍後再試。", en:"Couldn't reach the server. Try again later."},
       "tr.you":     {zh:"你", en:"You"},
       "tr.edgeSub": {zh:"Worker 在這裡執行", en:"Worker runs here"},
+      "tr.db":      {zh:"資料庫", en:"Database"},
+      "tr.dbAt":    {zh:"資料庫 · {where}", en:"Database · {where}"},
       "tr.primary": {zh:"主要資料庫", en:"primary"},
       "tr.replica": {zh:"唯讀副本", en:"read replica"},
       "tr.local":   {zh:"本機", en:"local"},
       "tr.rtt":     {zh:"來回 {ms}", en:"{ms} round trip"},
       "tr.dist":    {zh:"直線 {km} km，光速來回至少 {min}", en:"{km} km apart; light needs {min} there and back"},
       "tr.same":    {zh:"同一個機房", en:"Same data centre"},
-      "tr.punch":   {zh:"慢的不是資料庫，是距離：SQL 只跑了 {sql}，從 Worker 到 D1 來回卻花了 {d1}。", en:"The database isn't the slow part, distance is: the SQL ran in {sql}, but the round trip from the Worker to D1 took {d1}."},
+      "tr.punch":   {zh:"慢的不是資料庫，是距離：資料庫執行查詢只花了 {sql}，但從{from}到{to}來回一趟就要 {d1}。", en:"The database isn't the slow part, distance is: running the query took {sql}, but one round trip from {from} to {to} took {d1}."},
       "tr.wf":      {zh:"瀏覽器量到的時間", en:"What your browser timed"},
       "tr.p.dns":   {zh:"DNS 查詢", en:"DNS lookup"},
       "tr.p.tcp":   {zh:"建立連線", en:"Connect"},
@@ -78,7 +80,7 @@
       "tr.p.dl":    {zh:"下載", en:"Download"},
       "tr.p.total": {zh:"總計", en:"Total"},
       "tr.s.net":   {zh:"網路來回", en:"Network round trip"},
-      "tr.s.d1":    {zh:"Worker 等 D1", en:"Worker waiting on D1"},
+      "tr.s.d1":    {zh:"到資料庫來回", en:"Round trip to the database"},
       "tr.s.other": {zh:"其他", en:"Everything else"},
       "tr.reuse":   {zh:"連線重用：選單列的線上人數一直跟這台伺服器保持連線，所以這次不用查 DNS，也不用 TLS 握手。", en:"Connection reused: the online counter in the menu bar keeps a connection to this server open, so there was no DNS lookup or TLS handshake this time."},
       "tr.fresh":   {zh:"這次開了一條新連線，所以有 DNS 和 TLS 的時間；再送一次就會重用它。", en:"This request opened a new connection, hence the DNS and TLS time. Send again and it will be reused."},
@@ -91,10 +93,12 @@
       "tr.d.http":  {zh:"協定", en:"Protocol"},
       "tr.d.tls":   {zh:"加密", en:"Encryption"},
       "tr.d.isp":   {zh:"你的網路業者", en:"Your network"},
-      "tr.d.sql":   {zh:"SQL 執行時間", en:"SQL run time"},
+      "tr.d.db":    {zh:"資料庫", en:"Database"},
+      "tr.d.sql":   {zh:"查詢", en:"Query"},
+      "tr.d.sqlv":  {zh:"SELECT 1，資料庫執行花了 {ms}（只確認資料庫有回應，不讀任何資料）", en:"SELECT 1, ran in {ms} (only checks that the database answers; reads no data)"},
       "tr.hist":    {zh:"最近 {n} 次，中位數 {m}：", en:"Last {n}, median {m}: "},
       "tr.tip.h":   {zh:"為什麼 Worker 量不到自己花了多少時間？", en:"Why can't the Worker time its own work?"},
-      "tr.tip.b":   {zh:"Cloudflare 為了防範 Spectre 這類 timing 側通道攻擊，Worker 裡的 Date.now() 在程式執行時是凍結的，只有 I/O 完成時才會前進。所以 Worker 量得到「等 D1 回來」花了多久，但自己的 CPU 時間怎麼量都是 0，算在「其他」裡。", en:"To defend against timing side channels such as Spectre, Date.now() inside a Worker stands still while code runs and only moves when I/O completes. The Worker can time its wait on D1, but its own CPU time always measures zero, so it ends up in “Everything else”."},
+      "tr.tip.b":   {zh:"Cloudflare 為了防範 Spectre 這類 timing 側通道攻擊，Worker 裡的 Date.now() 在程式執行時是凍結的，只有 I/O 完成時才會前進。所以 Worker 量得到「等資料庫回來」花了多久，但自己的 CPU 時間怎麼量都是 0，算在「其他」裡。", en:"To defend against timing side channels such as Spectre, Date.now() inside a Worker stands still while code runs and only moves when I/O completes. The Worker can time its wait for the database, but its own CPU time always measures zero, so it ends up in “Everything else”."},
       "tr.tip.dev": {zh:"打開瀏覽器開發者工具的 Network，點這個請求的 Timing，也看得到伺服器送回來的 Server-Timing。", en:"Open DevTools → Network, pick this request and its Timing tab to see the Server-Timing the server sent back."}
     },
 
@@ -242,7 +246,7 @@
       function skeleton(){
         node("you", os.t("tr.you"), "…");
         node("edge", "Cloudflare", "…");
-        node("d1", "D1", "…");
+        node("d1", os.t("tr.db"), "…");
         leg(1, "…", "");
         leg(2, "…", "");
       }
@@ -308,13 +312,13 @@
 
         node("you", os.t("tr.you"), [c.city, c.country].filter(Boolean).join(", "));
         node("edge", "Cloudflare " + (data.edge ? cityOf(data.edge) : ""), (data.edge && COLO[data.edge] ? data.edge + " · " : "") + os.t("tr.edgeSub"));
-        node("d1", "D1 " + d1Name, [d1.colo && COLO[d1.colo] ? d1.colo : "", role].filter(Boolean).join(" · "));
+        node("d1", os.fill(os.t("tr.dbAt"), {where:d1Name}), "Cloudflare D1" + (d1.colo && COLO[d1.colo] ? " · " + d1.colo : ""));
         leg(1, c.rtt != null ? os.fill(os.t("tr.rtt"), {ms:ms(c.rtt)}) : "—", dist(you, at(data.edge)));
         leg(2, os.fill(os.t("tr.rtt"), {ms:ms(d1.ms)}), dist(at(data.edge), at(d1.colo)));
 
         // Only worth saying when distance clearly dominates (not against a local database).
         punch.hidden = !(d1.sqlMs != null && d1.ms >= 5 && d1.ms > d1.sqlMs * 3);
-        punch.textContent = os.fill(os.t("tr.punch"), {sql:ms(d1.sqlMs), d1:ms(d1.ms)});
+        punch.textContent = os.fill(os.t("tr.punch"), {sql:ms(d1.sqlMs), d1:ms(d1.ms), from:data.edge ? cityOf(data.edge) : "Cloudflare", to:d1Name});
 
         bars.textContent = "";
         legend.textContent = "";
@@ -343,8 +347,9 @@
 
         dl.textContent = "";
         var hop = e && e.nextHopProtocol, proto = hop ? ({h3:"HTTP/3", h2:"HTTP/2", "http/1.1":"HTTP/1.1"})[hop] || hop : c.http;
-        [["tr.d.http", proto], ["tr.d.tls", [c.tls, c.cipher].filter(Boolean).join(" · ")], ["tr.d.isp", c.isp],
-         ["tr.d.sql", d1.sqlMs != null ? ms(d1.sqlMs) : ""]
+        [["tr.d.http", proto], ["tr.d.tls", [c.tls, c.cipher].filter(Boolean).join(" · ")], ["tr.d.isp", c.isp && c.isp.replace(/[\s,;]+$/, "")],   // registry names can end in a stray comma
+         ["tr.d.db", ["Cloudflare D1 (SQLite)", d1Name + (d1.colo && COLO[d1.colo] ? " " + d1.colo : ""), role].filter(Boolean).join(" · ")],
+         ["tr.d.sql", d1.sqlMs != null ? os.fill(os.t("tr.d.sqlv"), {ms:ms(d1.sqlMs)}) : ""]
         ].forEach(function(r){
           if (!r[1]) return;
           dl.appendChild(make("dt", "", os.t(r[0])));
