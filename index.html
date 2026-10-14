@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a1238">
 <title>TankOS · Tank Yang</title>
-<meta name="description" content="Tank Yang 的桌面版作品集。福岡自駕、釜山清單、陽明山慶生、我是社畜四個作品直接在視窗裡跑，另有即時監控各站狀態的活動監視器、Spotlight 搜尋、經歷與聯絡方式。">
+<meta name="description" content="Tank Yang 的桌面版作品集。福岡自駕旅遊、釜山旅遊、陽明山慶生旅遊、我是社畜四個作品直接在視窗裡跑，另有即時監控各站狀態的活動監視器、Spotlight 搜尋、經歷與聯絡方式。">
 <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23D62828'/><text x='16' y='23' font-size='19' font-family='Helvetica,Arial,sans-serif' font-weight='700' text-anchor='middle' fill='%23fff'>T</text></svg>">
 <style>
   :root{
@@ -135,7 +135,7 @@
   .zones-r{position:absolute;top:14px;right:14px;display:flex;flex-direction:column;gap:20px}
   .zone-tools{--zc:#FFC94D}
   .icons{list-style:none;display:grid;grid-template-columns:repeat(2,96px);gap:6px 2px}
-  .dicon{width:96px;padding:6px 4px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;border-radius:8px}
+  .dicon{width:96px;padding:6px 2px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;border-radius:8px}
   .dicon .ic{--s:60px}
   .lbl{
     max-width:100%;padding:1px 6px;border-radius:4px;
@@ -693,7 +693,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.0.0</span>
+    <span class="mb-ver">v2.0.1</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -708,9 +708,9 @@
     <section class="zone zone-proj" aria-labelledby="zProj">
       <h2 class="zh" id="zProj" data-i18n="os.zone.proj">作品</h2>
       <ul class="icons">
-        <li><button class="dicon" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="lbl" data-i18n="app.fukuoka">福岡自駕</span></button></li>
-        <li><button class="dicon" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="lbl" data-i18n="app.busan">釜山清單</span></button></li>
-        <li><button class="dicon" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="lbl" data-i18n="app.yangmingshan">陽明山慶生</span></button></li>
+        <li><button class="dicon" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="lbl" data-i18n="app.fukuoka">福岡自駕旅遊</span></button></li>
+        <li><button class="dicon" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="lbl" data-i18n="app.busan">釜山旅遊</span></button></li>
+        <li><button class="dicon" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="lbl" data-i18n="app.yangmingshan">陽明山慶生旅遊</span></button></li>
       </ul>
     </section>
     <section class="zone zone-lab" aria-labelledby="zLab">
@@ -773,9 +773,9 @@
 </div>
 
 <nav class="dock" id="dock" aria-label="Dock">
-  <button class="dk" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="tip" data-i18n="app.fukuoka">福岡自駕</span></button>
-  <button class="dk" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="tip" data-i18n="app.busan">釜山清單</span></button>
-  <button class="dk" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="tip" data-i18n="app.yangmingshan">陽明山慶生</span></button>
+  <button class="dk" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="tip" data-i18n="app.fukuoka">福岡自駕旅遊</span></button>
+  <button class="dk" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="tip" data-i18n="app.busan">釜山旅遊</span></button>
+  <button class="dk" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="tip" data-i18n="app.yangmingshan">陽明山慶生旅遊</span></button>
   <button class="dk" type="button" data-open="shachiku"><span class="ic ic-shachiku"><svg><use href="#g-bell"/></svg></span><span class="tip" data-i18n="app.shachiku">我是社畜</span></button>
   <button class="dk" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="tip">README.md</span></button>
   <button class="dk" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="tip" data-i18n="app.terminal">終端機</span></button>
@@ -1016,9 +1016,9 @@
     "c.h": {zh:"想聊聊的話", en:"Say hello"},
     "c.resume": {zh:"完整履歷", en:"Full résumé"},
     "mb.classic":  {zh:"經典版", en:"Classic site"},
-    "app.fukuoka": {zh:"福岡自駕", en:"Fukuoka"},
-    "app.busan":   {zh:"釜山清單", en:"Busan"},
-    "app.yangmingshan": {zh:"陽明山慶生", en:"Yangmingshan"},
+    "app.fukuoka": {zh:"福岡自駕旅遊", en:"Fukuoka"},
+    "app.busan":   {zh:"釜山旅遊", en:"Busan"},
+    "app.yangmingshan": {zh:"陽明山慶生旅遊", en:"Yangmingshan"},
     "app.readme":  {zh:"README.md", en:"README.md"},
     "app.terminal":{zh:"終端機", en:"Terminal"},
     "app.contact": {zh:"聯絡我", en:"Contact"},
