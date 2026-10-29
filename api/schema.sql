@@ -1,5 +1,9 @@
 -- TankOS's database (D1 `portfolio`). Tables belonging to one app are prefixed with it (blocks_ for Block
 -- Puzzle); presence is TankOS's own.
+--
+-- Also in this database, not created here: nightmarket_scores, the leaderboard of 今晚出攤 (Open Tonight, TankOS
+-- app `nightmarket`). Its own repo, tankfinal/open-tonight, creates it (schema.sql there) and its own Worker
+-- (`open-tonight`) reads and writes it; nothing in this repo touches it, so leave it alone when cleaning up.
 
 -- Block Puzzle leaderboard: one row per player name (case-insensitive), holding that name's best score.
 CREATE TABLE IF NOT EXISTS blocks_scores (

@@ -161,6 +161,7 @@
   .ic-yms{background:linear-gradient(160deg,#F2B263,#C9667A 45%,#5A3E7A 78%,#2B2350)}
   .ic-trace{background:linear-gradient(160deg,#8E8CFF,#5E5CE6 55%,#3634A3)}
   .ic-shachiku{background:linear-gradient(160deg,#5B1F24,#2A0E12);color:#FF6B5E;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
+  .ic-nightmarket{background:linear-gradient(160deg,#3A2A6B,#14122B);color:#FFB547;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
   .ic-terminal{background:linear-gradient(180deg,#3A3A3E,#151517);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
   .ic-contact{background:linear-gradient(160deg,#8AA4FF,#4A5CF0 60%,#3241C4)}
   .ic-readme{background:none;box-shadow:none}
@@ -623,8 +624,8 @@
 
   /* ---------- phones ---------- */
   @media (max-width:768px){
-    /* Eight Dock icons share the width left after the nine 6px gaps, the padding, the separator and a margin. */
-    :root{--ds:clamp(28px,calc((100vw - 104px) / 8),52px)}
+    /* Nine Dock icons share the width left after the ten 6px gaps, the padding, the separator and a margin. */
+    :root{--ds:clamp(28px,calc((100vw - 110px) / 9),52px)}
     .desktop{overflow-y:auto;overscroll-behavior:contain;padding:14px 6px calc(var(--dock-space) + 8px)}
     .zones-l,.zones-r,.zone-about{position:static}
     .zones-l{gap:16px}
@@ -664,6 +665,7 @@
   <symbol id="g-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></symbol>
   <symbol id="g-pulse" viewBox="0 0 24 24"><path d="M2.5 12.5h4l2.2-5.5 4 11 2.6-7 1.6 1.5h4.6"/></symbol>
   <symbol id="g-bell" viewBox="0 0 24 24"><path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 2h-14z"/><path d="M10 20.5a2 2 0 0 0 4 0"/><path d="M3.5 8a8.5 8.5 0 0 1 2.3-3.6M20.5 8a8.5 8.5 0 0 0-2.3-3.6" opacity=".7"/></symbol>
+  <symbol id="g-stall" viewBox="0 0 24 24"><path d="M4.5 4.5h15L21 9H3z"/><path d="M3 9a2.25 2.25 0 0 0 4.5 0 2.25 2.25 0 0 0 4.5 0 2.25 2.25 0 0 0 4.5 0 2.25 2.25 0 0 0 4.5 0"/><path d="M5 11.5v8M19 11.5v8M3.5 15.5h17"/></symbol>
   <symbol id="g-route" viewBox="0 0 24 24"><circle cx="5" cy="17.5" r="2.3"/><circle cx="19" cy="6.5" r="2.3"/><path d="M7.2 16.4c3.2-1.6 1.6-6.2 4.8-7.6 1.6-.7 3.3-.9 4.8-1.6"/><path d="M12 19.5h7.5M16.8 17l2.7 2.5-2.7 2.5" opacity=".7"/></symbol>
   <symbol id="g-blocks" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect x="3.5" y="13" width="7.5" height="7.5" rx="1.6"/><path d="M15 17h4M17 15v4" opacity=".7"/></symbol>
   <symbol id="g-term" viewBox="0 0 24 24"><path d="M5 7l5 5-5 5"/><path d="M12.5 17.5H19"/></symbol>
@@ -693,7 +695,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.0.1</span>
+    <span class="mb-ver">v2.1.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -719,6 +721,7 @@
         <li><button class="dicon" type="button" data-open="blocks"><span class="ic ic-blocks"><svg><use href="#g-blocks"/></svg></span><span class="lbl" data-i18n="app.blocks">方塊消除</span></button></li>
         <li><button class="dicon" type="button" data-open="trace"><span class="ic ic-trace"><svg><use href="#g-route"/></svg></span><span class="lbl" data-i18n="app.trace">Request 的一生</span></button></li>
         <li><button class="dicon" type="button" data-open="shachiku"><span class="ic ic-shachiku"><svg><use href="#g-bell"/></svg></span><span class="lbl" data-i18n="app.shachiku">我是社畜</span></button></li>
+        <li><button class="dicon" type="button" data-open="nightmarket"><span class="ic ic-nightmarket"><svg><use href="#g-stall"/></svg></span><span class="lbl" data-i18n="app.nightmarket">今晚出攤</span></button></li>
       </ul>
     </section>
   </div>
@@ -777,6 +780,7 @@
   <button class="dk" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="tip" data-i18n="app.busan">釜山旅遊</span></button>
   <button class="dk" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="tip" data-i18n="app.yangmingshan">陽明山慶生旅遊</span></button>
   <button class="dk" type="button" data-open="shachiku"><span class="ic ic-shachiku"><svg><use href="#g-bell"/></svg></span><span class="tip" data-i18n="app.shachiku">我是社畜</span></button>
+  <button class="dk" type="button" data-open="nightmarket"><span class="ic ic-nightmarket"><svg><use href="#g-stall"/></svg></span><span class="tip" data-i18n="app.nightmarket">今晚出攤</span></button>
   <button class="dk" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="tip">README.md</span></button>
   <button class="dk" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="tip" data-i18n="app.terminal">終端機</span></button>
   <button class="dk" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="tip" data-i18n="app.contact">聯絡我</span></button>
@@ -983,6 +987,10 @@
     "w5.d": {zh:"半夜被告警叫醒的俯視角像素 RPG。九個交易所後端事故，每個都要走完分診、止血、找原因、恢復服務、驗證、善後，沒有唯一正解，依時間、用戶影響、資產風險三項計分。分普通、困難、地獄三種難度，困難以上即時計時，現實每 10 秒就是遊戲裡 1 分鐘。劇本和地圖都是 JSON，加角色不用改程式。", en:"A top-down pixel RPG about being woken at night by alerts. Nine exchange-backend incidents, each taken from triage and containment through the cause, the restore, the checks and the clean-up, with no single right answer: you are scored on time, user impact and asset risk. Normal, Hard and Hell; from Hard up the clock runs in real time, ten seconds to a game minute. Scenarios and maps are JSON, so a new role needs no code."},
     "w5.s2": {zh:"Cloudflare Workers，push 到 main 自動部署", en:"Cloudflare Workers, deployed on every push to main"},
     "w5.s3": {zh:"三種難度、即時計時、事故檢討", en:"Three difficulties, a real-time clock, a postmortem"},
+    "w6.t": {zh:"今晚出攤：七天夜市小吃攤", en:"Open Tonight: Seven Nights at a Night-Market Stall"},
+    "w6.d": {zh:"白天在頂樓種菜、去市場補貨，晚上推攤車到夜市賣鹽酥雞、蚵仔煎、滷肉飯、珍奶。營業時間一到就收攤，客人排隊點餐，下鍋、出餐要快，等太久會生氣走掉。種什麼、買多少、先升級攤車還是冰箱都是取捨，第七天收攤後結算利潤，記上大家共用的排行榜。數值用模擬器跑過幾百局調平衡。", en:"Grow vegetables on the rooftop by day, stock up at the market in the afternoon, then sell popcorn chicken, oyster omelettes, braised-pork rice and bubble tea from a night-market stall until closing time. Customers queue and order; cook and serve fast or they walk off. What to grow, how much to buy and which upgrade comes first are all trade-offs, and after the seventh night the profit goes on a leaderboard everyone shares. The numbers were balanced by simulating hundreds of runs. The game is in Chinese."},
+    "w6.s2": {zh:"Cloudflare Workers，push 到 main 自動部署；排行榜存 D1", en:"Cloudflare Workers, deployed on every push to main; leaderboard in D1"},
+    "w6.s3": {zh:"七天一局、營業倒數、全網排行榜", en:"Seven-day runs, a closing-time clock, a shared leaderboard"},
     "hero.lede": {zh:"我帶 XREX 的後端團隊，做區塊鏈合規與 AML 風控系統。在這之前是 Binance 的微服務跟資料管線。晚上寫一些自己會用的小網站。",
                    en:"I lead the backend team at XREX, building blockchain compliance and AML risk systems. Before that, microservices and data pipelines at Binance. At night I write small websites I actually use."},
     "exp.now": {zh:"現職", en:"Current"},
@@ -1037,6 +1045,7 @@
     "app.blocks":  {zh:"方塊消除", en:"Block Puzzle"},
     "app.trace":   {zh:"Request 的一生", en:"Life of a Request"},
     "app.shachiku":{zh:"我是社畜", en:"I'm a Shachiku"},
+    "app.nightmarket":{zh:"今晚出攤", en:"Open Tonight"},
     "app.calc":    {zh:"計算機", en:"Calculator"},
     "app.calendar":{zh:"日曆", en:"Calendar"},
     "app.about":   {zh:"關於 TankOS", en:"About TankOS"},
@@ -1129,6 +1138,10 @@
     // A game with its own site (tankfinal/shachiku, a private repo, so no Source link).
     shachiku:{k:"w5", url:"https://shachiku.xarenvich.workers.dev/",
               spec:[["spec.build",null,"Vanilla JS · Canvas · JSON"], ["spec.deploy","w5.s2"], ["spec.feat","w5.s3"]], w:1080, h:720},
+    // Another game with its own site (tankfinal/open-tonight, private too); its leaderboard is nightmarket_scores in
+    // this site's D1.
+    nightmarket:{k:"w6", url:"https://open-tonight.xarenvich.workers.dev/",
+              spec:[["spec.build",null,"Phaser 4 · Canvas · D1"], ["spec.deploy","w6.s2"], ["spec.feat","w6.s3"]], w:1080, h:720},
     readme:  {w:680, h:660},
     terminal:{w:700, h:560, cls:"term-win"},
     contact: {w:440, h:450},
@@ -1475,7 +1488,8 @@
     {app:"fukuoka",      repo:"fukuoka-trip",       url:"https://tankfinal.github.io/fukuoka-trip/"},
     {app:"busan",        repo:"busan-trip",         url:"https://tankfinal.github.io/busan-trip/"},
     {app:"yangmingshan", repo:"yangmingshan-trip",  url:"https://tankfinal.github.io/yangmingshan-trip/"},
-    {app:"shachiku",     repo:"shachiku",           url:"https://shachiku.xarenvich.workers.dev/", private:true}
+    {app:"shachiku",     repo:"shachiku",           url:"https://shachiku.xarenvich.workers.dev/", private:true},
+    {app:"nightmarket",  repo:"open-tonight",       url:"https://open-tonight.xarenvich.workers.dev/", private:true}
   ];
   var langHooks = [];
 
@@ -2325,7 +2339,7 @@
     ["exit",             "close this window"]
   ];
   var CMDS = ["help","whoami","who","neofetch","ls","open","git","kubectl","top","cat","contact","date","clear","exit","sudo"];
-  var OPENABLE = ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","calc","calendar","about","readme","contact","private"];
+  var OPENABLE = ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","calc","calendar","about","readme","contact","private"];
   // `git log` reads GitHub's public API without signing in, so it only offers the public repos.
   var REPOS = SERVICES.filter(function(s){ return !s.private; }).map(function(s){ return s.repo; });
 
@@ -2500,7 +2514,7 @@
           neofetch();
           return;
         case "ls":
-          line("fukuoka/   busan/   yangmingshan/   activity   blocks   trace   shachiku   calc   calendar   README.md   contact   private/ 🔒");
+          line("fukuoka/   busan/   yangmingshan/   activity   blocks   trace   shachiku   nightmarket   calc   calendar   README.md   contact   private/ 🔒");
           return;
         case "open":
           var id = resolveApp(rest);
@@ -2712,6 +2726,7 @@
     blocks:"方塊 消除 遊戲 小遊戲 益智 俄羅斯方塊 排行榜 block puzzle game 1010 leaderboard",
     trace:"request trace 請求 延遲 網路 封包 連線 latency network ttfb waterfall 瀑布 cloudflare d1 ping",
     shachiku:"我是社畜 社畜 shachiku 凌晨三點 3am oncall on-call 值班 事故 告警 故障 遊戲 game rpg incident pager sre postmortem outage",
+    nightmarket:"今晚出攤 出攤 夜市 擺攤 小吃 攤車 種菜 鹽酥雞 蚵仔煎 滷肉飯 珍奶 珍珠奶茶 排行榜 遊戲 game open tonight nightmarket night market stall street food",
     readme:"關於 經歷 履歷 about bio resume experience",
     terminal:"終端機 shell cli zsh command",
     calc:"計算機 計算 算數 加減乘除 calculator calc math",
@@ -2733,7 +2748,7 @@
 
   function index(){
     var items = [];
-    ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","terminal","calc","calendar","about","readme","contact","private"].forEach(function(id){
+    ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","terminal","calc","calendar","about","readme","contact","private"].forEach(function(id){
       items.push({label:appName(id), sub:"", kind:t("os.spot.app"), icon:iconOf(id), keys:(id + " " + KW[id]).toLowerCase(), go:function(){ open(id); }});
     });
     EXP.forEach(function(e){
