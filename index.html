@@ -162,7 +162,7 @@
   .ic-trace{background:linear-gradient(160deg,#8E8CFF,#5E5CE6 55%,#3634A3)}
   .ic-shachiku{background:linear-gradient(160deg,#5B1F24,#2A0E12);color:#FF6B5E;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
   .ic-nightmarket{background:linear-gradient(160deg,#3A2A6B,#14122B);color:#FFB547;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
-  .ic-cuecard{background:linear-gradient(160deg,#2BB673,#0F8A4F 60%,#0A6238)}
+  .ic-wordtrailer{background:linear-gradient(160deg,#2BB673,#0F8A4F 60%,#0A6238)}
   .ic-terminal{background:linear-gradient(180deg,#3A3A3E,#151517);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
   .ic-contact{background:linear-gradient(160deg,#8AA4FF,#4A5CF0 60%,#3241C4)}
   .ic-readme{background:none;box-shadow:none}
@@ -667,7 +667,7 @@
   <symbol id="g-pulse" viewBox="0 0 24 24"><path d="M2.5 12.5h4l2.2-5.5 4 11 2.6-7 1.6 1.5h4.6"/></symbol>
   <symbol id="g-bell" viewBox="0 0 24 24"><path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 2h-14z"/><path d="M10 20.5a2 2 0 0 0 4 0"/><path d="M3.5 8a8.5 8.5 0 0 1 2.3-3.6M20.5 8a8.5 8.5 0 0 0-2.3-3.6" opacity=".7"/></symbol>
   <symbol id="g-stall" viewBox="0 0 24 24"><path d="M4.5 4.5h15L21 9H3z"/><path d="M3 9a2.25 2.25 0 0 0 4.5 0 2.25 2.25 0 0 0 4.5 0 2.25 2.25 0 0 0 4.5 0 2.25 2.25 0 0 0 4.5 0"/><path d="M5 11.5v8M19 11.5v8M3.5 15.5h17"/></symbol>
-  <symbol id="g-cue" viewBox="0 0 24 24"><rect x="3.5" y="7" width="14" height="13.5" rx="2"/><path d="M7 12h7M7 16h4.5"/><path d="M7.5 3.5H18.5a2 2 0 0 1 2 2V16" opacity=".7"/></symbol>
+  <symbol id="g-wordtrailer" viewBox="0 0 24 24"><rect x="3.5" y="7" width="14" height="13.5" rx="2"/><path d="M7 12h7M7 16h4.5"/><path d="M7.5 3.5H18.5a2 2 0 0 1 2 2V16" opacity=".7"/></symbol>
   <symbol id="g-route" viewBox="0 0 24 24"><circle cx="5" cy="17.5" r="2.3"/><circle cx="19" cy="6.5" r="2.3"/><path d="M7.2 16.4c3.2-1.6 1.6-6.2 4.8-7.6 1.6-.7 3.3-.9 4.8-1.6"/><path d="M12 19.5h7.5M16.8 17l2.7 2.5-2.7 2.5" opacity=".7"/></symbol>
   <symbol id="g-blocks" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect x="3.5" y="13" width="7.5" height="7.5" rx="1.6"/><path d="M15 17h4M17 15v4" opacity=".7"/></symbol>
   <symbol id="g-term" viewBox="0 0 24 24"><path d="M5 7l5 5-5 5"/><path d="M12.5 17.5H19"/></symbol>
@@ -697,7 +697,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.2.0</span>
+    <span class="mb-ver">v2.2.1</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -724,7 +724,7 @@
         <li><button class="dicon" type="button" data-open="trace"><span class="ic ic-trace"><svg><use href="#g-route"/></svg></span><span class="lbl" data-i18n="app.trace">Request 的一生</span></button></li>
         <li><button class="dicon" type="button" data-open="shachiku"><span class="ic ic-shachiku"><svg><use href="#g-bell"/></svg></span><span class="lbl" data-i18n="app.shachiku">我是社畜</span></button></li>
         <li><button class="dicon" type="button" data-open="nightmarket"><span class="ic ic-nightmarket"><svg><use href="#g-stall"/></svg></span><span class="lbl" data-i18n="app.nightmarket">今晚出攤</span></button></li>
-        <li><button class="dicon" type="button" data-open="cuecard"><span class="ic ic-cuecard"><svg><use href="#g-cue"/></svg></span><span class="lbl" data-i18n="app.cuecard">CueCard</span></button></li>
+        <li><button class="dicon" type="button" data-open="wordtrailer"><span class="ic ic-wordtrailer"><svg><use href="#g-wordtrailer"/></svg></span><span class="lbl" data-i18n="app.wordtrailer">單字預告片</span></button></li>
       </ul>
     </section>
   </div>
@@ -784,7 +784,7 @@
   <button class="dk" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="tip" data-i18n="app.yangmingshan">陽明山慶生旅遊</span></button>
   <button class="dk" type="button" data-open="shachiku"><span class="ic ic-shachiku"><svg><use href="#g-bell"/></svg></span><span class="tip" data-i18n="app.shachiku">我是社畜</span></button>
   <button class="dk" type="button" data-open="nightmarket"><span class="ic ic-nightmarket"><svg><use href="#g-stall"/></svg></span><span class="tip" data-i18n="app.nightmarket">今晚出攤</span></button>
-  <button class="dk" type="button" data-open="cuecard"><span class="ic ic-cuecard"><svg><use href="#g-cue"/></svg></span><span class="tip" data-i18n="app.cuecard">CueCard</span></button>
+  <button class="dk" type="button" data-open="wordtrailer"><span class="ic ic-wordtrailer"><svg><use href="#g-wordtrailer"/></svg></span><span class="tip" data-i18n="app.wordtrailer">單字預告片</span></button>
   <button class="dk" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="tip">README.md</span></button>
   <button class="dk" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="tip" data-i18n="app.terminal">終端機</span></button>
   <button class="dk" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="tip" data-i18n="app.contact">聯絡我</span></button>
@@ -995,7 +995,7 @@
     "w6.d": {zh:"白天在頂樓種菜、去市場補貨，晚上推攤車到夜市賣鹽酥雞、蚵仔煎、滷肉飯、珍奶。營業時間一到就收攤，客人排隊點餐，下鍋、出餐要快，等太久會生氣走掉。種什麼、買多少、先升級攤車還是冰箱都是取捨，第七天收攤後結算利潤，記上大家共用的排行榜。數值用模擬器跑過幾百局調平衡。", en:"Grow vegetables on the rooftop by day, stock up at the market in the afternoon, then sell popcorn chicken, oyster omelettes, braised-pork rice and bubble tea from a night-market stall until closing time. Customers queue and order; cook and serve fast or they walk off. What to grow, how much to buy and which upgrade comes first are all trade-offs, and after the seventh night the profit goes on a leaderboard everyone shares. The numbers were balanced by simulating hundreds of runs. The game is in Chinese."},
     "w6.s2": {zh:"Cloudflare Workers，push 到 main 自動部署；排行榜存 D1", en:"Cloudflare Workers, deployed on every push to main; leaderboard in D1"},
     "w6.s3": {zh:"七天一局、營業倒數、全網排行榜", en:"Seven-day runs, a closing-time clock, a shared leaderboard"},
-    "w7.t": {zh:"CueCard：看美劇前先刷單字", en:"CueCard: Learn the Words Before You Watch"},
+    "w7.t": {zh:"單字預告片：正片開始前，先看單字預告", en:"WordTrailer: Preview the Words Before You Watch"},
     "w7.d": {zh:"看美劇常卡在一個不認識的字，大家都笑了，你還在想那是什麼意思。這個網站把一集拆開先練：單字標官方 CEFR 等級，片語、俚語、常用口語和美國文化梗分開收，例句都是原創、不收台詞，過時的說法附上現在美國人怎麼說。有列表和卡片兩種練法，進度存在瀏覽器。目前上架六人行第一季第一集，共 207 個字詞；也能上傳自己的字幕，用內建字典或 AI 產生清單。", en:"American shows often lose you on a single word: everyone laughs while you are still working it out. This site takes an episode apart so you can practise first. Words carry official CEFR levels; phrases, slang, everyday expressions and cultural references are sorted separately; every example sentence is original rather than a line from the show, and dated usage comes with what Americans say today. Study as a list or as flashcards, with progress kept in the browser. So far it covers Friends S01E01, 207 items, and you can upload your own subtitles to build a list with the built-in dictionary or AI. The site is in Chinese."},
     "w7.s2": {zh:"Cloudflare Workers，push 到 main 自動部署", en:"Cloudflare Workers, deployed on every push to main"},
     "w7.s3": {zh:"官方 CEFR 分級、列表與卡片練習、上傳字幕分析", en:"Official CEFR levels, list and flashcard study, subtitle upload"},
@@ -1054,7 +1054,7 @@
     "app.trace":   {zh:"Request 的一生", en:"Life of a Request"},
     "app.shachiku":{zh:"我是社畜", en:"I'm a Shachiku"},
     "app.nightmarket":{zh:"今晚出攤", en:"Open Tonight"},
-    "app.cuecard": {zh:"CueCard", en:"CueCard"},
+    "app.wordtrailer":{zh:"單字預告片", en:"WordTrailer"},
     "app.calc":    {zh:"計算機", en:"Calculator"},
     "app.calendar":{zh:"日曆", en:"Calendar"},
     "app.about":   {zh:"關於 TankOS", en:"About TankOS"},
@@ -1152,7 +1152,7 @@
     nightmarket:{k:"w6", url:"https://open-tonight.xarenvich.workers.dev/",
               spec:[["spec.build",null,"Phaser 4 · Canvas · D1"], ["spec.deploy","w6.s2"], ["spec.feat","w6.s3"]], w:1080, h:720},
     // A vocabulary site with its own Worker (tankfinal/vd-pre-trainer, private, so no Source link).
-    cuecard:{k:"w7", url:"https://vd-pre-trainer.xarenvich.workers.dev/",
+    wordtrailer:{k:"w7", url:"https://wordtrailer.xarenvich.workers.dev/",
               spec:[["spec.build",null,"Vanilla JS · ES Modules · Tailwind"], ["spec.deploy","w7.s2"], ["spec.feat","w7.s3"]], w:1080, h:720},
     readme:  {w:680, h:660},
     terminal:{w:700, h:560, cls:"term-win"},
@@ -1502,7 +1502,7 @@
     {app:"yangmingshan", repo:"yangmingshan-trip",  url:"https://tankfinal.github.io/yangmingshan-trip/"},
     {app:"shachiku",     repo:"shachiku",           url:"https://shachiku.xarenvich.workers.dev/", private:true},
     {app:"nightmarket",  repo:"open-tonight",       url:"https://open-tonight.xarenvich.workers.dev/", private:true},
-    {app:"cuecard",      repo:"vd-pre-trainer",     url:"https://vd-pre-trainer.xarenvich.workers.dev/", private:true}
+    {app:"wordtrailer",  repo:"vd-pre-trainer",     url:"https://wordtrailer.xarenvich.workers.dev/", private:true}
   ];
   var langHooks = [];
 
@@ -2352,7 +2352,7 @@
     ["exit",             "close this window"]
   ];
   var CMDS = ["help","whoami","who","neofetch","ls","open","git","kubectl","top","cat","contact","date","clear","exit","sudo"];
-  var OPENABLE = ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","cuecard","calc","calendar","about","readme","contact","private"];
+  var OPENABLE = ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","wordtrailer","calc","calendar","about","readme","contact","private"];
   // `git log` reads GitHub's public API without signing in, so it only offers the public repos.
   var REPOS = SERVICES.filter(function(s){ return !s.private; }).map(function(s){ return s.repo; });
 
@@ -2527,7 +2527,7 @@
           neofetch();
           return;
         case "ls":
-          line("fukuoka/   busan/   yangmingshan/   activity   blocks   trace   shachiku   nightmarket   cuecard   calc   calendar   README.md   contact   private/ 🔒");
+          line("fukuoka/   busan/   yangmingshan/   activity   blocks   trace   shachiku   nightmarket   wordtrailer   calc   calendar   README.md   contact   private/ 🔒");
           return;
         case "open":
           var id = resolveApp(rest);
@@ -2740,7 +2740,7 @@
     trace:"request trace 請求 延遲 網路 封包 連線 latency network ttfb waterfall 瀑布 cloudflare d1 ping",
     shachiku:"我是社畜 社畜 shachiku 凌晨三點 3am oncall on-call 值班 事故 告警 故障 遊戲 game rpg incident pager sre postmortem outage",
     nightmarket:"今晚出攤 出攤 夜市 擺攤 小吃 攤車 種菜 鹽酥雞 蚵仔煎 滷肉飯 珍奶 珍珠奶茶 排行榜 遊戲 game open tonight nightmarket night market stall street food",
-    cuecard:"CueCard 劇前單字 單字 美劇 影集 預習 英文 學英文 片語 俚語 字幕 六人行 CEFR vocabulary english flashcard friends subtitle vd-pre-trainer",
+    wordtrailer:"WordTrailer 單字預告片 預告片 trailer cuecard 單字 美劇 影集 預習 英文 學英文 片語 俚語 字幕 六人行 CEFR vocabulary english flashcard friends subtitle vd-pre-trainer",
     readme:"關於 經歷 履歷 about bio resume experience",
     terminal:"終端機 shell cli zsh command",
     calc:"計算機 計算 算數 加減乘除 calculator calc math",
@@ -2762,7 +2762,7 @@
 
   function index(){
     var items = [];
-    ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","cuecard","terminal","calc","calendar","about","readme","contact","private"].forEach(function(id){
+    ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","wordtrailer","terminal","calc","calendar","about","readme","contact","private"].forEach(function(id){
       items.push({label:appName(id), sub:"", kind:t("os.spot.app"), icon:iconOf(id), keys:(id + " " + KW[id]).toLowerCase(), go:function(){ open(id); }});
     });
     EXP.forEach(function(e){
