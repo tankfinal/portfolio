@@ -697,8 +697,8 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.2.6</span>
-    <a class="mb-priv" href="https://portfolio-private.xarenvich.workers.dev/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
+    <span class="mb-ver">v2.2.7</span>
+    <a class="mb-priv" href="https://portfolio-private.xarenvich.com/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
     <button class="mb-who" id="mbWho" type="button" hidden><i aria-hidden="true"></i><span></span></button>
@@ -1145,14 +1145,14 @@
     blocks:  {w:420, h:660},
     trace:   {w:760, h:620, file:"apps/trace.js"},
     // A game with its own site (tankfinal/shachiku, a private repo, so no Source link).
-    shachiku:{k:"w5", url:"https://shachiku.xarenvich.workers.dev/",
+    shachiku:{k:"w5", url:"https://shachiku.xarenvich.com/",
               spec:[["spec.build",null,"Vanilla JS · Canvas · JSON"], ["spec.deploy","w5.s2"], ["spec.feat","w5.s3"]], w:1080, h:720},
     // Another game with its own site (tankfinal/open-tonight, private too); its leaderboard is nightmarket_scores in
     // this site's D1.
-    nightmarket:{k:"w6", url:"https://open-tonight.xarenvich.workers.dev/",
+    nightmarket:{k:"w6", url:"https://open-tonight.xarenvich.com/",
               spec:[["spec.build",null,"Phaser 4 · Canvas · D1"], ["spec.deploy","w6.s2"], ["spec.feat","w6.s3"]], w:1080, h:720},
     // A vocabulary site with its own Worker (tankfinal/wordtrailer, private, so no Source link).
-    wordtrailer:{k:"w7", url:"https://wordtrailer.xarenvich.workers.dev/",
+    wordtrailer:{k:"w7", url:"https://wordtrailer.xarenvich.com/",
               spec:[["spec.build",null,"Vanilla JS · ES Modules · Tailwind"], ["spec.deploy","w7.s2"], ["spec.feat","w7.s3"]], w:1080, h:720},
     readme:  {w:680, h:660},
     terminal:{w:700, h:560, cls:"term-win"},
@@ -1162,7 +1162,7 @@
     about:   {w:420, h:580},
     // The private TankOS (tankfinal/portfolio-private) sits behind Cloudflare Access, whose sign-in page
     // cannot run in an iframe, so this one opens in a new tab instead of a window.
-    private: {link:"https://portfolio-private.xarenvich.workers.dev/"}
+    private: {link:"https://portfolio-private.xarenvich.com/"}
   };
 
   // Email is assembled at runtime so scrapers cannot lift it straight out of the markup.
@@ -1496,19 +1496,19 @@
   /* ---------- live services (Activity Monitor, kubectl) ---------- */
   // The browser probes every site directly, nothing in between.
   var SERVICES = [
-    {app:"portfolio",    repo:"portfolio",          url:"https://portfolio.xarenvich.workers.dev/"},
+    {app:"portfolio",    repo:"portfolio",          url:location.origin + "/"},  // whichever address TankOS was opened on
     {app:"fukuoka",      repo:"fukuoka-trip",       url:"https://tankfinal.github.io/fukuoka-trip/"},
     {app:"busan",        repo:"busan-trip",         url:"https://tankfinal.github.io/busan-trip/"},
     {app:"yangmingshan", repo:"yangmingshan-trip",  url:"https://tankfinal.github.io/yangmingshan-trip/"},
-    {app:"shachiku",     repo:"shachiku",           url:"https://shachiku.xarenvich.workers.dev/", private:true},
-    {app:"nightmarket",  repo:"open-tonight",       url:"https://open-tonight.xarenvich.workers.dev/", private:true},
-    {app:"wordtrailer",  repo:"wordtrailer",        url:"https://wordtrailer.xarenvich.workers.dev/", private:true}
+    {app:"shachiku",     repo:"shachiku",           url:"https://shachiku.xarenvich.com/", private:true},
+    {app:"nightmarket",  repo:"open-tonight",       url:"https://open-tonight.xarenvich.com/", private:true},
+    {app:"wordtrailer",  repo:"wordtrailer",        url:"https://wordtrailer.xarenvich.com/", private:true}
   ];
   var langHooks = [];
 
   function now(){ return (window.performance && performance.now) ? performance.now() : Date.now(); }
 
-  // Same origin on github.io; GitHub Pages also sends ACAO:* for the Cloudflare mirror.
+  // TankOS probes the address it was opened on, so that read is same-origin; the other sites need ACAO:*.
   // If CORS is ever refused, fall back to an opaque request that still proves the site is up.
   function probe(svc){
     var url = svc.url + "?probe=" + Date.now(), t0 = now();
@@ -1887,7 +1887,7 @@
   function initAbout(el){
     var ver = document.querySelector(".mb-ver").textContent.replace(/^v/, "");
     var h = location.hostname;
-    el.querySelector(".ab-host").textContent = /workers\.dev$/.test(h) ? "Cloudflare Workers" : /github\.io$/.test(h) ? "GitHub Pages" : (h || "local");
+    el.querySelector(".ab-host").textContent = /(workers\.dev|xarenvich\.com)$/.test(h) ? "Cloudflare Workers" : /github\.io$/.test(h) ? "GitHub Pages" : (h || "local");
     var log = el.querySelector(".ab-log"), upd = el.querySelector(".ab-updated"), commits = null, failed = false;
     function render(){
       el.querySelector(".ab-ver").textContent = t("os.ab.ver").replace("{v}", ver);
