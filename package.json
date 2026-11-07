@@ -1,0 +1,15 @@
+{
+  "name": "portfolio",
+  "private": true,
+  "description": "TankOS. No build step: this file only holds dev tooling (Playwright regression tests). Nothing here is deployed.",
+  "scripts": {
+    "test": "playwright test",
+    "test:visual": "TANKOS_VISUAL=1 playwright test",
+    "test:docker": "docker run --rm --ipc=host -v \"$PWD\":/work -w /work -e CI -e TANKOS_VISUAL=1 mcr.microsoft.com/playwright:v1.63.0-noble npx playwright test",
+    "test:docker:update": "docker run --rm --ipc=host -v \"$PWD\":/work -w /work -e TANKOS_VISUAL=1 mcr.microsoft.com/playwright:v1.63.0-noble npx playwright test --update-snapshots",
+    "check:assets": "node tests/assets/check-assets.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}

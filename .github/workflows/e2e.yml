@@ -1,0 +1,57 @@
+# Playwright regression tests and the public-asset check. Runs only tests: it never deploys
+# (Cloudflare Workers Builds deploys main on its own, see README "Deploy").
+name: e2e
+
+on:
+  push:
+    branches-ignore: [gh-pages]   # gh-pages only holds the old-URL redirect pages
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playwright:
+    name: Playwright (functional + visual baselines)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # The same pinned image as `npm run test:docker`, so screenshots match the committed baselines pixel for pixel.
+    # Keep the tag in step with @playwright/test in package.json.
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --ipc=host
+    env:
+      CI: "true"
+      TANKOS_VISUAL: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright test --trace off
+      - name: Upload report and diffs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+
+  assets:
+    name: Cloudflare public assets exclude dev tooling
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # node_modules present on purpose: the check also proves Wrangler drops it.
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check:assets

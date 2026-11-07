@@ -10,3 +10,12 @@ api/
 claude_task
 node_modules
 .DS_Store
+# Dev tooling: Playwright regression tests and CI. Never part of the site (checked by `npm run check:assets`).
+package.json
+package-lock.json
+playwright.config.js
+tests
+.github
+test-results
+playwright-report
+blob-report

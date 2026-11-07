@@ -13,7 +13,7 @@ Tank Yang 的個人網站 — 經歷、個人專案與開源工具的集合。
 
 `/os/` 是 TankOS 搬到首頁前的網址，已經分享出去過，現在只負責轉址回首頁。
 
-**沒有 build step。** 兩個版本各是一個 HTML 檔（CSS 與 JS 都內嵌），加四張截圖；比較大的 TankOS App 另外放在 `apps/<id>.js`，開視窗時才載入。整個網站加上 `/api` 是同一個 Cloudflare Worker（`portfolio`），改完 push 就是部署。
+**沒有 build step。** 兩個版本各是一個 HTML 檔（CSS 與 JS 都內嵌），加四張截圖；比較大的 TankOS App 另外放在 `apps/<id>.js`，開視窗時才載入。整個網站加上 `/api` 是同一個 Cloudflare Worker（`portfolio`），改完 push 就是部署。`package.json` 只放測試用的開發工具（Playwright），網站本身不用安裝任何東西，見「Tests」。
 
 ## 設計語彙
 
@@ -51,6 +51,14 @@ api/                # /api 的程式：排行榜、線上訪客、Request 的一
 ├── src/index.js    # Worker 的程式（只有 /api/* 會執行它，其他都直接送靜態檔）
 └── schema.sql      # D1 `portfolio` 的表
 wrangler.jsonc      # Worker `portfolio`：靜態檔（repo 根目錄）＋ api/src/index.js ＋ D1 綁定
+package.json        # 只有 devDependencies（@playwright/test），不部署
+playwright.config.js
+tests/              # Playwright 回歸測試，不部署，見「Tests」
+├── e2e/            # window manager、Dock 與 App、版面、基準截圖
+├── __screenshots__/  # 基準截圖（在固定版本的 Playwright Docker image 裡產生）
+├── support/        # 測試用靜態伺服器、共用 fixture（固定時間、mock 網路）
+└── assets/check-assets.mjs  # 用 wrangler dry-run 確認測試與開發工具不會變成公開檔案
+.github/workflows/e2e.yml   # 每次 push 跑上面兩種檢查，不部署
 ```
 
 ## 雙語切換
@@ -204,6 +212,26 @@ npx wrangler dev                                                  # http://local
 ```
 
 只看畫面、不需要 API 的話，`python3 -m http.server 4321` 也行（排行榜、線上人數會讀不到）。
+
+## Tests
+
+Playwright 回歸測試，鎖住 TankOS 現在的行為（視窗開關、聚焦、拖曳、縮放、最小化／放大、Dock、各 App、語言、版面），改外觀的時候拿來證明行為沒變。
+
+```bash
+npm ci                 # 第一次
+npm test               # 功能與版面測試（本機 Chromium，基準截圖會跳過）
+npm run test:docker    # 全部，含基準截圖比對；跟 CI 用同一個 Playwright Docker image
+npm run test:docker:update   # 畫面是故意改的：重產基準截圖，PR 裡看 PNG diff
+npm run check:assets   # 用 wrangler dry-run 列出會變成公開檔案的清單，確認沒有測試與開發工具
+```
+
+- **不碰正式資料**：測試用 `tests/support/serve.js` 在本機起站，`/api/*` 一律回固定的假資料，iframe 裡的作品站、活動監視器、GitHub API 也都換成假的回應，不會打到 D1 或任何外部網站
+- **不會不穩定**：時間固定在 2026-11-07 10:30（Asia/Taipei），開「減少動態效果」讓 TankOS 跳過動畫，截圖前等字型與桌布載完；不設 retry，偶發失敗就會被看到
+- **基準截圖**只在 `mcr.microsoft.com/playwright:v1.63.0-noble` 裡比對（字型與繪製要一模一樣），所以 `npm test` 會跳過，`test:docker` 與 CI 才跑。升 `@playwright/test` 版本時，image tag（`package.json` 的 scripts 與 `.github/workflows/e2e.yml`）要一起改，並重產截圖
+- **已知 bug** 用 `test.fail()` 記錄（`tests/e2e/layout.spec.js` 的 KNOWN BUG A、B）：測試寫的是正確行為，所以現在預期失敗；修好以後它會變紅（「Expected to fail, but passed」），這時把 `test.fail()` 和旁邊的「reproduces」測試一起拿掉
+- **新增根目錄檔案**時，不是網站的檔案記得加進 `.assetsignore`，`npm run check:assets` 會擋
+- CI（GitHub Actions `e2e`）在 `gh-pages` 以外的每次 push 與對 `main` 的 PR 跑，只測試、不部署
+- Workers Builds 看到 `package-lock.json` 會先 `npm ci`（只裝 `@playwright/test`，不下載瀏覽器），部署指令跟結果都不變；想省掉這一步可以在 Dashboard 的 build 變數設 `SKIP_DEPENDENCY_INSTALL=1`
 
 ## Deploy
 
