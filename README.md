@@ -125,7 +125,9 @@ macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.htm
 
 ### 文案與經典版同步
 
-TankOS 的 `I18N` 開頭那段是從經典版字典**原樣複製**的，key 名稱一樣；TankOS 自己的 key 以 `app.` / `os.` / `mb.` 開頭。改了經典版文案之後，跑這段找出兩邊不一致的 key，照經典版改回去：
+TankOS 的 `I18N` 開頭那段是從經典版字典**原樣複製**的，key 名稱一樣；TankOS 自己的 key 以 `app.` / `os.` / `mb.` 開頭。改了經典版文案之後，跑這段找出兩邊不一致的 key，照經典版改回去。
+
+例外（v2.6.0 起刻意不同）：README App 的自我介紹 `hero.lede`、`about.p1`–`about.p3` 改成以後端工程、系統設計與技術管理為主的新版文案，經典版維持原文，所以下面的檢查會略過這四個 key。
 
 ```bash
 python3 - <<'PY'
@@ -136,7 +138,8 @@ def load(p):
     d = d[:d.index('};')]
     return {k: re.sub(r'\s+', ' ', v) for k, v in re.findall(r'"([a-zA-Z0-9._]+)"\s*:\s*(\{zh:.*?\})', d, re.S)}
 main, tos = load('classic/index.html'), load('index.html')
-print("drift:", sorted(k for k in tos if k in main and tos[k] != main[k]) or "none")
+own = {'hero.lede', 'about.p1', 'about.p2', 'about.p3'}   # README App 自己的版本（v2.6.0）
+print("drift:", sorted(k for k in tos if k in main and k not in own and tos[k] != main[k]) or "none")
 PY
 ```
 
@@ -198,6 +201,16 @@ sips -s format jpeg -s formatOptions 78 shot.png --out out.jpg
 7. 手機（或瀏覽器 390 寬）：Dock 只有四顆、點「所有 App」從底部出現面板；開一個作品是全螢幕視窗
 8. `/classic/` 正常、`/os/` 轉回首頁
 9. 有問題就照上面的 Rollback
+
+## TankOS 2.0 App Logo（v2.6.0）
+
+`?ui=2` 的每個 App 用自己的品牌圖（Brand Icons v1，共 21 張：19 個 App 加上 Launcher、經典版），不跟 Nocturne 主題統一配色。
+
+- 素材：`design/brand-icons-v1/`，內含原始圖集 `source-contact-sheet.png`、素材包附的 512px PNG 與 `manifest.json`，全部原封不動保留。這個資料夾列在 `.assetsignore`，不會公開。
+- 產出：`python3 design/brand-icons-v1/build.py` → `images/icons/<id>.webp`（192px，共約 164 KB）。素材包的 512px PNG 是沿著會漂移的格線切的，多數帶著圖集的深色底邊，trace、launcher 等還被切掉左緣，所以改從圖集上逐格找出實際邊界、方形裁切，再套回原本就有的 22.5% 圓角。圖面本身不重畫、不改色。
+- 套用：只靠 CSS。Desktop、Dock、Launcher、Spotlight、視窗標題列用的都是同一個 `<span class="ic ic-<id>">`（`iconOf()` 複製出來的），`:where(:root[data-ui="2"]) .ic-<id>{--logo:url(...)}` 一組規則就涵蓋全部，裡面原本的線條圖示、字母或日期在 2.0 隱藏。HTML 沒有改，按鈕名稱仍是原本的 i18n。
+- v2.4（`?ui=1`）不吃這些規則，外觀不變，也不會下載這些圖。
+- 18px 標題列上，細節多的插畫（trace、WordTrailer、釜山）主要靠顏色辨識；旁邊就是 App 名稱。
 
 ## API（`api/`）
 

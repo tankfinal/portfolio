@@ -104,6 +104,13 @@ async function settle(page){
       ? "images/wallpaper-pixelverse-lakeside-night.webp"
       : small ? "images/wallpaper-komezuka-sm.jpg" : "images/wallpaper-komezuka.jpg";
     await img.decode();
+    // 2.0's app logos are CSS backgrounds: decode every one, so no screenshot catches a logo still loading (the
+    // Launcher and Spotlight show ones the desktop does not).
+    if (r.getAttribute("data-ui") === "2") {
+      await Promise.all(["fukuoka","busan","yangmingshan","pockettrip","wordtrailer","averlyn","trace","blocks","nightmarket",
+        "terminal","activity","calc","calendar","launcher","settings","readme","contact","about","classic","private","shachiku"]
+        .map((id) => { const i = new Image(); i.src = "images/icons/" + id + ".webp"; return i.decode(); }));
+    }
   });
   await expect(page.locator("#mbWho")).toBeVisible();
 }

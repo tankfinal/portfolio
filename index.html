@@ -1190,6 +1190,43 @@
      launcher items and Settings controls had no pressed state. */
   :where(:root[data-ui="2"]) .bar-btn:hover{background:rgba(255,255,255,.10)}
   :where(:root[data-ui="2"]) :is(.bar-btn,.ln-app,.ln-close,.st-btn,.st-opt):active{background:rgba(139,124,255,.34)}
+
+  /* ---------- TankOS 2.0 app logos (v2.6.0) ---------- */
+  /* Every app keeps its own brand art (Brand Icons v1, images/icons/<id>.webp, built by design/brand-icons-v1/build.py)
+     instead of the theme's glyph-on-gradient. The markup is untouched: Desktop, Dock, Launcher, Spotlight and the
+     title bar all show the same <span class="ic ic-<id>">, cloned by iconOf(), so this one rule set covers all of
+     them. The glyph, letter or live date inside is hidden here (the element stays aria-hidden or unnamed, as before;
+     buttons keep their i18n names). v2.4 never matches, so it neither changes nor downloads these. */
+  :where(:root[data-ui="2"]) .ic:is(.ic-fukuoka,.ic-busan,.ic-yms,.ic-pockettrip,.ic-wordtrailer,.ic-averlyn,.ic-trace,
+    .ic-blocks,.ic-nightmarket,.ic-terminal,.ic-activity,.ic-calc,.ic-cal,.ic-launch,.ic-settings,.ic-readme,
+    .ic-contact,.ic-about,.ic-classic,.ic-private,.ic-shachiku){
+    background:var(--logo) center/100% 100% no-repeat;color:transparent;font-size:0;
+    box-shadow:0 1px 3px rgba(0,0,0,.35);
+  }
+  :where(:root[data-ui="2"]) .ic:is(.ic-fukuoka,.ic-busan,.ic-yms,.ic-wordtrailer,.ic-trace,.ic-blocks,.ic-nightmarket,
+    .ic-terminal,.ic-activity,.ic-calc,.ic-cal,.ic-launch,.ic-settings,.ic-readme,.ic-contact,.ic-private,
+    .ic-shachiku) > *{display:none}
+  :where(:root[data-ui="2"]) .ic-fukuoka{--logo:url(images/icons/fukuoka.webp)}
+  :where(:root[data-ui="2"]) .ic-busan{--logo:url(images/icons/busan.webp)}
+  :where(:root[data-ui="2"]) .ic-yms{--logo:url(images/icons/yangmingshan.webp)}
+  :where(:root[data-ui="2"]) .ic-pockettrip{--logo:url(images/icons/pockettrip.webp)}
+  :where(:root[data-ui="2"]) .ic-wordtrailer{--logo:url(images/icons/wordtrailer.webp)}
+  :where(:root[data-ui="2"]) .ic-averlyn{--logo:url(images/icons/averlyn.webp)}
+  :where(:root[data-ui="2"]) .ic-trace{--logo:url(images/icons/trace.webp)}
+  :where(:root[data-ui="2"]) .ic-blocks{--logo:url(images/icons/blocks.webp)}
+  :where(:root[data-ui="2"]) .ic-nightmarket{--logo:url(images/icons/nightmarket.webp)}
+  :where(:root[data-ui="2"]) .ic-terminal{--logo:url(images/icons/terminal.webp)}
+  :where(:root[data-ui="2"]) .ic-activity{--logo:url(images/icons/activity.webp)}
+  :where(:root[data-ui="2"]) .ic-calc{--logo:url(images/icons/calc.webp)}
+  :where(:root[data-ui="2"]) .ic-cal{--logo:url(images/icons/calendar.webp)}
+  :where(:root[data-ui="2"]) .ic-launch{--logo:url(images/icons/launcher.webp)}
+  :where(:root[data-ui="2"]) .ic-settings{--logo:url(images/icons/settings.webp)}
+  :where(:root[data-ui="2"]) .ic-readme{--logo:url(images/icons/readme.webp)}
+  :where(:root[data-ui="2"]) .ic-contact{--logo:url(images/icons/contact.webp)}
+  :where(:root[data-ui="2"]) .ic-about{--logo:url(images/icons/about.webp)}
+  :where(:root[data-ui="2"]) .ic-classic{--logo:url(images/icons/classic.webp)}
+  :where(:root[data-ui="2"]) .ic-private{--logo:url(images/icons/private.webp)}
+  :where(:root[data-ui="2"]) .ic-shachiku{--logo:url(images/icons/shachiku.webp)}
 </style>
 </head>
 <body>
@@ -1234,7 +1271,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.5.0</span>
+    <span class="mb-ver">v2.6.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.com/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -1605,8 +1642,8 @@
     "w9.d": {zh:"女兒出生後要打 36 劑疫苗，公費、自費和每劑的間隔很難記。這個網站照台灣的建議時程排好：最上面是下一劑還有幾天、那天要打哪幾劑、她會是幾個月大，下面依日期列出每一劑，點開看說明、副作用和注意事項，逾期的標紅。紀錄只給家人看，所以放在密碼後面：資料只在登入後由 Worker 回傳，不在前端程式裡。", en:"Our daughter needs 36 doses, and the free and paid ones, plus the gaps between them, are hard to keep track of. This site lays them out on Taiwan’s recommended schedule: at the top, how many days until the next dose, which shots that day and how old she’ll be; below, every dose by date, with what it’s for, side effects and notes, and overdue ones in red. The records are for family only, so they sit behind a password: the Worker returns them only after sign-in, and they are not in the front-end bundle."},
     "w9.s2": {zh:"Cloudflare Workers，push 到 main 自動部署；密碼雜湊與登入紀錄存 D1", en:"Cloudflare Workers, deployed on every push to main; password hash and sign-ins in D1"},
     "w9.s3": {zh:"下一劑倒數、時程與進度、每劑說明", en:"Next-dose countdown, schedule and progress, notes for every dose"},
-    "hero.lede": {zh:"我帶 XREX 的後端團隊，做區塊鏈合規與 AML 風控系統。在這之前是 Binance 的微服務跟資料管線。晚上寫一些自己會用的小網站。",
-                   en:"I lead the backend team at XREX, building blockchain compliance and AML risk systems. Before that, microservices and data pipelines at Binance. At night I write small websites I actually use."},
+    "hero.lede": {zh:"我從後端工程師走到技術管理，主要做金融交易、風控與高併發系統。工作以外，也喜歡把生活裡遇到的問題做成真正能用的小工具。",
+                   en:"I went from backend engineer to engineering manager, working mostly on financial transactions, risk control and high-concurrency systems. Outside work, I like turning everyday problems into small tools people actually use."},
     "exp.now": {zh:"現職", en:"Current"},
     "e1.dur": {zh:"2 年 9 個月", en:"2 yrs 9 mos"},
     "e1.role": {zh:"Backend Senior Associate Manager", en:"Backend Senior Associate Manager"},
@@ -1621,12 +1658,12 @@
     "e5.role": {zh:"Java Developer", en:"Java Developer"},
     "e6.dur": {zh:"3 年 7 個月", en:"3 yrs 7 mos"},
     "e6.role": {zh:"Senior Java Software Engineer", en:"Senior Java Software Engineer"},
-    "about.p1": {zh:"我 2023 年底加入 <b>XREX</b>，一開始做 AML 區塊鏈風控跟合規鑑識的系統，2025 年轉管理職，現在帶後端團隊。在這之前在 <b>Binance</b> 寫微服務跟資料管線，同時擔任 Scrum Master。更早則在遊戲產業處理高併發金流，在系統整合商交付政府標案。Java 跟 Spring 是這十二年的主軸。",
-                en:"I joined <b>XREX</b> at the end of 2023, first building AML blockchain risk and compliance forensics systems, then moving into management in 2025. I lead the backend team now. Before that I wrote microservices and data pipelines at <b>Binance</b> while serving as Scrum Master, and earlier worked on high-concurrency payment systems in gaming and delivered government contracts at a systems integrator. Java and Spring have been the through-line for twelve years."},
-    "about.p2": {zh:"當了主管之後，判斷事情的標準變成兩件：這個設計三年後還撐不撐得住，還有團隊的人這一季有沒有真的長出東西。技術決策我要求留下記錄，為什麼選 A 不選 B，比選了什麼更重要。",
-                en:"Becoming a manager changed what I measure. Two things now: will this design still hold up in three years, and did the people on my team actually grow something this quarter. I ask for technical decisions to leave a written trace. Why A instead of B matters more than what got picked."},
-    "about.p3": {zh:"下班寫的東西通常很小，而且都是自己會用的。出國前想要一份離線也能翻的行程，就做了一個；女兒出生後要追 36 針疫苗，也做了一個。共同點是盡量不靠後端、開網址就能用，因為要給家人用，不能有學習成本；疫苗紀錄只想給家人看，所以多了一道密碼。另一條線是把重複的工作做成工具，MCP server、Claude Code 的 agent 模板、可分享的 skill 集合都屬於這類。",
-                en:"What I write after hours is small, and it is always something I use. I wanted an itinerary I could read without signal, so I made one. My daughter was born with 36 shots to track, so I made that too. They have the same shape: as little backend as possible, one URL and it works, because my family uses them and there is no room for a learning curve. The vaccine one adds a single password, since those records are for family only. The other thread is turning repetitive work into tooling. The MCP server, the agent templates for Claude Code and the shareable skill pack all come from that."},
+    "about.p1": {zh:"我的技術背景以 Java、Spring 和後端系統為主。2023 年底加入 <b>XREX</b>，參與區塊鏈合規、AML 風控等系統，後來開始帶領後端團隊。之前在 <b>Binance</b> 開發微服務與資料管線，更早接觸過遊戲金流與大型系統整合專案。",
+                en:"My background is Java, Spring and backend systems. I joined <b>XREX</b> at the end of 2023 to work on blockchain compliance and AML risk systems, and later began leading the backend team. Before that I built microservices and data pipelines at <b>Binance</b>, and earlier worked on payment systems in gaming and large systems-integration projects."},
+    "about.p2": {zh:"帶團隊後，我花更多時間在系統設計、技術決策、Code Review、工作規劃和跨團隊協作。我在意的不只是功能做完，而是系統能不能長期維護、決策是否有依據，以及團隊能否穩定交付、持續成長。",
+                en:"Leading a team, I spend more of my time on system design, technical decisions, code review, planning and working across teams. Shipping the feature is not the whole job: I care whether the system can be maintained for years, whether decisions have reasons behind them, and whether the team can deliver steadily and keep growing."},
+    "about.p3": {zh:"下班後，我還是喜歡自己寫程式。旅行前需要好用的行程工具，就自己做一個；女兒出生後要追疫苗時程，也做了一個。也會做小遊戲和其他實用網站。這些作品通常從自己的需求開始：簡單、直覺，打開就能用。",
+                en:"After hours, I still like to write code. Before a trip I wanted a good itinerary tool, so I made one; when my daughter was born and we had her vaccine schedule to follow, I made one for that too. I also build small games and other useful sites. They usually start from something I need myself: simple, obvious, and ready the moment you open them."},
     "about.p4": {zh:"學歷是朝陽科技大學資訊工程，2012 年畢業。",
                 en:"I studied Information Engineering at Chaoyang University of Technology, graduating in 2012."},
     "st.1": {zh:"後端主力", en:"Core backend"},

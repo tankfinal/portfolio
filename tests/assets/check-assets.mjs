@@ -19,13 +19,19 @@ const WRANGLER = "wrangler@4.158.0";
 const FORBIDDEN = [
   "package.json", "package-lock.json", "playwright.config.js",
   "tests/", ".github/", "node_modules/", "test-results/", "playwright-report/", "blob-report/",
-  ".git/", ".gitignore", ".assetsignore", ".wrangler/", "api/", "README.md", "CLAUDE.md", "wrangler.jsonc"
+  ".git/", ".gitignore", ".assetsignore", ".wrangler/", "api/", "README.md", "CLAUDE.md", "wrangler.jsonc",
+  // Source art and build script for the app logos (v2.6.0); only images/icons/*.webp is served.
+  "design/"
 ];
 // Must stay public, or the site breaks.
 const REQUIRED = [
   "index.html", "classic/index.html", "os/index.html", "apps/trace.js",
   "images/wallpaper-komezuka.jpg", "images/wallpaper-komezuka-sm.jpg",
-  "images/wallpaper-pixelverse-lakeside-night.png", "images/wallpaper-pixelverse-lakeside-night.webp"
+  "images/wallpaper-pixelverse-lakeside-night.png", "images/wallpaper-pixelverse-lakeside-night.webp",
+  // TankOS 2.0 app logos (v2.6.0), one per app plus the Launcher, Classic and Private entries.
+  ...["fukuoka", "busan", "yangmingshan", "pockettrip", "wordtrailer", "averlyn", "trace", "blocks", "nightmarket",
+    "terminal", "activity", "calc", "calendar", "launcher", "settings", "readme", "contact", "about", "classic",
+    "private", "shachiku"].map((id) => `images/icons/${id}.webp`)
 ];
 
 const run = spawnSync("npx", ["--yes", WRANGLER, "deploy", "--dry-run"], {
@@ -66,7 +72,7 @@ for (const p of published) {
 }
 for (const p of REQUIRED) if (!published.includes(p)) problems.push(`would NOT be published but the site needs it: ${p}`);
 // Dev tooling that exists in this checkout must have been seen and dropped by Wrangler, not merely absent.
-for (const p of ["package.json", "package-lock.json", "playwright.config.js", "tests", ".github", "node_modules"]) {
+for (const p of ["package.json", "package-lock.json", "playwright.config.js", "tests", ".github", "node_modules", "design"]) {
   let exists = false; try { statSync(join(ROOT, p)); exists = true; } catch (e) {}
   if (exists && !ignored.has(p)) problems.push(`${p} exists but Wrangler did not log it as ignored`);
 }
