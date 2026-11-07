@@ -8,7 +8,7 @@ Tank Yang 的個人網站 — 經歷、個人專案與開源工具的集合。
 
 同一份內容做成兩個版本，都有中英雙語切換：
 
-- **TankOS**（首頁 `/`）：macOS 風格的桌面，作品以 App 視窗開啟、直接跑 live 站。見下方 TankOS 一節。
+- **TankOS**（首頁 `/`）：macOS 風格的桌面，作品以 App 視窗開啟、直接跑 live 站。見下方 TankOS 一節。v2.5.0 起預設是 **TankOS 2.0**（Nocturne 深色、Pixelverse 桌布、Launcher、設定）；`/?ui=1` 是 v2.4 的介面，選過會記住，`/?ui=2` 換回 2.0。
 - **經典版**（[`/classic/`](https://portfolio.xarenvich.com/classic/)）：一頁式排版，收錄六段工作經歷、四個自己在用的個人網站，以及三個開源工具。
 
 `/os/` 是 TankOS 搬到首頁前的網址，已經分享出去過，現在只負責轉址回首頁。
@@ -100,7 +100,7 @@ macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.htm
 - **App 視窗用 iframe 直接跑 live 站**，左側欄是經典版同一份作品介紹。新增 App：在 `APPS` 加一筆（`k` 指向經典版的作品 key、`url`、`src`、`spec`），再補桌面 icon 和 Dock 各一顆按鈕；要讓活動監視器和 `kubectl` 看得到，`SERVICES` 也加一筆；Spotlight 的別名寫在 `KW`。被嵌的站不能送 `X-Frame-Options` / `frame-ancestors`，GitHub Pages 預設沒有。
 - **獨立檔案 App**（`APPS` 裡帶 `file` 的，目前有 `trace`）：程式、CSS、中英字串都在 `apps/<id>.js`，第一次開視窗才用 `<script>` 載入（網址帶 `?v=<版號>`，升版就不會吃到舊快取；`file` 也可以是陣列，幾支檔案同時載入，其中一支呼叫 `TankOS.define`），載入中顯示轉圈，失敗顯示重試。檔案呼叫 `TankOS.define(id, {html, css, i18n, init})` 登記自己：`html` 是視窗內容（根元素帶 `body` class），`css` 第一次載入時注入一次，`i18n` 併進 `I18N`（key 用自己的前綴），`init(body, os)` 可以回傳一個關視窗時要跑的函式。`os` 是檔案唯一拿得到的東西：`t`、`fill`、`lang()`、`onLang(f)`（回傳取消函式）、`api`（Worker 網址）、`open`、`still`（減少動態效果的 media query）、`ver`（站台版號，App 自己 fetch 的檔案拿來加 `?v=`）。新增一個：寫 `apps/<id>.js`，`APPS` 加 `{w, h, file:"apps/<id>.js"}`，`I18N` 加 `app.<id>`，桌面 icon（含 `.ic-<id>` 顏色與 SVG symbol）、`KW`、`index()` 的清單、終端機 `OPENABLE` 與 `ls` 各補一處；App 名稱和 icon 留在 `index.html`，因為載入前桌面和 Spotlight 就要顯示。
 - **私人版入口**：選單列右側的 🔒「私人版」，開新分頁到 [portfolio-private](https://github.com/tankfinal/portfolio-private)（Cloudflare Access 保護），跟私人版選單列的「公開版」對稱。手機只剩鎖頭。Spotlight 與 `open private` 也能開（`APPS.private` 用 `link` 標記，`open()` 直接開新分頁）。Access 登入頁不能放進 iframe，所以不開視窗。私人內容一律不進這個 repo，這裡只有入口。
-- **TankOS 2.0 預覽（feature flag）**：網址加 `?ui=2` 會在 `<html>` 加上 `data-ui="2"`，換成 Nocturne 深色主題；`?ui=1` 是目前的介面。兩個都是明確的選擇，記在 `localStorage.ui`，之後直接開首頁、重新整理都維持，預設值改了也一樣。優先順序是網址的 `?ui=` > 記住的選擇 > `DEFAULT_UI`，其他值一律忽略；瀏覽器擋 storage 時，`?ui=` 只對那一次載入有效。判斷寫在 `<head>` 最前面的 `<script>`，在任何 CSS 與 `<body>` 之前執行，所以不會先閃一下舊主題。沒有這個屬性時畫面跟 v2.4 一模一樣。2.0 的東西一律寫在 `:root[data-ui="2"]` 底下：design token 是 `--tank-*`（顏色、圓角、間距、字級、z-index、動畫，值照 Design System v1），舊的 `--win-*`、`--accent`、`--sel` 名稱不變、改指到 token，所以各 App 與 `apps/<id>.js` 不用改就會跟著換色。2.0 只有深色，不管系統設定；紅色仍是品牌色（`--tank-brand`，文字用較亮的 `--tank-brand-text`），紫色（`--tank-primary`）給互動與選取。正式切成 2.0（v2.5.0）時把 flag script 的 `DEFAULT_UI` 改成 `"2"`，想留在舊介面的人用 `?ui=1`。
+- **TankOS 2.0 與 v2.4（feature flag；v2.5.0 起預設 2.0）**：網址加 `?ui=2` 會在 `<html>` 加上 `data-ui="2"`，換成 Nocturne 深色主題；`?ui=1` 是目前的介面。兩個都是明確的選擇，記在 `localStorage.ui`，之後直接開首頁、重新整理都維持，預設值改了也一樣。優先順序是網址的 `?ui=` > 記住的選擇 > `DEFAULT_UI`，其他值一律忽略；瀏覽器擋 storage 時，`?ui=` 只對那一次載入有效。判斷寫在 `<head>` 最前面的 `<script>`，在任何 CSS 與 `<body>` 之前執行，所以不會先閃一下舊主題。沒有這個屬性時畫面跟 v2.4 一模一樣。2.0 的東西一律寫在 `:root[data-ui="2"]` 底下：design token 是 `--tank-*`（顏色、圓角、間距、字級、z-index、動畫，值照 Design System v1），舊的 `--win-*`、`--accent`、`--sel` 名稱不變、改指到 token，所以各 App 與 `apps/<id>.js` 不用改就會跟著換色。2.0 只有深色，不管系統設定；紅色仍是品牌色（`--tank-brand`，文字用較亮的 `--tank-brand-text`），紫色（`--tank-primary`）給互動與選取。正式切成 2.0（v2.5.0）時把 flag script 的 `DEFAULT_UI` 改成 `"2"`，想留在舊介面的人用 `?ui=1`。
 - **2.0 選單列與桌布**（`<style>` 最後的「TankOS 2.0 menu bar」「TankOS 2.0 wallpaper」）：選單列高度是 `--tank-menubar-height`（36px），經由 `--menu-h` 讓桌面與視窗圖層跟著下移；背景與聚焦視窗同一種玻璃，項目與 v2.4 完全相同，T 維持品牌紅。桌布是 Pixelverse 湖畔露營夜景：原檔 PNG 保留不動，瀏覽器載入它轉出的 WebP，不支援時退回 PNG（圖片宣告刻意不用 `var()`，否則退回會失效）。上面疊兩層很淡的深靛紫漸層（選單列與 Dock 附近、左右 icon 欄稍深，中間保持原色）；桌面標籤加深靛色光暈，月亮或燈籠剛好在標籤底下時也讀得清楚。橫向 `cover` + `50% 55%` 讓月亮與營地都在畫面裡，直向（手機、平板）改 `20% 50%` 保留營地。鎖定畫面的模糊背景跟著換。米塚照片仍是 v2.4 的桌布，之後可做成可選
 - **2.0 Dock 與 App Launcher**（`<style>` 最後的「TankOS 2.0 Dock + App Launcher」與 JS 的「App Launcher」）：Dock 是與視窗同一種玻璃，icon 用 `--tank-dock-icon-size`（48px），最後多一顆「所有 App」按鈕（v2.4 隱藏）。執行中是小圓點，最上層的 App 是紫色長條（`showApp()` 順手幫 Dock 按鈕標 `.cur`）。hover 只放大指到的那顆、用 transform，不像 v2.4 用 margin 把旁邊推開；減少動態效果時不放大。768px 以下 Dock 只顯示帶 `data-m` 的 README、聯絡我、經典版和「所有 App」，每顆 48×48，其他 App 從 Launcher 開。Launcher 不是另一份 App 清單：分組與順序讀桌面四區，最後一組是 `APPS` 裡沒有桌面 icon 的（關於 TankOS、私人版）加 Dock 上的連結（經典版）；名稱用桌面的短名稱（`app.<id>`），icon 用 `iconOf()`，一律經 `open()` 開，所以新增 App 時放進桌面分區就會出現在 Launcher。它是真正的 modal dialog：開著時選單列、桌面、視窗與 Dock 都設 `inert`（不能 Tab、不能點、不在無障礙樹裡）；Esc、關閉鈕、點外面都會關，關掉後焦點回到「所有 App」按鈕；從裡面開 App 時焦點交給那個 App 的視窗；開著時換語言，焦點留在同一個項目。z-index 9500，蓋住選單列（9000），在 Spotlight（9600）之下；Spotlight 與 Launcher 互相開啟時會先關掉另一個，同時只會有一個 modal
 - **2.0 設定**（`settings`，只在 `?ui=2`：桌面「小工具」、Dock 分隔線後、Spotlight，Launcher 會自動列出）：外觀（目前的 Nocturne，以及切回 v2.4 的按鈕，就是 `?ui=1`）、桌布（Pixelverse 湖畔夜景或米塚照片，桌面與鎖定畫面一起換）、透明度（一般／降低）、動態效果（一般／降低），還有「重設為預設」。選擇存在 `localStorage` 的 `ui2.wallpaper`、`ui2.transparency`、`ui2.motion`；沒選過就跟隨系統的 `prefers-reduced-transparency` / `prefers-reduced-motion`，系統設定改變時立即跟著變，選過之後以選擇為準（也能在系統要求降低時選回一般）。實際生效的值是 `<html>` 上的 `data-wall`、`data-transparency`、`data-motion`：`<head>` 的 flag script 在第一次繪製前就設好（不會先閃別的桌布），主程式的 `PREFS` 之後維持它們，兩邊規則要一致。這三個屬性只在 `?ui=2` 出現，所以 v2.4 不受影響；v2.4 原本的 reduced-motion 規則只多包一層 `:where(:root:not([data-motion="normal"]))`，零 specificity，v2.4 永遠沒有這個屬性。JS 的 `still`（window manager、方塊消除、`apps/trace.js` 用的 `os.still`）改成同樣有 `.matches` 的物件，有 `data-motion` 時以它為準。瀏覽器擋 storage 時設定只在這一頁有效，視窗裡會說明
@@ -168,6 +168,36 @@ PY
 sips -Z 900 shot.png                                   # 長邊縮到 900
 sips -s format jpeg -s formatOptions 78 shot.png --out out.jpg
 ```
+
+## TankOS 2.0 發布（v2.5.0）
+
+### Release notes
+
+- **首頁預設改成 TankOS 2.0**：Nocturne 深色主題、Pixelverse 湖畔夜景桌布、Nocturne 選單列與視窗、新的 Dock 與 App Launcher、設定 App（桌布、透明度、動態效果）。v2.4.1–v2.4.7 在 `?ui=2` 後面完成的東西，現在是每個人的預設
+- **v2.4 還在**：`/?ui=1` 或「設定 › 切回 v2.4 介面」，選了會記住；`/?ui=2` 隨時換回 2.0。v2.4 的程式、樣式、桌布照片都沒刪
+- **不會蓋掉任何人的選擇**：優先順序仍是網址的 `?ui=` > 記住的選擇（`localStorage.ui`）> 預設值。之前用過 `?ui=1` 的人繼續看到 v2.4；沒選過的人才會看到新的預設，而且不會替他們寫入任何值
+- 經典版（`/classic/`）、`/os/` 轉址、`/api` 都不變
+
+### Rollback
+
+1. `index.html` 開頭 flag script 的 `var DEFAULT_UI = "2";` 改回 `"1"`，升 Z 位版號（例如 v2.5.1），commit 到 `main`。Workers Builds 會照常部署，不用改任何 Cloudflare 設定
+2. 會回到 v2.4 的：所有沒選過的訪客（預設值不會被存下來）。不會回去的：自己用過 `?ui=2` 的人（他們存了 `"2"`，這是他們明確的選擇）；這些人要回 v2.4 就開 `/?ui=1`
+3. 急的話也可以在 Cloudflare Dashboard 的 Worker `portfolio` › Deployments 把前一版設為 active（只是部署上的回退，不改 Build 設定）；之後仍要用第 1 步讓 `main` 與線上一致
+4. `tests/e2e/ui-flag.spec.js` 已經在 `DEFAULT_UI` 為 `"1"` 與 `"2"` 兩種情況下測過優先順序，改回去不需要動測試；`release.spec.js` 裡「新訪客得到 2.0」那幾個要跟著改成 v2.4
+
+### 發布後 Smoke test
+
+在無痕視窗（沒有任何 localStorage）依序確認：
+
+1. 開 `https://portfolio.xarenvich.com/`：鎖定畫面是 Pixelverse 夜景（模糊），解鎖後是深色選單列與 Dock，右上版號 **v2.5.0**
+2. 選單列：時鐘、中／EN、線上人數、Spotlight（⌘K）、私人版連結都在；切 EN 再切回中文
+3. Dock：點 README、終端機；最右邊「所有 App」打開 Launcher，用它開計算機；Esc 關閉
+4. 視窗：拖曳、縮放、最小化（再從 Dock 叫回來）、放大、關閉
+5. 設定：換成米塚桌布 → 桌面與鎖定畫面都換；重新整理仍是米塚；按「重設為預設」
+6. 設定 › 切回 v2.4 介面：網址變成 `?ui=1`、畫面回到 v2.4（白色視窗、舊 Dock）；重新整理仍是 v2.4；開 `/?ui=2` 回到 2.0
+7. 手機（或瀏覽器 390 寬）：Dock 只有四顆、點「所有 App」從底部出現面板；開一個作品是全螢幕視窗
+8. `/classic/` 正常、`/os/` 轉回首頁
+9. 有問題就照上面的 Rollback
 
 ## API（`api/`）
 
@@ -238,7 +268,7 @@ npm run check:assets   # 用 wrangler dry-run 列出會變成公開檔案的清�
 - **基準截圖**只在 `mcr.microsoft.com/playwright:v1.63.0-noble` 裡比對（字型與繪製要一模一樣），所以 `npm test` 會跳過，`test:docker` 與 CI 才跑。升 `@playwright/test` 版本時，image tag（`package.json` 的 scripts 與 `.github/workflows/e2e.yml`）要一起改，並重產截圖
 - **已知 bug** 用 `test.fail()` 記錄：測試寫的是正確行為，所以現在預期失敗；修好以後它會變紅（「Expected to fail, but passed」），這時把 `test.fail()` 和旁邊的「reproduces」測試一起拿掉。寫法見 `tests/e2e/layout.spec.js` 開頭（v2.4.1 修掉的 Dock 溢出、README 蓋住 icon 就是這樣記錄的）
 - **基準截圖遮住選單列的版號**（洋紅色方塊），只升版不會讓截圖失效；比對門檻是 `threshold: 0.01`（預設 0.2 會把 6% 的透明度變化當成沒變）
-- **兩個 project**：`default` 跑全部測試；`ui2` 在 2.0 flag 打開的狀態下再跑一次 window manager、Dock 與 App、版面測試，證明換主題沒有改到行為。flag 與 token 本身的測試在 `tests/e2e/ui-flag.spec.js`，`?ui=2` 的基準截圖檔名帶 `-ui2`
+- **兩個 project**：`v24` 以「選了 v2.4 的訪客」（`localStorage.ui = "1"`）跑全部測試，包含 v2.4 的七張基準截圖，所以預設改成 2.0 之後 v2.4 的回歸驗證一項沒少；`ui2` 在 2.0 下再跑一次 window manager、Dock 與 App、版面測試。flag 本身（`ui-flag.spec.js`）與發布情境（`release.spec.js`）以沒存任何東西的新訪客跑（`test.use({ tankUi: null })`）；`release.spec.js` 也守著 `v24` 的設定真的是 v2.4。`?ui=2` 的基準截圖檔名帶 `-ui2`
 - **新增根目錄檔案**時，不是網站的檔案記得加進 `.assetsignore`，`npm run check:assets` 會擋
 - CI（GitHub Actions `e2e`）在 `gh-pages` 以外的每次 push 與對 `main` 的 PR 跑，只測試、不部署
 - Workers Builds 看到 `package-lock.json` 會先 `npm ci`（只裝 `@playwright/test`，不下載瀏覽器），部署指令跟結果都不變；想省掉這一步可以在 Dashboard 的 build 變數設 `SKIP_DEPENDENCY_INSTALL=1`

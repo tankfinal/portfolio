@@ -6,14 +6,16 @@
 <meta name="theme-color" content="#0a1238">
 <script>
   // TankOS 2.0 feature flag. Runs before any CSS or <body>, so the page never paints in the wrong theme.
-  //   ?ui=2        the new Nocturne UI      } either one is an explicit choice, saved in localStorage.ui,
-  //   ?ui=1        the current (v2.4) UI    } so it outlives a reload and a later change of DEFAULT_UI
+  //   ?ui=2        TankOS 2.0 (Nocturne)    } either one is an explicit choice, saved in localStorage.ui,
+  //   ?ui=1        the v2.4 UI              } so it outlives a reload and a later change of DEFAULT_UI
   // Precedence: ?ui= in the URL  >  the saved choice  >  DEFAULT_UI. Anything else ("3", "", junk in storage) is
   // ignored. With storage blocked, ?ui= still decides that one load.
   // Everything new is scoped to :root[data-ui="2"]; without it the page is exactly v2.4.x.
-  // Turning 2.0 on for everyone (v2.5.0) means changing DEFAULT_UI to "2"; ?ui=1 then keeps the old UI for whoever wants it.
+  // Since v2.5.0, 2.0 is the default: a visitor with no saved choice gets it, and nothing is saved for them, so a
+  // later change of DEFAULT_UI reaches them too. ?ui=1 (or Settings > Switch back to v2.4) keeps v2.4 for whoever
+  // wants it. Rollback: set DEFAULT_UI back to "1"; choices already saved in localStorage.ui stay as they are.
   (function(){
-    var DEFAULT_UI = "1";
+    var DEFAULT_UI = "2";
     var m = /[?&]ui=([12])(?:&|$)/.exec(location.search);
     var asked = m ? m[1] : null;
     var saved = null;
@@ -1232,7 +1234,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.4.7</span>
+    <span class="mb-ver">v2.5.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.com/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>

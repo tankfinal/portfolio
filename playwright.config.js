@@ -33,8 +33,10 @@ module.exports = defineConfig({
     trace: "off"
   },
   projects: [
-    // Today's UI: every test, including the visual baselines.
-    { name: "default" },
+    // v2.4 (?ui=1): every test, including the seven v2.4 visual baselines, as a visitor who chose v2.4. Since
+    // v2.5.0 the site's default is 2.0, so this project pins v2.4 explicitly to keep its full regression suite.
+    // Specs about the flag itself and the release (ui-flag, release) opt out with tankUi: null (a new visitor).
+    { name: "v24", use: { tankUi: "1" } },
     // The same behaviour tests with the TankOS 2.0 flag on: the new theme must not change how anything works.
     {
       name: "ui2",

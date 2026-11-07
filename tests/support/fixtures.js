@@ -48,8 +48,10 @@ async function mockExternal(route){
 }
 
 const test = base.test.extend({
-  // TankOS 2.0 feature flag for the whole test: "2" stores localStorage.ui = "2" before the page loads, the same
-  // state a visitor has after opening ?ui=2 once. The "ui2" project in playwright.config.js sets it.
+  // The visitor's saved UI choice for the whole test, stored in localStorage.ui before the first page load (the
+  // state after opening ?ui=1 or ?ui=2 once). "1": the v24 project, a visitor who chose v2.4; "2": the ui2 project;
+  // null: a new visitor with nothing saved, who gets DEFAULT_UI (2.0 since v2.5.0). A ?ui= in a test's URL still
+  // wins, exactly as on the site.
   tankUi: [null, { option: true }],
   context: async ({ context, tankUi }, use) => {
     await context.route("**/*", (route) => {
@@ -63,10 +65,10 @@ const test = base.test.extend({
     await context.addInitScript(() => {
       try { if (!localStorage.getItem("lang")) localStorage.setItem("lang", "zh"); } catch (e) {}
     });
-    if (tankUi === "2") {
-      await context.addInitScript(() => {
-        try { if (!sessionStorage.getItem("pw.ui.set")) { localStorage.setItem("ui", "2"); sessionStorage.setItem("pw.ui.set", "1"); } } catch (e) {}
-      });
+    if (tankUi === "1" || tankUi === "2") {
+      await context.addInitScript((ui) => {
+        try { if (!sessionStorage.getItem("pw.ui.set")) { localStorage.setItem("ui", ui); sessionStorage.setItem("pw.ui.set", "1"); } } catch (e) {}
+      }, tankUi);
     }
     await use(context);
   },
@@ -96,7 +98,9 @@ async function settle(page){
     // itself never downloads the other one.
     const small = matchMedia("(max-width: 768px)").matches;
     const img = new Image();
-    img.src = document.documentElement.getAttribute("data-ui") === "2"
+    // Under 2.0 that is the art unless Settings chose the photo (data-wall="komezuka").
+    const r = document.documentElement;
+    img.src = r.getAttribute("data-ui") === "2" && r.getAttribute("data-wall") !== "komezuka"
       ? "images/wallpaper-pixelverse-lakeside-night.webp"
       : small ? "images/wallpaper-komezuka-sm.jpg" : "images/wallpaper-komezuka.jpg";
     await img.decode();
