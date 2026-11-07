@@ -125,9 +125,7 @@ macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.htm
 
 ### 文案與經典版同步
 
-TankOS 的 `I18N` 開頭那段是從經典版字典**原樣複製**的，key 名稱一樣；TankOS 自己的 key 以 `app.` / `os.` / `mb.` 開頭。改了經典版文案之後，跑這段找出兩邊不一致的 key，照經典版改回去。
-
-例外（v2.6.0 起刻意不同）：README App 的自我介紹 `hero.lede`、`about.p1`–`about.p3` 改成以後端工程、系統設計與技術管理為主的新版文案，經典版維持原文，所以下面的檢查會略過這四個 key。
+TankOS 的 `I18N` 開頭那段是從經典版字典**原樣複製**的，key 名稱一樣；TankOS 自己的 key 以 `app.` / `os.` / `mb.` 開頭。改了經典版文案之後，跑這段找出兩邊不一致的 key，照經典版改回去：
 
 ```bash
 python3 - <<'PY'
@@ -138,8 +136,7 @@ def load(p):
     d = d[:d.index('};')]
     return {k: re.sub(r'\s+', ' ', v) for k, v in re.findall(r'"([a-zA-Z0-9._]+)"\s*:\s*(\{zh:.*?\})', d, re.S)}
 main, tos = load('classic/index.html'), load('index.html')
-own = {'hero.lede', 'about.p1', 'about.p2', 'about.p3'}   # README App 自己的版本（v2.6.0）
-print("drift:", sorted(k for k in tos if k in main and k not in own and tos[k] != main[k]) or "none")
+print("drift:", sorted(k for k in tos if k in main and tos[k] != main[k]) or "none")
 PY
 ```
 

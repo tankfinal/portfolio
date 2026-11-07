@@ -19,7 +19,7 @@ test.describe("who gets which UI", () => {
   test("a new visitor gets TankOS 2.0, and nothing is saved for them", async ({ page }) => {
     const seen = wallpapers(page);
     await boot(page);
-    expect(await state(page)).toEqual({ ui: "2", stored: null, ver: "v2.6.1" });
+    expect(await state(page)).toEqual({ ui: "2", stored: null, ver: "v2.6.2" });
     expect(seen).toEqual(["wallpaper-pixelverse-lakeside-night.webp"]);   // not the v2.4 photo
     // Nothing saved: a later change of the default (or a rollback) reaches them too.
     await boot(page);
