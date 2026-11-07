@@ -61,8 +61,10 @@ test.describe("1366×657 laptop (short screen)", () => {
 
   test("the README window opens where it always has, clear of both icon columns", async ({ page }) => {
     // Wide screens have room between the columns, so v2.4.1's fit leaves the README exactly where v2.4.0 put it.
+    // y is 8px under the menu bar: 36 with v2.4's 28px bar, 44 with the 2.0 36px bar (?ui=2, PR-5).
     const r = await box(win(page, "readme"));
-    expect(r).toMatchObject({ x: 273, y: 36, w: 680 });
+    const bar = await page.evaluate(() => document.querySelector(".menubar").getBoundingClientRect().height);
+    expect(r).toMatchObject({ x: 273, y: bar + 8, w: 680 });
     const m = await measure(page);
     expect(overlaps(r, m.left)).toBe(false);
     expect(overlaps(r, m.right)).toBe(false);

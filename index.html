@@ -839,6 +839,70 @@
   @media (prefers-reduced-transparency:reduce){
     :where(:root[data-ui="2"]) .win{background:var(--tank-surface);-webkit-backdrop-filter:none;backdrop-filter:none}
   }
+
+  /* ---------- TankOS 2.0 menu bar (?ui=2) ---------- */
+  /* Same items, same order, same responsive rules (≤600px still hides 經典版, the version and the 私人版 label);
+     only the look changes. The height goes through --menu-h, which .desktop and #windows already use for their
+     top, so everything below moves down with it. */
+  :root[data-ui="2"]{--menu-h:var(--tank-menubar-height)}
+  :where(:root[data-ui="2"]) .menubar{
+    padding:0 var(--tank-space-4);
+    font-size:var(--tank-font-size-sm);
+    color:var(--tank-text);
+    /* The same glass as a focused window, so the bar and the windows read as one system. */
+    background:var(--tank-glass);
+    border-bottom:1px solid var(--tank-border);
+    box-shadow:0 8px 24px rgba(2,4,17,.28);
+    -webkit-backdrop-filter:blur(var(--tank-glass-blur)) saturate(140%);
+    backdrop-filter:blur(var(--tank-glass-blur)) saturate(140%);
+  }
+  :where(:root[data-ui="2"]) .mb-l,:where(:root[data-ui="2"]) .mb-r{gap:var(--tank-space-3)}
+  /* Red stays the brand (decision D2). */
+  :where(:root[data-ui="2"]) .mb-logo{
+    width:20px;height:20px;border-radius:6px;background:var(--tank-brand);
+    font:700 12px/20px "Helvetica Neue",Arial,sans-serif;
+    box-shadow:inset 0 0 0 .5px rgba(255,255,255,.3),0 1px 3px rgba(0,0,0,.35);
+  }
+  :where(:root[data-ui="2"]) .mb-item{opacity:1;color:var(--tank-text-secondary)}
+  :where(:root[data-ui="2"]) .mb-ver{opacity:1;color:var(--tank-text-muted)}
+  :where(:root[data-ui="2"]) .lang button{padding:3px 8px;border-radius:var(--tank-radius-sm);opacity:1;color:var(--tank-text-muted)}
+  /* .on outside :where(): ties with v2.4's ".lang button.on" (0,2,1) and wins by coming later. */
+  :where(:root[data-ui="2"]) .lang button.on{color:var(--tank-text);background:rgba(139,124,255,.28)}
+  :where(:root[data-ui="2"]) .mb-spot{width:30px;height:26px;border-radius:var(--tank-radius-sm);color:var(--tank-text)}
+  :where(:root[data-ui="2"]) .mb-who{padding:3px 8px;border-radius:var(--tank-radius-sm);color:var(--tank-text)}
+  :where(:root[data-ui="2"]) .mb-priv{
+    padding:3px 10px 3px 8px;color:var(--tank-text);
+    background:rgba(139,124,255,.16);box-shadow:inset 0 0 0 1px rgba(139,124,255,.38);
+  }
+  /* One set of states for every control in the bar. */
+  :where(:root[data-ui="2"]) .menubar :where(.mb-item,.lang button,.mb-spot,.mb-who,.mb-priv):hover{
+    color:var(--tank-text);background:rgba(255,255,255,.10);
+  }
+  :where(:root[data-ui="2"]) .menubar :where(.mb-priv):hover{background:rgba(139,124,255,.26)}
+  :where(:root[data-ui="2"]) .menubar :where(.mb-logo,.mb-item,.lang button,.mb-spot,.mb-who,.mb-priv):active{
+    background:rgba(139,124,255,.34);
+  }
+  :where(:root[data-ui="2"]) .menubar :where(.mb-logo):active{background:var(--tank-brand);filter:brightness(.85)}
+  :where(:root[data-ui="2"]) .menubar :where(.mb-logo,.mb-item,.lang button,.mb-spot,.mb-who,.mb-priv):focus-visible{
+    outline:2px solid var(--tank-border-focus);outline-offset:2px;
+  }
+  /* 經典版 is a plain text link; give it a pill on hover/focus like the buttons. */
+  :where(:root[data-ui="2"]) .mb-item{padding:3px 8px;margin:0 -8px;border-radius:var(--tank-radius-sm)}
+  /* Phones: tighter spacing, so the app name has as much room as in v2.4. */
+  @media (max-width:600px){
+    :where(:root[data-ui="2"]) .menubar{padding:0 10px}
+    :where(:root[data-ui="2"]) .mb-l,:where(:root[data-ui="2"]) .mb-r{gap:6px}
+    :where(:root[data-ui="2"]) .lang{gap:0}
+    :where(:root[data-ui="2"]) .lang button,:where(:root[data-ui="2"]) .mb-who{padding:3px 6px}
+    :where(:root[data-ui="2"]) .mb-spot{width:28px}
+    :where(:root[data-ui="2"]) .mb-priv{padding:3px 7px}
+  }
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    :where(:root[data-ui="2"]) .menubar{background:var(--tank-glass-strong)}
+  }
+  @media (prefers-reduced-transparency:reduce){
+    :where(:root[data-ui="2"]) .menubar{background:var(--tank-bg);-webkit-backdrop-filter:none;backdrop-filter:none}
+  }
 </style>
 </head>
 <body>

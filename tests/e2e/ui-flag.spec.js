@@ -121,14 +121,27 @@ test.describe("?ui=2 (Nocturne preview)", () => {
     });
   }
 
-  test("only colours change: layout and the Dock are the same as v2.4", async ({ page }) => {
+  test("layout is v2.4's: same sizes and columns, the Dock untouched; only the taller 2.0 menu bar moves things down", async ({ page }) => {
+    const read = () => page.evaluate(() => ({
+      bar: document.querySelector(".menubar").getBoundingClientRect().height,
+      dock: [...document.querySelectorAll("#dock .dk")].map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round).join(","); }),
+      icons: [...document.querySelectorAll(".dicon")].map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round); }),
+      wins: [...document.querySelectorAll("section.win")].map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round); })
+    }));
     await boot(page);
-    const before = await page.evaluate(() => [...document.querySelectorAll("#dock .dk, section.win, .dicon, .menubar")]
-      .map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round).join(","); }));
+    const before = await read();
     await boot(page, { path: "/?ui=2" });
-    const after = await page.evaluate(() => [...document.querySelectorAll("#dock .dk, section.win, .dicon, .menubar")]
-      .map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round).join(","); }));
-    expect(after).toEqual(before);
+    const after = await read();
+    expect(before.bar).toBe(28);
+    expect(after.bar).toBe(36);                       // --tank-menubar-height (PR-5)
+    expect(after.dock).toEqual(before.dock);          // the Dock does not move
+    const shift = after.bar - before.bar;
+    // Desktop icons: same x, width, height; y moved down by exactly the extra menu-bar height.
+    expect(after.icons).toEqual(before.icons.map(([x, y, w, h]) => [x, y + shift, w, h]));
+    // Windows: same x and width, moved down the same; open() fits the height to the space above the Dock, which is
+    // now `shift` shorter, so a window that filled it is `shift` shorter too (README at 1366×768: 642 → 634).
+    expect(after.wins.map(([x, y, w]) => [x, y, w])).toEqual(before.wins.map(([x, y, w]) => [x, y + shift, w]));
+    after.wins.forEach(([, , , h], i) => expect([before.wins[i][3], before.wins[i][3] - shift]).toContain(h));
   });
 });
 
