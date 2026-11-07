@@ -126,7 +126,10 @@ test.describe("?ui=2 (Nocturne preview)", () => {
       bar: document.querySelector(".menubar").getBoundingClientRect().height,
       dockTop: document.getElementById("dock").getBoundingClientRect().top,
       dock: [...document.querySelectorAll("#dock .dk")].map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round).join(","); }),
-      icons: [...document.querySelectorAll(".dicon")].map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round); }),
+      // The icons both UIs show (2.0 adds Settings under Utilities, which only changes that zone's height).
+      icons: [...document.querySelectorAll(".zones-l .dicon")].map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round); }),
+      // Right column: 2.0 adds Settings under Utilities, which pushes the zones below it down by one row.
+      right: [...document.querySelectorAll(".zones-r .dicon:not([data-open=settings])")].map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round); }),
       wins: [...document.querySelectorAll("section.win")].map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round); })
     }));
     await boot(page);
@@ -138,8 +141,11 @@ test.describe("?ui=2 (Nocturne preview)", () => {
     // The Dock is restyled in 2.0 (PR-6: 48px icons, the launcher button); dock-and-apps / layout / dock2 cover it.
     expect(after.dock.length).toBe(before.dock.length);
     const shift = after.bar - before.bar;
-    // Desktop icons: same x, width, height; y moved down by exactly the extra menu-bar height.
+    // Left-column icons: same x, width, height; y moved down by exactly the extra menu-bar height.
     expect(after.icons).toEqual(before.icons.map(([x, y, w, h]) => [x, y + shift, w, h]));
+    // Right column: same x and size; never higher than v2.4 plus the menu-bar shift (lower below Settings' row).
+    expect(after.right.map(([x, , w, h]) => [x, w, h])).toEqual(before.right.map(([x, , w, h]) => [x, w, h]));
+    after.right.forEach(([, y], i) => expect(y).toBeGreaterThanOrEqual(before.right[i][1] + shift));
     // Windows: same x and width, moved down the same. open() fits the height to the space between the menu bar
     // and the Dock, both of which 2.0 changes, so a window that filled it can only get shorter, and it still ends
     // above the Dock (README at 1366×768: 642 → 632).
@@ -273,7 +279,10 @@ test.describe("everything else is scoped to the flag", () => {
     const offenders = rules.filter((r) => /--tank-|data-ui/.test(r))
       .map((r) => r.slice(0, r.indexOf("{")).trim())
       // Either form: :root[data-ui="2"] (tokens) or :where(:root[data-ui="2"]) (PR-4's zero-specificity restyles).
-      .filter((sel) => !sel.split(/,(?![^(]*\))/).every((s) => /^(:root\[data-ui="2"\]|:where\(:root\[data-ui="2"\]\))/.test(s.trim())));
+      // Further attribute conditions on :root are fine (PR-7: [data-transparency="reduced"] etc.). The one rule
+      // allowed outside 2.0 hides 2.0's own entry points (.ui2-only) from v2.4.
+      .filter((sel) => !sel.split(/,(?![^(]*\))/).every((s) => /^(:root\[data-ui="2"\](\[[^\]]+\])*|:where\(:root\[data-ui="2"\](\[[^\]]+\])*\))/.test(s.trim()) ||
+        s.trim() === ':where(:root:not([data-ui="2"])) .ui2-only'));
     expect(offenders).toEqual([]);
   });
 });

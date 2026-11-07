@@ -10,7 +10,7 @@ const PRIMARY = "rgb(139, 124, 255)";
 const GROUPS_ZH = ["作品", "遊戲區", "小工具", "關於我", "其他"];
 const GROUPS_EN = ["Projects", "Games", "Utilities", "About me", "More"];
 const APP_IDS = ["fukuoka", "busan", "yangmingshan", "wordtrailer", "pockettrip", "averlyn",
-  "blocks", "trace", "shachiku", "nightmarket", "terminal", "activity", "calc", "calendar", "readme", "contact",
+  "blocks", "trace", "shachiku", "nightmarket", "terminal", "activity", "calc", "calendar", "settings", "readme", "contact",
   "about", "private"];
 
 function shown(page){
@@ -62,8 +62,8 @@ test.describe("?ui=2 desktop Dock (1366×768)", () => {
     await expect(dock).toHaveCSS("border-top-left-radius", "20px");
     await expect(dock).toHaveCSS("border-top-width", "1px");
     const items = await shown(page);
-    expect(items).toHaveLength(13);
-    expect(items[12].id).toBe("btnLaunch");
+    expect(items).toHaveLength(14);
+    expect(items.slice(-3).map((i) => i.id)).toEqual(["settings", "classic/", "btnLaunch"]);   // after the separator
     for (const i of items) expect([i.w, i.h]).toEqual([48, 48]);
     // The same icon elements as v2.4 (nothing regenerated).
     await expect(page.locator('#dock .dk[data-open="fukuoka"] .ic.ic-fukuoka svg use')).toHaveAttribute("href", "#g-torii");

@@ -24,6 +24,15 @@
     if (ui === "2") {
       document.documentElement.setAttribute("data-ui", "2");
       document.querySelector('meta[name="theme-color"]').setAttribute("content", "#0b1020");
+      // 2.0 Settings (wallpaper, transparency, motion), also before the first paint. A saved choice wins; otherwise
+      // the system preference. Only ?ui=2 ever gets these attributes, so v2.4 is untouched. Keep in step with
+      // PREFS in the main script, which re-applies them (and follows system changes) once the page is running.
+      var pref = function(key, ok){ try { var v = localStorage.getItem(key); return ok.indexOf(v) > -1 ? v : null; } catch (e) { return null; } };
+      var sys = function(q){ return window.matchMedia && matchMedia(q).matches ? "reduced" : "normal"; };
+      var root = document.documentElement;
+      root.setAttribute("data-wall", pref("ui2.wallpaper", ["pixelverse", "komezuka"]) || "pixelverse");
+      root.setAttribute("data-transparency", pref("ui2.transparency", ["normal", "reduced"]) || sys("(prefers-reduced-transparency: reduce)"));
+      root.setAttribute("data-motion", pref("ui2.motion", ["normal", "reduced"]) || sys("(prefers-reduced-motion: reduce)"));
     }
   })();
 </script>
@@ -771,9 +780,12 @@
     .mb-priv span{display:none}
   }
   @media (prefers-reduced-motion:reduce){
-    .win,.win.closing,.bk-piece.turn{animation:none}
-    .win,.dk,.dk .ic{transition:none}
+    :where(:root:not([data-motion="normal"])) :is(.win,.win.closing,.bk-piece.turn){animation:none}
+    :where(:root:not([data-motion="normal"])) :is(.win,.dk,.dk .ic){transition:none}
   }
+  /* 2.0's Settings can ask for reduced motion without the system preference (data-motion is only set under ?ui=2). */
+  :where(:root[data-motion="reduced"]) :is(.win,.win.closing,.bk-piece.turn){animation:none}
+  :where(:root[data-motion="reduced"]) :is(.win,.dk,.dk .ic){transition:none}
 
   /* ---------- TankOS 2.0 window system (?ui=2) ---------- */
   /* Every rule is wrapped in :where(...), which adds no specificity, so each one ties with the v2.4 rule it restyles
@@ -836,9 +848,8 @@
   @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
     :where(:root[data-ui="2"]) .win{background:var(--tank-surface)}
   }
-  @media (prefers-reduced-transparency:reduce){
-    :where(:root[data-ui="2"]) .win{background:var(--tank-surface);-webkit-backdrop-filter:none;backdrop-filter:none}
-  }
+  /* Reduced transparency: the effective 2.0 setting (Settings, else the system preference). */
+  :where(:root[data-ui="2"][data-transparency="reduced"]) .win{background:var(--tank-surface);-webkit-backdrop-filter:none;backdrop-filter:none}
 
   /* ---------- TankOS 2.0 menu bar (?ui=2) ---------- */
   /* Same items, same order, same responsive rules (≤600px still hides 經典版, the version and the 私人版 label);
@@ -900,9 +911,7 @@
   @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
     :where(:root[data-ui="2"]) .menubar{background:var(--tank-glass-strong)}
   }
-  @media (prefers-reduced-transparency:reduce){
-    :where(:root[data-ui="2"]) .menubar{background:var(--tank-bg);-webkit-backdrop-filter:none;backdrop-filter:none}
-  }
+  :where(:root[data-ui="2"][data-transparency="reduced"]) .menubar{background:var(--tank-bg);-webkit-backdrop-filter:none;backdrop-filter:none}
 
   /* ---------- TankOS 2.0 wallpaper (?ui=2): Pixelverse lakeside night ---------- */
   /* images/wallpaper-pixelverse-lakeside-night.png is the approved artwork (1672×941), kept byte for byte; browsers
@@ -1058,15 +1067,84 @@
     }
     :where(:root[data-ui="2"]) .ln-group ul{grid-template-columns:repeat(auto-fill,minmax(72px,1fr))}
   }
-  @media (prefers-reduced-motion:reduce){
-    :where(:root[data-ui="2"]) .dk:hover .ic{transform:none}
-    :where(:root[data-ui="2"]) .ln-box{animation:none}
-  }
+  :where(:root[data-ui="2"][data-motion="reduced"]) .dk:hover .ic{transform:none}
+  :where(:root[data-ui="2"][data-motion="reduced"]) .ln-box{animation:none}
   @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
     :where(:root[data-ui="2"]) .dock,:where(:root[data-ui="2"]) .ln-box{background:var(--tank-glass-strong)}
   }
-  @media (prefers-reduced-transparency:reduce){
-    :where(:root[data-ui="2"]) .dock,:where(:root[data-ui="2"]) .ln-box{background:var(--tank-surface);-webkit-backdrop-filter:none;backdrop-filter:none}
+  :where(:root[data-ui="2"][data-transparency="reduced"]) .dock,:where(:root[data-ui="2"][data-transparency="reduced"]) .ln-box{background:var(--tank-surface);-webkit-backdrop-filter:none;backdrop-filter:none}
+
+  /* ---------- TankOS 2.0 Settings (?ui=2) ---------- */
+  /* Entry points that only 2.0 has (the Settings desktop icon and Dock button). :where() keeps this at the same
+     specificity as .dk / li, so it only hides them and changes nothing else in v2.4. */
+  :where(:root:not([data-ui="2"])) .ui2-only{display:none}
+  .ic-settings{background:linear-gradient(160deg,#8A90B8,#454B70 58%,#2A2E48);color:#fff}
+  .ic-settings svg{stroke-width:1.7}
+  /* One more Dock button (Settings): narrow desktops get tighter gaps so all 14 still fit from 769px. */
+  @media (min-width:769px) and (max-width:879px){
+    :where(:root[data-ui="2"]) .dock{gap:4px}
+  }
+  /* Wallpaper choice: the Komezuka photo under the same night overlay; the lock screen follows. */
+  :where(:root[data-ui="2"][data-wall="komezuka"]) .wall{
+    background-image:
+      linear-gradient(180deg,rgba(16,14,48,.45) 0,rgba(16,14,48,0) 16%,rgba(16,14,48,0) 74%,rgba(16,14,48,.42) 100%),
+      linear-gradient(90deg,rgba(16,14,48,.34) 0,rgba(16,14,48,0) 22%,rgba(16,14,48,0) 78%,rgba(16,14,48,.30) 100%),
+      url(images/wallpaper-komezuka.jpg);
+    background-position:0 0,0 0,54% 58%;
+  }
+  @media (max-width:768px){
+    :where(:root[data-ui="2"][data-wall="komezuka"]) .wall{
+      background-image:
+        linear-gradient(180deg,rgba(16,14,48,.45) 0,rgba(16,14,48,0) 16%,rgba(16,14,48,0) 74%,rgba(16,14,48,.42) 100%),
+        linear-gradient(90deg,rgba(16,14,48,.34) 0,rgba(16,14,48,0) 22%,rgba(16,14,48,0) 78%,rgba(16,14,48,.30) 100%),
+        url(images/wallpaper-komezuka-sm.jpg);
+    }
+  }
+  :where(:root[data-ui="2"][data-wall="komezuka"]) #lock::before{background-image:url(images/wallpaper-komezuka.jpg);background-position:54% 58%}
+
+  /* The Settings window. */
+  :where(:root[data-ui="2"]) .st{display:flex;flex-direction:column;gap:var(--tank-space-5);padding:var(--tank-space-5);color:var(--tank-text);font-size:var(--tank-font-size-md)}
+  :where(:root[data-ui="2"]) .st-sec{min-width:0;margin:0;padding:0;border:0}
+  :where(:root[data-ui="2"]) .st :where(h3,legend){
+    margin:0 0 var(--tank-space-3);padding:0;font:700 11px/1 var(--sys);letter-spacing:.14em;text-transform:uppercase;
+    color:var(--tank-text-muted);
+  }
+  :where(:root[data-ui="2"]) .st-card{
+    display:flex;align-items:center;gap:var(--tank-space-3);padding:var(--tank-space-3) var(--tank-space-4);
+    border-radius:var(--tank-radius-md);background:var(--tank-surface-elevated);border:1px solid rgba(139,124,255,.45);
+  }
+  :where(:root[data-ui="2"]) .st-swatch{flex:none;width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--tank-bg) 0,var(--tank-surface-elevated) 45%,var(--tank-primary) 100%);box-shadow:inset 0 0 0 1px var(--tank-border)}
+  :where(:root[data-ui="2"]) .st-card-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  :where(:root[data-ui="2"]) .st-card-t span{font-size:var(--tank-font-size-sm);color:var(--tank-text-secondary)}
+  :where(:root[data-ui="2"]) .st-badge{flex:none;padding:3px 9px;border-radius:var(--tank-radius-pill);font-size:var(--tank-font-size-xs);background:rgba(139,124,255,.28)}
+  :where(:root[data-ui="2"]) .st-btn{
+    min-height:44px;margin-top:var(--tank-space-3);padding:0 var(--tank-space-4);
+    border-radius:var(--tank-radius-md);border:1px solid var(--tank-border);background:var(--tank-surface-elevated);
+    color:var(--tank-text);font-weight:600;cursor:pointer;
+  }
+  :where(:root[data-ui="2"]) .st-btn:hover{background:#26335E}
+  :where(:root[data-ui="2"]) .st-btn-quiet{margin-top:0;background:transparent}
+  :where(:root[data-ui="2"]) :is(.st-btn,.st-opt input):focus-visible{outline:2px solid var(--tank-border-focus);outline-offset:2px}
+  :where(:root[data-ui="2"]) .st-note{margin-top:var(--tank-space-2);font-size:var(--tank-font-size-xs);line-height:1.5;color:var(--tank-text-muted)}
+  :where(:root[data-ui="2"]) .st-note code{font-family:var(--mono);color:var(--tank-text-secondary)}
+  :where(:root[data-ui="2"]) .st-opts{display:grid;grid-template-columns:1fr 1fr;gap:var(--tank-space-2)}
+  :where(:root[data-ui="2"]) .st-opt{
+    display:flex;align-items:center;gap:var(--tank-space-3);min-height:48px;padding:var(--tank-space-3);
+    border-radius:var(--tank-radius-md);border:1px solid var(--tank-border);background:var(--tank-surface-elevated);cursor:pointer;
+  }
+  /* The native radio stays visible (accent-colour), so the choice shows even without :has(); :has() adds the card highlight. */
+  :where(:root[data-ui="2"]) .st-opt input{flex:none;width:18px;height:18px;margin:0;accent-color:var(--tank-primary)}
+  :where(:root[data-ui="2"]) .st-opt:has(input:checked){border-color:var(--tank-primary);background:rgba(139,124,255,.18)}
+  :where(:root[data-ui="2"]) .st-opt:hover{border-color:rgba(139,124,255,.6)}
+  :where(:root[data-ui="2"]) .st-walls .st-opt{flex-wrap:wrap;align-items:flex-start;align-content:flex-start}
+  :where(:root[data-ui="2"]) .st-walls .st-opt > span:last-child{flex:1;min-width:0}
+  :where(:root[data-ui="2"]) .st-thumb{order:-1;flex:1 0 100%;aspect-ratio:16/9;border-radius:var(--tank-radius-sm);background:center/cover no-repeat;box-shadow:inset 0 0 0 1px var(--tank-border)}
+  :where(:root[data-ui="2"]) .st-thumb-pixel{background-image:url(images/wallpaper-pixelverse-lakeside-night.png);background-image:image-set(url(images/wallpaper-pixelverse-lakeside-night.webp) type("image/webp"),url(images/wallpaper-pixelverse-lakeside-night.png) type("image/png"))}
+  :where(:root[data-ui="2"]) .st-thumb-kome{background-image:url(images/wallpaper-komezuka-sm.jpg)}
+  :where(:root[data-ui="2"]) .st-foot{display:flex;flex-direction:column;align-items:flex-start}
+  @media (max-width:480px){
+    :where(:root[data-ui="2"]) .st{padding:var(--tank-space-4)}
+    :where(:root[data-ui="2"]) .st-opts:not(.st-walls){grid-template-columns:1fr}
   }
 </style>
 </head>
@@ -1095,6 +1173,7 @@
   </symbol>
   <symbol id="g-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/><path d="M12 14.5v2.5"/></symbol>
   <symbol id="g-ext" viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="g-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M21.2 12h-2.6M5.4 12H2.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8M18.5 18.5l-1.8-1.8M7.3 7.3 5.5 5.5"/><circle cx="12" cy="12" r="6.6"/></symbol>
   <symbol id="g-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1.6"/><rect x="14" y="4" width="6" height="6" rx="1.6"/><rect x="4" y="14" width="6" height="6" rx="1.6"/><rect x="14" y="14" width="6" height="6" rx="1.6"/></symbol>
   <symbol id="g-side" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.2"/><path d="M9.5 5v14"/></symbol>
 </svg>
@@ -1111,7 +1190,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.4.5</span>
+    <span class="mb-ver">v2.4.6</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.com/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -1152,6 +1231,7 @@
         <li><button class="dicon" type="button" data-open="activity"><span class="ic ic-activity"><svg><use href="#g-pulse"/></svg></span><span class="lbl" data-i18n="app.activity">活動監視器</span></button></li>
         <li><button class="dicon" type="button" data-open="calc"><span class="ic ic-calc"><svg><use href="#g-calc"/></svg></span><span class="lbl" data-i18n="app.calc">計算機</span></button></li>
         <li><button class="dicon" type="button" data-open="calendar"><span class="ic ic-cal" aria-hidden="true"><b class="ci-wd"></b><b class="ci-d"></b></span><span class="lbl" data-i18n="app.calendar">日曆</span></button></li>
+        <li class="ui2-only"><button class="dicon" type="button" data-open="settings"><span class="ic ic-settings"><svg><use href="#g-gear"/></svg></span><span class="lbl" data-i18n="app.settings">設定</span></button></li>
       </ul>
   </section>
     <button class="wg" id="wgHol" type="button" hidden>
@@ -1217,12 +1297,56 @@
   <button class="dk" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="tip" data-i18n="app.terminal">終端機</span></button>
   <button class="dk" type="button" data-open="contact" data-m><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="tip" data-i18n="app.contact">聯絡我</span></button>
   <span class="dk-sep" aria-hidden="true"></span>
+  <button class="dk ui2-only" type="button" data-open="settings"><span class="ic ic-settings"><svg><use href="#g-gear"/></svg></span><span class="tip" data-i18n="app.settings">設定</span></button>
   <a class="dk" href="classic/" data-m><span class="ic ic-classic" aria-hidden="true">T</span><span class="tip" data-i18n="app.classic">經典版</span></a>
   <!-- TankOS 2.0 (?ui=2): every app, opened from here. Hidden in v2.4. -->
   <button class="dk dk-launch" id="btnLaunch" type="button" data-m aria-haspopup="dialog" aria-controls="launcher" aria-expanded="false"><span class="ic ic-launch" aria-hidden="true"><svg><use href="#g-grid"/></svg></span><span class="tip" data-i18n="os.ln.btn">所有 App</span></button>
 </nav>
 
 <!-- ============ WINDOW CONTENT ============ -->
+<template id="tpl-settings">
+  <div class="body st">
+    <section class="st-sec" aria-labelledby="stLook">
+      <h3 id="stLook" data-i18n="st.look">外觀</h3>
+      <div class="st-card">
+        <span class="st-swatch" aria-hidden="true"></span>
+        <span class="st-card-t"><b data-i18n="st.look.name">Nocturne</b><span data-i18n="st.look.desc">TankOS 2.0 預覽的深色主題</span></span>
+        <span class="st-badge" data-i18n="st.look.on">使用中</span>
+      </div>
+      <button class="st-btn" type="button" data-act="v1" data-i18n="st.look.back">切回 v2.4 介面</button>
+      <p class="st-note" data-i18n-html="st.look.note"></p>
+    </section>
+    <fieldset class="st-sec">
+      <legend data-i18n="st.wall">桌布</legend>
+      <div class="st-opts st-walls">
+        <label class="st-opt"><input type="radio" name="st-wallpaper" value="pixelverse"><span class="st-thumb st-thumb-pixel" aria-hidden="true"></span><span data-i18n="st.wall.pixel">Pixelverse 湖畔夜景</span></label>
+        <label class="st-opt"><input type="radio" name="st-wallpaper" value="komezuka"><span class="st-thumb st-thumb-kome" aria-hidden="true"></span><span data-i18n="st.wall.kome">阿蘇米塚</span></label>
+      </div>
+      <p class="st-note" data-i18n="st.wall.note">桌面與鎖定畫面一起換。</p>
+    </fieldset>
+    <fieldset class="st-sec">
+      <legend data-i18n="st.tr">透明度</legend>
+      <div class="st-opts">
+        <label class="st-opt"><input type="radio" name="st-transparency" value="normal"><span data-i18n="st.tr.normal">一般（玻璃效果）</span></label>
+        <label class="st-opt"><input type="radio" name="st-transparency" value="reduced"><span data-i18n="st.tr.reduced">降低透明度</span></label>
+      </div>
+      <p class="st-note st-sys" data-pref="transparency" data-i18n="st.sys" hidden>跟隨系統設定</p>
+    </fieldset>
+    <fieldset class="st-sec">
+      <legend data-i18n="st.mo">動態效果</legend>
+      <div class="st-opts">
+        <label class="st-opt"><input type="radio" name="st-motion" value="normal"><span data-i18n="st.mo.normal">一般</span></label>
+        <label class="st-opt"><input type="radio" name="st-motion" value="reduced"><span data-i18n="st.mo.reduced">降低動態效果</span></label>
+      </div>
+      <p class="st-note st-sys" data-pref="motion" data-i18n="st.sys" hidden>跟隨系統設定</p>
+    </fieldset>
+    <div class="st-foot">
+      <button class="st-btn st-btn-quiet" type="button" data-act="reset" data-i18n="st.reset">重設為預設</button>
+      <p class="st-note st-mem" data-i18n="st.mem" hidden>這個瀏覽器不能儲存設定，重新整理後會回到預設。</p>
+    </div>
+  </div>
+</template>
+
 <template id="tpl-readme">
   <div class="body doc">
     <h2><span class="md">#</span>Tank Yang</h2>
@@ -1497,6 +1621,26 @@
     "app.averlyn":{zh:"Averlyn 疫苗", en:"Averlyn's Vaccines"},
     "app.calc":    {zh:"計算機", en:"Calculator"},
     "app.calendar":{zh:"日曆", en:"Calendar"},
+    "app.settings":{zh:"設定", en:"Settings"},
+    "st.look":     {zh:"外觀", en:"Appearance"},
+    "st.look.name":{zh:"Nocturne", en:"Nocturne"},
+    "st.look.desc":{zh:"TankOS 2.0 預覽的深色主題", en:"The dark theme of the TankOS 2.0 preview"},
+    "st.look.on":  {zh:"使用中", en:"In use"},
+    "st.look.back":{zh:"切回 v2.4 介面", en:"Switch back to v2.4"},
+    "st.look.note":{zh:"之後在網址加上 <code>?ui=2</code> 就能回到 2.0。", en:"Add <code>?ui=2</code> to the address to come back to 2.0."},
+    "st.wall":     {zh:"桌布", en:"Wallpaper"},
+    "st.wall.pixel":{zh:"Pixelverse 湖畔夜景", en:"Pixelverse lakeside night"},
+    "st.wall.kome":{zh:"阿蘇米塚", en:"Komezuka, Aso"},
+    "st.wall.note":{zh:"桌面與鎖定畫面一起換。", en:"Changes the desktop and the lock screen."},
+    "st.tr":       {zh:"透明度", en:"Transparency"},
+    "st.tr.normal":{zh:"一般（玻璃效果）", en:"Normal (glass)"},
+    "st.tr.reduced":{zh:"降低透明度", en:"Reduce transparency"},
+    "st.mo":       {zh:"動態效果", en:"Motion"},
+    "st.mo.normal":{zh:"一般", en:"Normal"},
+    "st.mo.reduced":{zh:"降低動態效果", en:"Reduce motion"},
+    "st.sys":      {zh:"跟隨系統設定", en:"Following your system setting"},
+    "st.reset":    {zh:"重設為預設", en:"Reset to defaults"},
+    "st.mem":      {zh:"這個瀏覽器不能儲存設定，重新整理後會回到預設。", en:"This browser can't save settings; they reset when you reload."},
     "app.about":   {zh:"關於 TankOS", en:"About TankOS"},
     "os.bk.score": {zh:"分數", en:"Score"},
     "os.bk.best":  {zh:"最佳", en:"Best"},
@@ -1610,6 +1754,8 @@
     contact: {w:440, h:450},
     calc:    {w:260, h:400, cls:"calc-win"},
     calendar:{w:560, h:520},
+    // TankOS 2.0 only: its desktop icon, Dock button and Spotlight entry exist under ?ui=2 alone.
+    settings:{w:520, h:640, ui2:true},
     about:   {w:420, h:580},
     // The private TankOS (tankfinal/portfolio-private) sits behind Cloudflare Access, whose sign-in page
     // cannot run in an iframe, so this one opens in a new tab instead of a window.
@@ -1630,7 +1776,10 @@
   var btnEn  = document.getElementById("btnEn");
   var narrow = window.matchMedia("(max-width: 768px)");
   var coarse = window.matchMedia("(pointer: coarse)");
-  var still  = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var stillMq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  // Reduced motion: 2.0's Settings may override the system (data-motion on <html>, only ever set under ?ui=2);
+  // v2.4 follows the system as before. Same .matches interface as the MediaQueryList it replaces.
+  var still  = {get matches(){ var m = document.documentElement.getAttribute("data-motion"); return m ? m === "reduced" : stillMq.matches; }};
 
   var lang = "zh";
   var wins = {};
@@ -1757,6 +1906,7 @@
     if (id === "calc") initCalc(el);
     if (id === "calendar") initCalendar(el);
     if (id === "about") initAbout(el);
+    if (id === "settings") initSettings(el);
     if (a.file) mountApp(el, id);
     wire(el, id);
     return el;
@@ -3158,6 +3308,71 @@
   setLang(saved === "en" ? "en" : "zh");
   setInterval(function(){ tick(); lockTick(); }, 1000);
 
+  /* ---------- Settings (TankOS 2.0, ?ui=2) ---------- */
+  // Three 2.0 preferences, each an attribute on <html> that the 2.0 CSS reads: data-wall, data-transparency,
+  // data-motion. The <head> script sets them before the first paint with the same rules as here (keep in step);
+  // this keeps them right afterwards: choices from the Settings window, and system changes while nothing is chosen.
+  // A choice is saved in localStorage; with storage blocked it lasts for this page only. v2.4 never gets the
+  // attributes, so nothing here touches ?ui=1.
+  function isUI2(){ return document.documentElement.getAttribute("data-ui") === "2"; }
+  var PREFS = {
+    wallpaper:    {key: "ui2.wallpaper",    attr: "data-wall",         values: ["pixelverse", "komezuka"], mq: null},
+    transparency: {key: "ui2.transparency", attr: "data-transparency", values: ["normal", "reduced"], mq: window.matchMedia("(prefers-reduced-transparency: reduce)")},
+    motion:       {key: "ui2.motion",       attr: "data-motion",       values: ["normal", "reduced"], mq: stillMq}
+  };
+  var prefMem = {}, prefNoStore = false;
+
+  function prefSaved(name){
+    var p = PREFS[name], v = null;
+    try { v = localStorage.getItem(p.key); } catch (e) { prefNoStore = true; v = prefMem[name] || null; }
+    return p.values.indexOf(v) > -1 ? v : null;
+  }
+  function prefValue(name){
+    var p = PREFS[name];
+    return prefSaved(name) || (p.mq ? (p.mq.matches ? "reduced" : "normal") : p.values[0]);
+  }
+  function prefApply(){
+    if (!isUI2()) return;
+    Object.keys(PREFS).forEach(function(n){ document.documentElement.setAttribute(PREFS[n].attr, prefValue(n)); });
+    if (wins.settings) settingsSync(wins.settings.el);
+  }
+  function prefSet(name, v){
+    if (PREFS[name].values.indexOf(v) < 0) return;
+    try { localStorage.setItem(PREFS[name].key, v); } catch (e) { prefNoStore = true; prefMem[name] = v; }
+    prefApply();
+  }
+  function prefReset(){
+    Object.keys(PREFS).forEach(function(n){ try { localStorage.removeItem(PREFS[n].key); } catch (e) { prefNoStore = true; } delete prefMem[n]; });
+    prefApply();
+  }
+  // Nothing chosen yet: follow the system preference as it changes.
+  ["transparency", "motion"].forEach(function(n){
+    var mq = PREFS[n].mq;
+    if (!mq) return;
+    if (mq.addEventListener) mq.addEventListener("change", prefApply); else if (mq.addListener) mq.addListener(prefApply);
+  });
+
+  // The Settings window: radio groups for the three preferences, "following your system" notes, reset, and the
+  // way back to v2.4.
+  function settingsSync(el){
+    Object.keys(PREFS).forEach(function(n){
+      var v = prefValue(n);
+      el.querySelectorAll('input[name="st-' + n + '"]').forEach(function(r){ r.checked = r.value === v; });
+      var note = el.querySelector('.st-sys[data-pref="' + n + '"]');
+      if (note) note.hidden = !!prefSaved(n);
+    });
+    el.querySelector(".st-mem").hidden = !prefNoStore;
+  }
+  function initSettings(el){
+    settingsSync(el);
+    el.addEventListener("change", function(e){
+      var m = e.target.name && e.target.name.match(/^st-(\w+)$/);
+      if (m && PREFS[m[1]]) prefSet(m[1], e.target.value);
+    });
+    el.querySelector('[data-act="reset"]').addEventListener("click", prefReset);
+    el.querySelector('[data-act="v1"]').addEventListener("click", function(){ location.href = location.pathname + "?ui=1"; });
+  }
+
   /* ---------- App Launcher (TankOS 2.0, ?ui=2) ---------- */
   // Every app in one place: the Dock's grid button opens it (the button only shows under ?ui=2). Not a second app
   // list: it reads what is already on the page. The desktop's zones give the groups, their headings and order; the
@@ -3343,7 +3558,8 @@
     calendar:"日曆 行事曆 月曆 日期 今天 農曆 放假 連假 calendar cal date today holiday",
     about:"關於 版本 版號 更新紀錄 about version changelog release",
     contact:"聯絡 email mail linkedin github",
-    private:"私人 私密 登入 鎖 private login lock"
+    private:"私人 私密 登入 鎖 private login lock",
+    settings:"設定 偏好 桌布 透明度 動態效果 外觀 主題 settings preferences wallpaper transparency motion appearance theme"
   };
   var EXP = [["XREX","e1"],["Binance","e2"],["CIMFORCE 上博科技","e3"],["Chiying Information Corp.","e4"],["Zyxel","e5"],["ARES International Corp.","e6"]];
   var STACK = ["Java","Spring Boot","Spring Cloud","Kafka","RabbitMQ","Redis","MySQL","Elasticsearch","StarRocks","Airflow","Spark","Flink","Docker","Kubernetes","AWS","TypeScript","React","Python","MCP"];
@@ -3358,7 +3574,7 @@
 
   function index(){
     var items = [];
-    ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","wordtrailer","pockettrip","averlyn","terminal","calc","calendar","about","readme","contact","private"].forEach(function(id){
+    ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","wordtrailer","pockettrip","averlyn","terminal","calc","calendar","about","readme","contact","private","settings"].filter(function(id){ return !APPS[id].ui2 || isUI2(); }).forEach(function(id){
       items.push({label:appName(id), sub:"", kind:t("os.spot.app"), icon:iconOf(id), keys:(id + " " + KW[id]).toLowerCase(), go:function(){ open(id); }});
     });
     EXP.forEach(function(e){

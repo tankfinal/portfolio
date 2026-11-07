@@ -18,8 +18,10 @@ test.describe("Dock", () => {
   test.beforeEach(async ({ page }) => { await boot(page); });
 
   test("holds today's apps in order, then a separator and the classic site", async ({ page }) => {
-    const ids = await page.locator("#dock button.dk").evaluateAll((els) => els.map((e) => e.dataset.open));
-    expect(ids).toEqual(DOCK);
+    // Only the buttons on screen with an app: 2.0 adds Settings after the separator (PR-7) and the launcher (PR-6).
+    const ids = await page.locator("#dock button.dk[data-open]").evaluateAll((els) => els.filter((e) => e.getClientRects().length).map((e) => e.dataset.open));
+    const ui2 = await page.evaluate(() => document.documentElement.getAttribute("data-ui") === "2");
+    expect(ids).toEqual(ui2 ? DOCK.concat("settings") : DOCK);
     await expect(page.locator("#dock")).toHaveAttribute("aria-label", "Dock");
     await expect(page.locator("#dock .dk-sep")).toHaveCount(1);
     await expect(page.locator("#dock a.dk").last()).toHaveAttribute("href", "classic/");
@@ -73,8 +75,9 @@ test.describe("apps", () => {
   test.beforeEach(async ({ page }) => { await boot(page); });
 
   test("the desktop lists every app that has an icon", async ({ page }) => {
-    const ids = await page.locator(".desktop .dicon").evaluateAll((els) => els.map((e) => e.dataset.open));
-    expect(ids.sort()).toEqual([...SITE, ...TEMPLATE, ...FILE].sort());
+    const ids = await page.locator(".desktop .dicon").evaluateAll((els) => els.filter((e) => e.getClientRects().length).map((e) => e.dataset.open));
+    const ui2 = await page.evaluate(() => document.documentElement.getAttribute("data-ui") === "2");
+    expect(ids.sort()).toEqual([...SITE, ...TEMPLATE, ...FILE, ...(ui2 ? ["settings"] : [])].sort());   // Settings: 2.0 only
   });
 
   for (const id of SITE) {
