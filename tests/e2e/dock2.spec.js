@@ -347,7 +347,8 @@ test.describe("?ui=2 App Launcher is a true modal", () => {
     await page.keyboard.press("Control+k");                  // Spotlight from inside the launcher
     await expect(page.locator("#spot")).toBeVisible();
     expect(await openModals(page)).toEqual(["Spotlight"]);
-    expect(await inertState(page)).toEqual([false, false, false, false]);
+    // Spotlight is a real modal too since PR-8: the background stays inert, now for Spotlight.
+    expect(await inertState(page)).toEqual([true, true, true, true]);
     await expect(page.locator("#spIn")).toBeFocused();
     await page.keyboard.press("Escape");
     await openLauncher(page);                                // and the launcher closes Spotlight
