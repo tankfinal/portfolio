@@ -44,7 +44,9 @@ images/
 ├── open-tonight.jpg
 ├── wordtrailer.jpg
 ├── pocket-trip.jpg            # 經典版作品圖（口袋旅行的登入畫面）
-└── pocket-trip-icon.png       # 口袋旅行的桌面 icon（App 自己的 logo）
+├── pocket-trip-icon.png       # 口袋旅行的桌面 icon（App 自己的 logo）
+├── averlyn-vaccine.jpg        # 經典版作品圖（Averlyn 疫苗的登入畫面）
+└── averlyn-icon.png           # Averlyn 疫苗的桌面 icon（App 自己的 logo）
 api/                # /api 的程式：排行榜、線上訪客、Request 的一生，見「API」
 ├── src/index.js    # Worker 的程式（只有 /api/* 會執行它，其他都直接送靜態檔）
 └── schema.sql      # D1 `portfolio` 的表
@@ -101,6 +103,7 @@ macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.htm
 - **今晚出攤**（英文 Open Tonight，`nightmarket`，桌面「遊戲區」、Dock 與 Spotlight）：七天的夜市小吃攤經營遊戲，獨立在私人 repo `tankfinal/open-tonight`、部署在 `https://open-tonight.xarenvich.com`（Worker `open-tonight`），遊戲內容、規則、版號都在那邊。跟我是社畜一樣是網站型 App（`k: "w6"`，經典版作品第 05 項），沒有 Source 連結。遊戲只有中文。它的排行榜放在這個站的 D1 `portfolio` 裡的 `nightmarket_scores`（照「App 名當前綴」，App id 就是 `nightmarket`），API 在它自己的 Worker、不在這個 repo 的 `api/`，表結構見那邊的 `schema.sql`。
 - **WordTrailer**（`wordtrailer`，桌面「作品」、Dock 與 Spotlight）：看美劇前先刷單字的網站，獨立在私人 repo `tankfinal/wordtrailer`、部署在 `https://wordtrailer.xarenvich.com`（Worker `wordtrailer`），內容與上架流程都在那邊。跟我是社畜一樣是網站型 App（`k: "w7"`，經典版作品第 06 項），沒有 Source 連結。網站只有中文。
 - **口袋旅行**（英文 PocketTrip，`pockettrip`，桌面「作品」、Dock 與 Spotlight）：兩個人共用的吃喝玩樂清單，貼 Google Maps 分享連結就建檔，獨立在私人 repo `tankfinal/pocket-trip`、部署在 `https://pocket-trip.xarenvich.com`（Worker `trip`，資料在私人版的 D1 `portfolio-private`、表名 `trip_*`），要密碼登入，所以訪客開視窗只會看到登入畫面。網站型 App（`k: "w8"`，經典版作品第 07 項），沒有 Source 連結。icon 用 App 自己的 logo 圖（`images/pocket-trip-icon.png`），不是 SVG 線條圖示。網站只有中文。
+- **Averlyn 疫苗**（英文 Averlyn's Vaccines，`averlyn`，桌面「作品」、Dock 與 Spotlight）：女兒的疫苗時程，獨立在私人 repo `tankfinal/averlyn-vaccine`、部署在 `https://averlyn-vaccine.xarenvich.com`（Worker `averlyn-vaccine`，密碼雜湊與登入紀錄在私人版的 D1 `portfolio-private`、表名 `averlyn_*`），要密碼登入，訪客開視窗只會看到登入畫面。網站型 App（`k: "w9"`，經典版作品第 08 項），沒有 Source 連結。icon 用 App 自己的 logo 圖（`images/averlyn-icon.png`）。跟口袋旅行同一套設計語彙。網站只有中文。
 - **Request 的一生**（`trace`，獨立檔案 App，桌面「遊戲區」與 Spotlight）：按「送出請求」打一次 `GET /trace`，畫出三塊：路線圖（你 → Cloudflare 機房，Worker 在這裡跑 → D1 所在機房），每段標實測來回時間、直線距離與光速來回下限（光纖約 200 km/ms），送出時有一顆點沿路線來回（減少動態效果時不跑）；瀑布圖用瀏覽器的 Resource Timing（`PerformanceObserver`，不受 250 筆緩衝上限影響）拆 DNS、連線、TLS、等待回應、下載，「等待回應」再拆成網路來回（Cloudflare 量的 RTT）、Worker 等 D1、其他；細節列協定、TLS、網路業者、資料庫（D1 所在機房、主要或副本）與查詢（`SELECT 1` 與資料庫實際執行的時間）。路線圖、圖例與結論都寫「資料庫」而不是 D1，結論那句直接用兩端的城市（例：從達拉斯到新加坡），讓不懂後端的人也看得懂。選單列的線上人數讓這台 Worker 的連線一直開著，所以通常是連線重用、DNS 與 TLS 為 0，畫面會照實說明，並列出當初開這條連線的那個請求（通常是 `/presence` 的心跳）花了多少 DNS、連線、TLS 時間——找法是這次之前、最後一個有連線時間的 API 請求；瀏覽器的 Resource Timing 緩衝（250 筆）滿了以後只信視窗開著時 `PerformanceObserver` 看到的，找不到就不顯示。網頁沒辦法要求瀏覽器開新連線，所以只能顯示當初那條的數字。機房座標表在 `apps/trace.js` 的 `COLO`，不在表裡的機房只顯示代號、不算距離。最近 10 次的總時間與中位數列在最下面。路線圖、結論和細節以外分三個分頁：**時間軸**（預設，SVG 循序圖，三條泳道「你／Cloudflare／資料庫」由上往下走時間；色塊是實測的建立連線、資料庫執行查詢、其他、下載，虛線箭頭是單程，量不到所以用來回除以 2 並標 ≈；照視窗實際寬度畫、`ResizeObserver` 在寬度變了才重畫）、**瀑布圖**（上面那段）、**原始封包**（請求依 HTTP 版本顯示：HTTP/2、3 用 `:method`、`:path` 這類 pseudo-header，HTTP/1.1 用請求行；瀏覽器自動加的 header 網頁讀不到，畫面上註明。回應列 status、全部 header（Worker 送 `Access-Control-Expose-Headers: *`）和排版過的 JSON，加上內容大小（有壓縮時列壓縮前後）。header 的實際大小瀏覽器不公開：Resource Timing 規格的 `transferSize` 是內容大小加固定 300，避免從大小推出 cookie，所以畫面不拿它算 header，直接照實說明）。
 - **線上訪客**（選單列時鐘左邊的綠點與人數、終端機 `who`）：每個分頁每 30 秒向 `/presence` 回報一次（分頁在背景時停止，切回來馬上補一次），回應就是 60 秒內有回報的人；離開頁面時用 `sendBeacon` 打 `/presence/leave` 立刻下線。回報內容是分頁 id 和「現在在看什麼」（最上層視窗的 App id，沒開視窗是 `desktop`，還沒解鎖是 `lock`）。`who` 會重新問一次伺服器，列出 `visitor-xxxx`、城市與國家、上線時間（看的人的當地時間）、在看什麼，自己那列標「← 你」，只有自己時跳彩蛋。點選單列的人數會開終端機並執行 `who`（`initTerm` 把 `exec` 掛在視窗的 `_cmd` 上）。分頁 id 存在 `sessionStorage.who.sid`，新分頁或下次造訪就是新的人，不跨造訪追蹤。API 連不上時人數不顯示，`who` 印錯誤。後端見「API」。
 

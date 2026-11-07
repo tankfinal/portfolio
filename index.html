@@ -172,6 +172,7 @@
   .ic-nightmarket{background:linear-gradient(160deg,#3A2A6B,#14122B);color:#FFB547;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
   .ic-wordtrailer{background:linear-gradient(160deg,#2BB673,#0F8A4F 60%,#0A6238)}
   .ic-pockettrip{background:#FBF6EA url(images/pocket-trip-icon.png) center/cover no-repeat}
+  .ic-averlyn{background:#F0628E url(images/averlyn-icon.png) center/cover no-repeat}
   .ic-terminal{background:linear-gradient(180deg,#3A3A3E,#151517);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
   .ic-contact{background:linear-gradient(160deg,#8AA4FF,#4A5CF0 60%,#3241C4)}
   .ic-readme{background:none;box-shadow:none}
@@ -706,7 +707,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.3.0</span>
+    <span class="mb-ver">v2.4.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.com/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -726,6 +727,7 @@
         <li><button class="dicon" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="lbl" data-i18n="app.yangmingshan">陽明山慶生旅遊</span></button></li>
         <li><button class="dicon" type="button" data-open="wordtrailer"><span class="ic ic-wordtrailer"><svg><use href="#g-wordtrailer"/></svg></span><span class="lbl" data-i18n="app.wordtrailer">WordTrailer</span></button></li>
         <li><button class="dicon" type="button" data-open="pockettrip"><span class="ic ic-pockettrip"></span><span class="lbl" data-i18n="app.pockettrip">口袋旅行</span></button></li>
+        <li><button class="dicon" type="button" data-open="averlyn"><span class="ic ic-averlyn"></span><span class="lbl" data-i18n="app.averlyn">Averlyn 疫苗</span></button></li>
       </ul>
     </section>
     <section class="zone zone-lab" aria-labelledby="zLab">
@@ -794,6 +796,7 @@
   <button class="dk" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="tip" data-i18n="app.yangmingshan">陽明山慶生旅遊</span></button>
   <button class="dk" type="button" data-open="wordtrailer"><span class="ic ic-wordtrailer"><svg><use href="#g-wordtrailer"/></svg></span><span class="tip" data-i18n="app.wordtrailer">WordTrailer</span></button>
   <button class="dk" type="button" data-open="pockettrip"><span class="ic ic-pockettrip"></span><span class="tip" data-i18n="app.pockettrip">口袋旅行</span></button>
+  <button class="dk" type="button" data-open="averlyn"><span class="ic ic-averlyn"></span><span class="tip" data-i18n="app.averlyn">Averlyn 疫苗</span></button>
   <button class="dk" type="button" data-open="shachiku"><span class="ic ic-shachiku"><svg><use href="#g-bell"/></svg></span><span class="tip" data-i18n="app.shachiku">我是社畜</span></button>
   <button class="dk" type="button" data-open="nightmarket"><span class="ic ic-nightmarket"><svg><use href="#g-stall"/></svg></span><span class="tip" data-i18n="app.nightmarket">今晚出攤</span></button>
   <button class="dk" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="tip">README.md</span></button>
@@ -1014,6 +1017,10 @@
     "w8.d": {zh:"老婆常在 LINE 貼 Google Maps 連結給我，貼完就沉進聊天紀錄。這個網站把它們收成一份兩人共用的清單：貼上分享連結，Worker 展開短網址、用 Google Places API 查出店名、地址和座標，自動判斷分類與地區，已經收過的會提醒。收藏和「去過」兩人共用、記下是誰什麼時候標的，評分和心得各自一份；有清單、地圖、篩選和「今天吃什麼」抽籤，店家照片即時向 Google 拿，營業狀態每 30 天自動更新，歇業的會標出來。資料放 D1，要密碼登入。", en:"My wife keeps sending me Google Maps links on LINE, and they sink into the chat. This site turns them into one shared list: paste a share link and the Worker expands it, looks the place up with the Google Places API, picks a category and area, and warns about places already saved. Favourites and “been there” are shared and record who marked them and when; ratings and notes are per person. There is a list, a map, filters and a “where do we eat tonight” draw; photos come live from Google, and opening status refreshes every 30 days so closed places get flagged. Data lives in D1 behind a password."},
     "w8.s2": {zh:"Cloudflare Workers + D1，push 到 main 自動部署；Google Places API", en:"Cloudflare Workers + D1, deployed on every push to main; Google Places API"},
     "w8.s3": {zh:"貼連結自動建檔、兩人各自評分、地圖與抽籤", en:"Paste a link to add a place, ratings per person, map and a random pick"},
+    "w9.t": {zh:"Averlyn 疫苗：女兒的疫苗時程", en:"Averlyn's Vaccines: Our Daughter's Shot Schedule"},
+    "w9.d": {zh:"女兒出生後要打 36 劑疫苗，公費、自費和每劑的間隔很難記。這個網站照台灣的建議時程排好：最上面是下一劑還有幾天、那天要打哪幾劑、她會是幾個月大，下面依日期列出每一劑，點開看說明、副作用和注意事項，逾期的標紅。紀錄只給家人看，所以放在密碼後面：資料只在登入後由 Worker 回傳，不在前端程式裡。", en:"Our daughter needs 36 doses, and the free and paid ones, plus the gaps between them, are hard to keep track of. This site lays them out on Taiwan’s recommended schedule: at the top, how many days until the next dose, which shots that day and how old she’ll be; below, every dose by date, with what it’s for, side effects and notes, and overdue ones in red. The records are for family only, so they sit behind a password: the Worker returns them only after sign-in, and they are not in the front-end bundle."},
+    "w9.s2": {zh:"Cloudflare Workers，push 到 main 自動部署；密碼雜湊與登入紀錄存 D1", en:"Cloudflare Workers, deployed on every push to main; password hash and sign-ins in D1"},
+    "w9.s3": {zh:"下一劑倒數、時程與進度、每劑說明", en:"Next-dose countdown, schedule and progress, notes for every dose"},
     "hero.lede": {zh:"我帶 XREX 的後端團隊，做區塊鏈合規與 AML 風控系統。在這之前是 Binance 的微服務跟資料管線。晚上寫一些自己會用的小網站。",
                    en:"I lead the backend team at XREX, building blockchain compliance and AML risk systems. Before that, microservices and data pipelines at Binance. At night I write small websites I actually use."},
     "exp.now": {zh:"現職", en:"Current"},
@@ -1071,6 +1078,7 @@
     "app.nightmarket":{zh:"今晚出攤", en:"Open Tonight"},
     "app.wordtrailer":{zh:"WordTrailer", en:"WordTrailer"},
     "app.pockettrip":{zh:"口袋旅行", en:"PocketTrip"},
+    "app.averlyn":{zh:"Averlyn 疫苗", en:"Averlyn's Vaccines"},
     "app.calc":    {zh:"計算機", en:"Calculator"},
     "app.calendar":{zh:"日曆", en:"Calendar"},
     "app.about":   {zh:"關於 TankOS", en:"About TankOS"},
@@ -1173,6 +1181,9 @@
     // A shared list of places with its own Worker, D1 tables and password (tankfinal/pocket-trip, private, so no Source link).
     pockettrip:{k:"w8", url:"https://pocket-trip.xarenvich.com/",
               spec:[["spec.build",null,"Vanilla JS · Leaflet · D1"], ["spec.deploy","w8.s2"], ["spec.feat","w8.s3"]], w:1080, h:720},
+    // Our daughter's vaccine schedule behind its own password (tankfinal/averlyn-vaccine, private, so no Source link).
+    averlyn:{k:"w9", url:"https://averlyn-vaccine.xarenvich.com/",
+              spec:[["spec.build",null,"React 19 · TypeScript · Vite"], ["spec.deploy","w9.s2"], ["spec.feat","w9.s3"]], w:1080, h:720},
     readme:  {w:680, h:660},
     terminal:{w:700, h:560, cls:"term-win"},
     contact: {w:440, h:450},
@@ -1522,7 +1533,8 @@
     {app:"shachiku",     repo:"shachiku",           url:"https://shachiku.xarenvich.com/", private:true},
     {app:"nightmarket",  repo:"open-tonight",       url:"https://open-tonight.xarenvich.com/", private:true},
     {app:"wordtrailer",  repo:"wordtrailer",        url:"https://wordtrailer.xarenvich.com/", private:true},
-    {app:"pockettrip",   repo:"pocket-trip",        url:"https://pocket-trip.xarenvich.com/", private:true}
+    {app:"pockettrip",   repo:"pocket-trip",        url:"https://pocket-trip.xarenvich.com/", private:true},
+    {app:"averlyn",      repo:"averlyn-vaccine",    url:"https://averlyn-vaccine.xarenvich.com/", private:true}
   ];
   var langHooks = [];
 
@@ -2372,7 +2384,7 @@
     ["exit",             "close this window"]
   ];
   var CMDS = ["help","whoami","who","neofetch","ls","open","git","kubectl","top","cat","contact","date","clear","exit","sudo"];
-  var OPENABLE = ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","wordtrailer","pockettrip","calc","calendar","about","readme","contact","private"];
+  var OPENABLE = ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","wordtrailer","pockettrip","averlyn","calc","calendar","about","readme","contact","private"];
   // `git log` reads GitHub's public API without signing in, so it only offers the public repos.
   var REPOS = SERVICES.filter(function(s){ return !s.private; }).map(function(s){ return s.repo; });
 
@@ -2547,7 +2559,7 @@
           neofetch();
           return;
         case "ls":
-          line("fukuoka/   busan/   yangmingshan/   activity   blocks   trace   shachiku   nightmarket   wordtrailer   pockettrip   calc   calendar   README.md   contact   private/ 🔒");
+          line("fukuoka/   busan/   yangmingshan/   activity   blocks   trace   shachiku   nightmarket   wordtrailer   pockettrip   averlyn   calc   calendar   README.md   contact   private/ 🔒");
           return;
         case "open":
           var id = resolveApp(rest);
@@ -2760,6 +2772,7 @@
     trace:"request trace 請求 延遲 網路 封包 連線 latency network ttfb waterfall 瀑布 cloudflare d1 ping",
     shachiku:"我是社畜 社畜 shachiku 凌晨三點 3am oncall on-call 值班 事故 告警 故障 遊戲 game rpg incident pager sre postmortem outage",
     nightmarket:"今晚出攤 出攤 夜市 擺攤 小吃 攤車 種菜 鹽酥雞 蚵仔煎 滷肉飯 珍奶 珍珠奶茶 排行榜 遊戲 game open tonight nightmarket night market stall street food",
+    averlyn:"Averlyn 疫苗 女兒 寶寶 嬰兒 預防針 打針 疫苗 公費 自費 時程 接種 vaccine baby shots schedule",
     pockettrip:"口袋旅行 口袋名單 PocketTrip pocket trip 美食 小吃 餐廳 景點 收藏 評分 心得 地圖 Google Maps LINE 清單 吃什麼 旅行 老婆",
     wordtrailer:"WordTrailer 預告片 trailer cuecard 單字 美劇 影集 預習 英文 學英文 片語 俚語 字幕 六人行 CEFR vocabulary english flashcard friends subtitle",
     readme:"關於 經歷 履歷 about bio resume experience",
@@ -2783,7 +2796,7 @@
 
   function index(){
     var items = [];
-    ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","wordtrailer","pockettrip","terminal","calc","calendar","about","readme","contact","private"].forEach(function(id){
+    ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","wordtrailer","pockettrip","averlyn","terminal","calc","calendar","about","readme","contact","private"].forEach(function(id){
       items.push({label:appName(id), sub:"", kind:t("os.spot.app"), icon:iconOf(id), keys:(id + " " + KW[id]).toLowerCase(), go:function(){ open(id); }});
     });
     EXP.forEach(function(e){

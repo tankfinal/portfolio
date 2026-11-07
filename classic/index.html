@@ -510,6 +510,28 @@
         <img src="../images/pocket-trip.jpg" alt="口袋旅行的登入畫面：行李箱與定位圖釘的 App 圖示" loading="lazy" width="900" height="562">
       </a>
     </article>
+
+    <article class="work-item">
+      <div class="w-num mono">08</div>
+      <div>
+        <div class="w-head">
+          <h3 class="w-title" data-i18n="w9.t">Averlyn 疫苗：女兒的疫苗時程</h3>
+          <span class="w-year mono">2026</span>
+        </div>
+        <p class="w-desc" data-i18n="w9.d">女兒出生後要打 36 劑疫苗，公費、自費和每劑的間隔很難記。這個網站照台灣的建議時程排好：最上面是下一劑還有幾天、那天要打哪幾劑、她會是幾個月大，下面依日期列出每一劑，點開看說明、副作用和注意事項，逾期的標紅。紀錄只給家人看，所以放在密碼後面：資料只在登入後由 Worker 回傳，不在前端程式裡。</p>
+        <dl class="w-spec mono">
+          <dt data-i18n="spec.build">Build</dt><dd>React 19 · TypeScript · Vite</dd>
+          <dt data-i18n="spec.deploy">Deploy</dt><dd data-i18n="w9.s2">Cloudflare Workers，push 到 main 自動部署；密碼雜湊與登入紀錄存 D1</dd>
+          <dt data-i18n="spec.feat">Feature</dt><dd data-i18n="w9.s3">下一劑倒數、時程與進度、每劑說明</dd>
+        </dl>
+        <div class="w-links">
+          <a href="https://averlyn-vaccine.xarenvich.com/" target="_blank" rel="noopener" data-i18n="link.visit">開啟網站</a>
+        </div>
+      </div>
+      <a class="w-shot" href="https://averlyn-vaccine.xarenvich.com/" target="_blank" rel="noopener">
+        <img src="../images/averlyn-vaccine.jpg" alt="Averlyn 疫苗的登入畫面：粉紅色針筒的 App 圖示" loading="lazy" width="900" height="562">
+      </a>
+    </article>
   </div>
 </section>
 
@@ -910,6 +932,10 @@
     "w8.d":{zh:"老婆常在 LINE 貼 Google Maps 連結給我，貼完就沉進聊天紀錄。這個網站把它們收成一份兩人共用的清單：貼上分享連結，Worker 展開短網址、用 Google Places API 查出店名、地址和座標，自動判斷分類與地區，已經收過的會提醒。收藏和「去過」兩人共用、記下是誰什麼時候標的，評分和心得各自一份；有清單、地圖、篩選和「今天吃什麼」抽籤，店家照片即時向 Google 拿，營業狀態每 30 天自動更新，歇業的會標出來。資料放 D1，要密碼登入。", en:"My wife keeps sending me Google Maps links on LINE, and they sink into the chat. This site turns them into one shared list: paste a share link and the Worker expands it, looks the place up with the Google Places API, picks a category and area, and warns about places already saved. Favourites and “been there” are shared and record who marked them and when; ratings and notes are per person. There is a list, a map, filters and a “where do we eat tonight” draw; photos come live from Google, and opening status refreshes every 30 days so closed places get flagged. Data lives in D1 behind a password."},
     "w8.s2":{zh:"Cloudflare Workers + D1，push 到 main 自動部署；Google Places API", en:"Cloudflare Workers + D1, deployed on every push to main; Google Places API"},
     "w8.s3":{zh:"貼連結自動建檔、兩人各自評分、地圖與抽籤", en:"Paste a link to add a place, ratings per person, map and a random pick"},
+    "w9.t":{zh:"Averlyn 疫苗：女兒的疫苗時程", en:"Averlyn's Vaccines: Our Daughter's Shot Schedule"},
+    "w9.d":{zh:"女兒出生後要打 36 劑疫苗，公費、自費和每劑的間隔很難記。這個網站照台灣的建議時程排好：最上面是下一劑還有幾天、那天要打哪幾劑、她會是幾個月大，下面依日期列出每一劑，點開看說明、副作用和注意事項，逾期的標紅。紀錄只給家人看，所以放在密碼後面：資料只在登入後由 Worker 回傳，不在前端程式裡。", en:"Our daughter needs 36 doses, and the free and paid ones, plus the gaps between them, are hard to keep track of. This site lays them out on Taiwan’s recommended schedule: at the top, how many days until the next dose, which shots that day and how old she’ll be; below, every dose by date, with what it’s for, side effects and notes, and overdue ones in red. The records are for family only, so they sit behind a password: the Worker returns them only after sign-in, and they are not in the front-end bundle."},
+    "w9.s2":{zh:"Cloudflare Workers，push 到 main 自動部署；密碼雜湊與登入紀錄存 D1", en:"Cloudflare Workers, deployed on every push to main; password hash and sign-ins in D1"},
+    "w9.s3":{zh:"下一劑倒數、時程與進度、每劑說明", en:"Next-dose countdown, schedule and progress, notes for every dose"},
 
     "exp.h":   {zh:"Experience", en:"Experience"},
     "exp.note":{zh:"2014 年至今。區塊鏈金融、加密貨幣交易所、遊戲、政府標案。",
