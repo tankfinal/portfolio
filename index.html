@@ -1191,17 +1191,19 @@
   :where(:root[data-ui="2"]) .bar-btn:hover{background:rgba(255,255,255,.10)}
   :where(:root[data-ui="2"]) :is(.bar-btn,.ln-app,.ln-close,.st-btn,.st-opt):active{background:rgba(139,124,255,.34)}
 
-  /* ---------- TankOS 2.0 app logos (v2.6.0) ---------- */
-  /* Every app keeps its own brand art (Brand Icons v1, images/icons/<id>.webp, built by design/brand-icons-v1/build.py)
-     instead of the theme's glyph-on-gradient. The markup is untouched: Desktop, Dock, Launcher, Spotlight and the
+  /* ---------- TankOS 2.0 app logos (v2.6.0; artwork v3 since v2.6.4) ---------- */
+  /* Every app keeps its own brand art (App Brand Icons v3, images/icons/<id>.webp, built by design/brand-icons-v3/build.py)
+     instead of the theme's glyph-on-gradient. PocketTrip is the exception: it keeps its original logo, the
+     .ic-pockettrip rule above (images/pocket-trip-icon.png), in both UIs. The art brings its own rounded frame and
+     base shadow inside a 4px transparent margin, so no box shadow is added around it. The markup is untouched: Desktop, Dock, Launcher, Spotlight and the
      title bar all show the same <span class="ic ic-<id>">, cloned by iconOf(), so this one rule set covers all of
      them. The glyph, letter or live date inside is hidden here (the element stays aria-hidden or unnamed, as before;
      buttons keep their i18n names). v2.4 never matches, so it neither changes nor downloads these. */
-  :where(:root[data-ui="2"]) .ic:is(.ic-fukuoka,.ic-busan,.ic-yms,.ic-pockettrip,.ic-wordtrailer,.ic-averlyn,.ic-trace,
+  :where(:root[data-ui="2"]) .ic:is(.ic-fukuoka,.ic-busan,.ic-yms,.ic-wordtrailer,.ic-averlyn,.ic-trace,
     .ic-blocks,.ic-nightmarket,.ic-terminal,.ic-activity,.ic-calc,.ic-cal,.ic-launch,.ic-settings,.ic-readme,
     .ic-contact,.ic-about,.ic-classic,.ic-private,.ic-shachiku){
     background:var(--logo) center/100% 100% no-repeat;color:transparent;font-size:0;
-    box-shadow:0 1px 3px rgba(0,0,0,.35);
+    box-shadow:none;
   }
   :where(:root[data-ui="2"]) .ic:is(.ic-fukuoka,.ic-busan,.ic-yms,.ic-wordtrailer,.ic-trace,.ic-blocks,.ic-nightmarket,
     .ic-terminal,.ic-activity,.ic-calc,.ic-cal,.ic-launch,.ic-settings,.ic-readme,.ic-contact,.ic-private,
@@ -1209,7 +1211,6 @@
   :where(:root[data-ui="2"]) .ic-fukuoka{--logo:url(images/icons/fukuoka.webp)}
   :where(:root[data-ui="2"]) .ic-busan{--logo:url(images/icons/busan.webp)}
   :where(:root[data-ui="2"]) .ic-yms{--logo:url(images/icons/yangmingshan.webp)}
-  :where(:root[data-ui="2"]) .ic-pockettrip{--logo:url(images/icons/pockettrip.webp)}
   :where(:root[data-ui="2"]) .ic-wordtrailer{--logo:url(images/icons/wordtrailer.webp)}
   :where(:root[data-ui="2"]) .ic-averlyn{--logo:url(images/icons/averlyn.webp)}
   :where(:root[data-ui="2"]) .ic-trace{--logo:url(images/icons/trace.webp)}
@@ -1271,7 +1272,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.6.3</span>
+    <span class="mb-ver">v2.6.4</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.com/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>

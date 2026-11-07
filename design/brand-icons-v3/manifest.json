@@ -1,0 +1,192 @@
+{
+  "package": "TankOS App Brand Icons v3",
+  "scope": "TankOS 2.0 only; all launch surfaces; do not overwrite v2.4",
+  "pockettrip": {
+    "action": "RESTORE ORIGINAL; DO NOT USE A NEW ICON",
+    "source": "images/pocket-trip-icon.png from git history prior to icon replacement (confirm correct original against history)",
+    "note": "PocketTrip is independent product; previous logo is preferred by owner"
+  },
+  "icons": {
+    "wordtrailer": {
+      "category": "A_Product",
+      "files": {
+        "512": "icons/A_Product/wordtrailer/wordtrailer-512.png",
+        "256": "icons/A_Product/wordtrailer/wordtrailer-256.png",
+        "128": "icons/A_Product/wordtrailer/wordtrailer-128.png",
+        "64": "icons/A_Product/wordtrailer/wordtrailer-64.png"
+      }
+    },
+    "averlyn": {
+      "category": "A_Product",
+      "files": {
+        "512": "icons/A_Product/averlyn/averlyn-512.png",
+        "256": "icons/A_Product/averlyn/averlyn-256.png",
+        "128": "icons/A_Product/averlyn/averlyn-128.png",
+        "64": "icons/A_Product/averlyn/averlyn-64.png"
+      }
+    },
+    "fukuoka": {
+      "category": "B_Travel",
+      "files": {
+        "512": "icons/B_Travel/fukuoka/fukuoka-512.png",
+        "256": "icons/B_Travel/fukuoka/fukuoka-256.png",
+        "128": "icons/B_Travel/fukuoka/fukuoka-128.png",
+        "64": "icons/B_Travel/fukuoka/fukuoka-64.png"
+      }
+    },
+    "busan": {
+      "category": "B_Travel",
+      "files": {
+        "512": "icons/B_Travel/busan/busan-512.png",
+        "256": "icons/B_Travel/busan/busan-256.png",
+        "128": "icons/B_Travel/busan/busan-128.png",
+        "64": "icons/B_Travel/busan/busan-64.png"
+      }
+    },
+    "yangmingshan": {
+      "category": "B_Travel",
+      "files": {
+        "512": "icons/B_Travel/yangmingshan/yangmingshan-512.png",
+        "256": "icons/B_Travel/yangmingshan/yangmingshan-256.png",
+        "128": "icons/B_Travel/yangmingshan/yangmingshan-128.png",
+        "64": "icons/B_Travel/yangmingshan/yangmingshan-64.png"
+      }
+    },
+    "blocks": {
+      "category": "C_Games",
+      "files": {
+        "512": "icons/C_Games/blocks/blocks-512.png",
+        "256": "icons/C_Games/blocks/blocks-256.png",
+        "128": "icons/C_Games/blocks/blocks-128.png",
+        "64": "icons/C_Games/blocks/blocks-64.png"
+      }
+    },
+    "nightmarket": {
+      "category": "C_Games",
+      "files": {
+        "512": "icons/C_Games/nightmarket/nightmarket-512.png",
+        "256": "icons/C_Games/nightmarket/nightmarket-256.png",
+        "128": "icons/C_Games/nightmarket/nightmarket-128.png",
+        "64": "icons/C_Games/nightmarket/nightmarket-64.png"
+      }
+    },
+    "shachiku": {
+      "category": "C_Games",
+      "files": {
+        "512": "icons/C_Games/shachiku/shachiku-512.png",
+        "256": "icons/C_Games/shachiku/shachiku-256.png",
+        "128": "icons/C_Games/shachiku/shachiku-128.png",
+        "64": "icons/C_Games/shachiku/shachiku-64.png"
+      }
+    },
+    "trace": {
+      "category": "C_Games",
+      "files": {
+        "512": "icons/C_Games/trace/trace-512.png",
+        "256": "icons/C_Games/trace/trace-256.png",
+        "128": "icons/C_Games/trace/trace-128.png",
+        "64": "icons/C_Games/trace/trace-64.png"
+      }
+    },
+    "terminal": {
+      "category": "D_System",
+      "files": {
+        "512": "icons/D_System/terminal/terminal-512.png",
+        "256": "icons/D_System/terminal/terminal-256.png",
+        "128": "icons/D_System/terminal/terminal-128.png",
+        "64": "icons/D_System/terminal/terminal-64.png"
+      }
+    },
+    "activity": {
+      "category": "D_System",
+      "files": {
+        "512": "icons/D_System/activity/activity-512.png",
+        "256": "icons/D_System/activity/activity-256.png",
+        "128": "icons/D_System/activity/activity-128.png",
+        "64": "icons/D_System/activity/activity-64.png"
+      }
+    },
+    "calc": {
+      "category": "D_System",
+      "files": {
+        "512": "icons/D_System/calc/calc-512.png",
+        "256": "icons/D_System/calc/calc-256.png",
+        "128": "icons/D_System/calc/calc-128.png",
+        "64": "icons/D_System/calc/calc-64.png"
+      }
+    },
+    "calendar": {
+      "category": "D_System",
+      "files": {
+        "512": "icons/D_System/calendar/calendar-512.png",
+        "256": "icons/D_System/calendar/calendar-256.png",
+        "128": "icons/D_System/calendar/calendar-128.png",
+        "64": "icons/D_System/calendar/calendar-64.png"
+      }
+    },
+    "settings": {
+      "category": "D_System",
+      "files": {
+        "512": "icons/D_System/settings/settings-512.png",
+        "256": "icons/D_System/settings/settings-256.png",
+        "128": "icons/D_System/settings/settings-128.png",
+        "64": "icons/D_System/settings/settings-64.png"
+      }
+    },
+    "launcher": {
+      "category": "D_System",
+      "files": {
+        "512": "icons/D_System/launcher/launcher-512.png",
+        "256": "icons/D_System/launcher/launcher-256.png",
+        "128": "icons/D_System/launcher/launcher-128.png",
+        "64": "icons/D_System/launcher/launcher-64.png"
+      }
+    },
+    "readme": {
+      "category": "D_System",
+      "files": {
+        "512": "icons/D_System/readme/readme-512.png",
+        "256": "icons/D_System/readme/readme-256.png",
+        "128": "icons/D_System/readme/readme-128.png",
+        "64": "icons/D_System/readme/readme-64.png"
+      }
+    },
+    "contact": {
+      "category": "D_System",
+      "files": {
+        "512": "icons/D_System/contact/contact-512.png",
+        "256": "icons/D_System/contact/contact-256.png",
+        "128": "icons/D_System/contact/contact-128.png",
+        "64": "icons/D_System/contact/contact-64.png"
+      }
+    },
+    "about": {
+      "category": "D_System",
+      "files": {
+        "512": "icons/D_System/about/about-512.png",
+        "256": "icons/D_System/about/about-256.png",
+        "128": "icons/D_System/about/about-128.png",
+        "64": "icons/D_System/about/about-64.png"
+      }
+    },
+    "classic": {
+      "category": "D_System",
+      "files": {
+        "512": "icons/D_System/classic/classic-512.png",
+        "256": "icons/D_System/classic/classic-256.png",
+        "128": "icons/D_System/classic/classic-128.png",
+        "64": "icons/D_System/classic/classic-64.png"
+      }
+    },
+    "private": {
+      "category": "D_System",
+      "files": {
+        "512": "icons/D_System/private/private-512.png",
+        "256": "icons/D_System/private/private-256.png",
+        "128": "icons/D_System/private/private-128.png",
+        "64": "icons/D_System/private/private-64.png"
+      }
+    }
+  },
+  "source_note": "Images extracted from custom AI-generated concept sheet. SVG vectors are NOT included. Upscaled PNGs are intended for small OS icon surfaces (e.g. 48px). Do not misrepresent these as native high-resolution vector drawings."
+}

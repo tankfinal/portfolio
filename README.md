@@ -199,15 +199,23 @@ sips -s format jpeg -s formatOptions 78 shot.png --out out.jpg
 8. `/classic/` 正常、`/os/` 轉回首頁
 9. 有問題就照上面的 Rollback
 
-## TankOS 2.0 App Logo（v2.6.0）
+## TankOS 2.0 App Logo（v2.6.0 起；v2.6.4 換成 v3 圖）
 
-`?ui=2` 的每個 App 用自己的品牌圖（Brand Icons v1，共 21 張：19 個 App 加上 Launcher、經典版），不跟 Nocturne 主題統一配色。
+`?ui=2` 的每個 App 用自己的品牌圖，不跟 Nocturne 主題統一配色。v2.6.4 起是 **App Brand Icons v3**，依四大分類設計（只是設計與維護依據，桌面分組不變）：
 
-- 素材：`design/brand-icons-v1/`，內含原始圖集 `source-contact-sheet.png`、素材包附的 512px PNG 與 `manifest.json`，全部原封不動保留。這個資料夾列在 `.assetsignore`，不會公開。
-- 產出：`python3 design/brand-icons-v1/build.py` → `images/icons/<id>.webp`（192px，共約 164 KB）。素材包的 512px PNG 是沿著會漂移的格線切的，多數帶著圖集的深色底邊，trace、launcher 等還被切掉左緣，所以改從圖集上逐格找出實際邊界、方形裁切，再套回原本就有的 22.5% 圓角。圖面本身不重畫、不改色。
-- 套用：只靠 CSS。Desktop、Dock、Launcher、Spotlight、視窗標題列用的都是同一個 `<span class="ic ic-<id>">`（`iconOf()` 複製出來的），`:where(:root[data-ui="2"]) .ic-<id>{--logo:url(...)}` 一組規則就涵蓋全部，裡面原本的線條圖示、字母或日期在 2.0 隱藏。HTML 沒有改，按鈕名稱仍是原本的 i18n。
+| 分類 | App |
+|---|---|
+| 獨立品牌 | WordTrailer、Averlyn、口袋旅行（PocketTrip） |
+| 旅遊作品 | 福岡、釜山、陽明山 |
+| 遊戲作品 | 方塊消除、今晚出攤、我是社畜、Request 的一生 |
+| 系統與工具 | 終端機、活動監視器、計算機、日曆、設定、Launcher、README、聯絡我、About、經典版、Private |
+
+- **PocketTrip 例外**：保留原本的 `images/pocket-trip-icon.png`（Git 歷史只有新增時的那一版），v2.4 與 2.0 都用它，不用 v3 的皮夾圖。
+- 素材：`design/brand-icons-v3/`（`manifest.json`、`ICON_GUIDE.md`、圖板與 512／256／128／64 的 PNG），列在 `.assetsignore`，不會公開。素材是概念圖板切出後放大的點陣圖，不是向量圖。
+- 產出：`python3 design/brand-icons-v3/build.py` → `images/icons/<id>.webp`（20 張，192px，共約 170 KB）。取 256px PNG 縮成 192px，圖面、圓角外框與 4px 透明邊照原樣，不裁切、不改色。
+- 套用：只靠 CSS。Desktop、Dock、Launcher、Spotlight、視窗標題列用的都是同一個 `<span class="ic ic-<id>">`（`iconOf()` 複製出來的），`:where(:root[data-ui="2"]) .ic-<id>{--logo:url(...)}` 一組規則就涵蓋全部；裡面原本的線條圖示、字母或日期在 2.0 隱藏。HTML 沒有改，按鈕名稱仍是原本的 i18n。
 - v2.4（`?ui=1`）不吃這些規則，外觀不變，也不會下載這些圖。
-- 18px 標題列上，細節多的插畫（trace、WordTrailer、釜山）主要靠顏色辨識；旁邊就是 App 名稱。
+- 18px 標題列上，細節多的插畫主要靠顏色辨識；旁邊就是 App 名稱。
 
 ## API（`api/`）
 

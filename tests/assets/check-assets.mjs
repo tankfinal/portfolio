@@ -20,7 +20,7 @@ const FORBIDDEN = [
   "package.json", "package-lock.json", "playwright.config.js",
   "tests/", ".github/", "node_modules/", "test-results/", "playwright-report/", "blob-report/",
   ".git/", ".gitignore", ".assetsignore", ".wrangler/", "api/", "README.md", "CLAUDE.md", "wrangler.jsonc",
-  // Source art and build script for the app logos (v2.6.0); only images/icons/*.webp is served.
+  // Source art and build script for the app logos (Brand Icons v3); only images/icons/*.webp is served.
   "design/"
 ];
 // Must stay public, or the site breaks.
@@ -28,8 +28,10 @@ const REQUIRED = [
   "index.html", "classic/index.html", "os/index.html", "apps/trace.js",
   "images/wallpaper-komezuka.jpg", "images/wallpaper-komezuka-sm.jpg",
   "images/wallpaper-pixelverse-lakeside-night.png", "images/wallpaper-pixelverse-lakeside-night.webp",
-  // TankOS 2.0 app logos (v2.6.0), one per app plus the Launcher, Classic and Private entries.
-  ...["fukuoka", "busan", "yangmingshan", "pockettrip", "wordtrailer", "averlyn", "trace", "blocks", "nightmarket",
+  // TankOS 2.0 app logos (Brand Icons v3, v2.6.4): one per app plus the Launcher, Classic and Private entries.
+  // PocketTrip keeps its original logo in both UIs.
+  "images/pocket-trip-icon.png",
+  ...["fukuoka", "busan", "yangmingshan", "wordtrailer", "averlyn", "trace", "blocks", "nightmarket",
     "terminal", "activity", "calc", "calendar", "launcher", "settings", "readme", "contact", "about", "classic",
     "private", "shachiku"].map((id) => `images/icons/${id}.webp`)
 ];
