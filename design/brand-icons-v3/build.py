@@ -7,6 +7,8 @@ saves it as a 192px WebP: enough for the largest use (60px desktop icon at 3x = 
 frame and its 4px transparent margin are kept as drawn: no crop, recolour or extra shape (ICON_GUIDE.md).
 
 PocketTrip is not in this package on purpose: it keeps its original logo, images/pocket-trip-icon.png.
+The Calculator logo is replaced afterwards by calc-v2-build.py (full keypad; the package tile has no "+"),
+so run that one after this.
 """
 import json, os
 from PIL import Image
@@ -20,6 +22,8 @@ def main():
     icons = json.load(open(os.path.join(HERE, "manifest.json")))["icons"]
     os.makedirs(OUT, exist_ok=True)
     for id, spec in icons.items():
+        if id == "calc":
+            continue   # built by calc-v2-build.py
         im = Image.open(os.path.join(HERE, spec["files"]["256"])).convert("RGBA").resize((SIZE, SIZE), Image.LANCZOS)
         path = os.path.join(OUT, id + ".webp")
         im.save(path, "WEBP", quality=QUALITY, method=6)

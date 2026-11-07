@@ -212,7 +212,8 @@ sips -s format jpeg -s formatOptions 78 shot.png --out out.jpg
 
 - **PocketTrip 例外**：保留原本的 `images/pocket-trip-icon.png`（Git 歷史只有新增時的那一版），v2.4 與 2.0 都用它，不用 v3 的皮夾圖。
 - 素材：`design/brand-icons-v3/`（`manifest.json`、`ICON_GUIDE.md`、圖板與 512／256／128／64 的 PNG），列在 `.assetsignore`，不會公開。素材是概念圖板切出後放大的點陣圖，不是向量圖。
-- 產出：`python3 design/brand-icons-v3/build.py` → `images/icons/<id>.webp`（20 張，192px，共約 170 KB）。取 256px PNG 縮成 192px，圖面、圓角外框與 4px 透明邊照原樣，不裁切、不改色。
+- **計算機例外（v2.6.5）**：v3 素材包的計算機按鍵是「× − × =」，沒有「+」，改用另外提供的完整鍵盤版（`design/brand-icons-v3/calc-v2-source.png`）。原圖是黑底 RGB，`python3 design/brand-icons-v3/calc-v2-build.py` 找出圖示、照原圖的圓角把外圍改成透明、留同樣 4/256 的透明邊後輸出 `images/icons/calc.webp`；圖面不改。`build.py` 會跳過 calc，不會蓋掉它。
+- 產出：`python3 design/brand-icons-v3/build.py` → `images/icons/<id>.webp`（計算機以外的 19 張，192px）。取 256px PNG 縮成 192px，圖面、圓角外框與 4px 透明邊照原樣，不裁切、不改色。
 - 套用：只靠 CSS。Desktop、Dock、Launcher、Spotlight、視窗標題列用的都是同一個 `<span class="ic ic-<id>">`（`iconOf()` 複製出來的），`:where(:root[data-ui="2"]) .ic-<id>{--logo:url(...)}` 一組規則就涵蓋全部；裡面原本的線條圖示、字母或日期在 2.0 隱藏。HTML 沒有改，按鈕名稱仍是原本的 i18n。
 - v2.4（`?ui=1`）不吃這些規則，外觀不變，也不會下載這些圖。
 - 18px 標題列上，細節多的插畫主要靠顏色辨識；旁邊就是 App 名稱。
