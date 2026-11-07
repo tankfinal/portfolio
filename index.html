@@ -1271,7 +1271,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.6.0</span>
+    <span class="mb-ver">v2.6.1</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.com/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -1431,14 +1431,16 @@
 <template id="tpl-readme">
   <div class="body doc">
     <h2><span class="md">#</span>Tank Yang</h2>
-    <p class="sub">Backend Senior Associate Manager · XREX Inc. · Taipei</p>
+    <p class="sub" data-i18n="os.role"></p>
     <p data-i18n="hero.lede"></p>
 
     <h3><span class="md">##</span><span data-i18n="os.about"></span></h3>
     <p data-i18n-html="about.p1"></p>
     <p data-i18n-html="about.p2"></p>
-    <p data-i18n-html="about.p3"></p>
     <p data-i18n-html="about.p4"></p>
+
+    <h3><span class="md">##</span><span data-i18n="os.outside"></span></h3>
+    <p data-i18n-html="about.p3"></p>
 
     <h3><span class="md">##</span><span data-i18n="os.exp"></span></h3>
     <ol class="jobs">
@@ -1684,7 +1686,9 @@
     "app.private": {zh:"私人桌面", en:"Private"},
     "app.classic": {zh:"經典版", en:"Classic site"},
     "mb.private":  {zh:"私人版", en:"Private"},
-    "os.about":    {zh:"關於", en:"About"},
+    "os.about":    {zh:"關於我", en:"About me"},
+    "os.outside":  {zh:"工作以外", en:"Outside work"},
+    "os.role":     {zh:"XREX 後端資深副理 · 台北", en:"Backend Senior Associate Manager · XREX Inc. · Taipei"},
     "os.exp":      {zh:"經歷", en:"Experience"},
     "os.stack":    {zh:"技術", en:"Stack"},
     "os.more":     {zh:"每段經歷的細節在經典版", en:"Full details for every role are on the classic site"},
