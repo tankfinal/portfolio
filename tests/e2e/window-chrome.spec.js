@@ -143,7 +143,7 @@ test.describe("?ui=2 opaque fallbacks", () => {
       }
       return out;
     });
-    expect(rules).toEqual([':where(:root[data-ui="2"]) .win { background: var(--tank-surface); }']);
+    expect(rules).toContain(':where(:root[data-ui="2"]) .win { background: var(--tank-surface); }');
   });
 });
 

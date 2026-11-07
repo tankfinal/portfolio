@@ -72,9 +72,24 @@ test.describe("?ui=2 Nocturne preview", () => {
   test.describe("1366×657", () => {
     test.use({ viewport: { width: 1366, height: 657 } });
 
+    test("lock screen", async ({ page }) => {
+      await boot(page, { path: "/?ui=2", locked: true });
+      await page.evaluate(async () => {
+        await document.fonts.ready;
+        const i = new Image(); i.src = "images/wallpaper-pixelverse-lakeside-night.webp"; await i.decode();
+      });
+      await shot(page, "lock-1366-ui2.png");
+    });
+
     test("desktop with README", async ({ page }) => {
       await boot(page, { path: "/?ui=2" });
       await shot(page, "desktop-1366-ui2.png");
+    });
+
+    test("bare desktop: wallpaper, menu bar, icons", async ({ page }) => {
+      await boot(page, { path: "/?ui=2" });
+      await win(page, "readme").locator(".tl-close").click();
+      await shot(page, "bare-1366-ui2.png");
     });
 
     test("two windows, one unfocused", async ({ page }) => {
@@ -103,8 +118,22 @@ test.describe("?ui=2 Nocturne preview", () => {
     });
   });
 
+  test.describe("768×1024 tablet portrait", () => {
+    test.use({ viewport: { width: 768, height: 1024 }, isMobile: true, hasTouch: true });
+
+    test("home", async ({ page }) => {
+      await boot(page, { path: "/?ui=2" });
+      await shot(page, "home-768-ui2.png");
+    });
+  });
+
   test.describe("390×844", () => {
     test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+
+    test("home", async ({ page }) => {
+      await boot(page, { path: "/?ui=2" });
+      await shot(page, "home-390-ui2.png");
+    });
 
     test("app open full screen", async ({ page }) => {
       await boot(page, { path: "/?ui=2" });

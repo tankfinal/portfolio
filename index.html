@@ -839,6 +839,116 @@
   @media (prefers-reduced-transparency:reduce){
     :where(:root[data-ui="2"]) .win{background:var(--tank-surface);-webkit-backdrop-filter:none;backdrop-filter:none}
   }
+
+  /* ---------- TankOS 2.0 menu bar (?ui=2) ---------- */
+  /* Same items, same order, same responsive rules (≤600px still hides 經典版, the version and the 私人版 label);
+     only the look changes. The height goes through --menu-h, which .desktop and #windows already use for their
+     top, so everything below moves down with it. */
+  :root[data-ui="2"]{--menu-h:var(--tank-menubar-height)}
+  :where(:root[data-ui="2"]) .menubar{
+    padding:0 var(--tank-space-4);
+    font-size:var(--tank-font-size-sm);
+    color:var(--tank-text);
+    /* The same glass as a focused window, so the bar and the windows read as one system. */
+    background:var(--tank-glass);
+    border-bottom:1px solid var(--tank-border);
+    box-shadow:0 8px 24px rgba(2,4,17,.28);
+    -webkit-backdrop-filter:blur(var(--tank-glass-blur)) saturate(140%);
+    backdrop-filter:blur(var(--tank-glass-blur)) saturate(140%);
+  }
+  :where(:root[data-ui="2"]) .mb-l,:where(:root[data-ui="2"]) .mb-r{gap:var(--tank-space-3)}
+  /* Red stays the brand (decision D2). */
+  :where(:root[data-ui="2"]) .mb-logo{
+    width:20px;height:20px;border-radius:6px;background:var(--tank-brand);
+    font:700 12px/20px "Helvetica Neue",Arial,sans-serif;
+    box-shadow:inset 0 0 0 .5px rgba(255,255,255,.3),0 1px 3px rgba(0,0,0,.35);
+  }
+  :where(:root[data-ui="2"]) .mb-item{opacity:1;color:var(--tank-text-secondary)}
+  :where(:root[data-ui="2"]) .mb-ver{opacity:1;color:var(--tank-text-muted)}
+  :where(:root[data-ui="2"]) .lang button{padding:3px 8px;border-radius:var(--tank-radius-sm);opacity:1;color:var(--tank-text-muted)}
+  /* .on outside :where(): ties with v2.4's ".lang button.on" (0,2,1) and wins by coming later. */
+  :where(:root[data-ui="2"]) .lang button.on{color:var(--tank-text);background:rgba(139,124,255,.28)}
+  :where(:root[data-ui="2"]) .mb-spot{width:30px;height:26px;border-radius:var(--tank-radius-sm);color:var(--tank-text)}
+  :where(:root[data-ui="2"]) .mb-who{padding:3px 8px;border-radius:var(--tank-radius-sm);color:var(--tank-text)}
+  :where(:root[data-ui="2"]) .mb-priv{
+    padding:3px 10px 3px 8px;color:var(--tank-text);
+    background:rgba(139,124,255,.16);box-shadow:inset 0 0 0 1px rgba(139,124,255,.38);
+  }
+  /* One set of states for every control in the bar. */
+  :where(:root[data-ui="2"]) .menubar :where(.mb-item,.lang button,.mb-spot,.mb-who,.mb-priv):hover{
+    color:var(--tank-text);background:rgba(255,255,255,.10);
+  }
+  :where(:root[data-ui="2"]) .menubar :where(.mb-priv):hover{background:rgba(139,124,255,.26)}
+  :where(:root[data-ui="2"]) .menubar :where(.mb-logo,.mb-item,.lang button,.mb-spot,.mb-who,.mb-priv):active{
+    background:rgba(139,124,255,.34);
+  }
+  :where(:root[data-ui="2"]) .menubar :where(.mb-logo):active{background:var(--tank-brand);filter:brightness(.85)}
+  :where(:root[data-ui="2"]) .menubar :where(.mb-logo,.mb-item,.lang button,.mb-spot,.mb-who,.mb-priv):focus-visible{
+    outline:2px solid var(--tank-border-focus);outline-offset:2px;
+  }
+  /* 經典版 is a plain text link; give it a pill on hover/focus like the buttons. */
+  :where(:root[data-ui="2"]) .mb-item{padding:3px 8px;margin:0 -8px;border-radius:var(--tank-radius-sm)}
+  /* Phones: tighter spacing, so the app name has as much room as in v2.4. */
+  @media (max-width:600px){
+    :where(:root[data-ui="2"]) .menubar{padding:0 10px}
+    :where(:root[data-ui="2"]) .mb-l,:where(:root[data-ui="2"]) .mb-r{gap:6px}
+    :where(:root[data-ui="2"]) .lang{gap:0}
+    :where(:root[data-ui="2"]) .lang button,:where(:root[data-ui="2"]) .mb-who{padding:3px 6px}
+    :where(:root[data-ui="2"]) .mb-spot{width:28px}
+    :where(:root[data-ui="2"]) .mb-priv{padding:3px 7px}
+  }
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    :where(:root[data-ui="2"]) .menubar{background:var(--tank-glass-strong)}
+  }
+  @media (prefers-reduced-transparency:reduce){
+    :where(:root[data-ui="2"]) .menubar{background:var(--tank-bg);-webkit-backdrop-filter:none;backdrop-filter:none}
+  }
+
+  /* ---------- TankOS 2.0 wallpaper (?ui=2): Pixelverse lakeside night ---------- */
+  /* images/wallpaper-pixelverse-lakeside-night.png is the approved artwork (1672×941), kept byte for byte; browsers
+     get the .webp made from it (q90, 300 KB instead of 2.2 MB) and fall back to the PNG. The Komezuka photo stays
+     the v2.4 wallpaper. Only ?ui=2 ever downloads the new files, and ?ui=2 never downloads the photo.
+     No var() in the image declarations on purpose: a var() that fails turns the whole declaration into "unset"
+     instead of falling back to the PNG line above it. */
+  :root[data-ui="2"]{--wall-dim:0}   /* the overlay below replaces v2.4's flat black dim */
+  :where(:root[data-ui="2"]) .wall{
+    background-color:var(--tank-bg);
+    /* Night overlay, deep indigo-violet, kept light: darker under the menu bar and the Dock and behind the icon
+       columns at the sides, clear in the middle so the moon, lake and camp keep their colour. */
+    background-image:
+      linear-gradient(180deg,rgba(16,14,48,.45) 0,rgba(16,14,48,0) 16%,rgba(16,14,48,0) 74%,rgba(16,14,48,.42) 100%),
+      linear-gradient(90deg,rgba(16,14,48,.34) 0,rgba(16,14,48,0) 22%,rgba(16,14,48,0) 78%,rgba(16,14,48,.30) 100%),
+      url(images/wallpaper-pixelverse-lakeside-night.png);
+    background-image:
+      linear-gradient(180deg,rgba(16,14,48,.45) 0,rgba(16,14,48,0) 16%,rgba(16,14,48,0) 74%,rgba(16,14,48,.42) 100%),
+      linear-gradient(90deg,rgba(16,14,48,.34) 0,rgba(16,14,48,0) 22%,rgba(16,14,48,0) 78%,rgba(16,14,48,.30) 100%),
+      image-set(url(images/wallpaper-pixelverse-lakeside-night.webp) type("image/webp"),url(images/wallpaper-pixelverse-lakeside-night.png) type("image/png"));
+    background-size:auto,auto,cover;
+    background-repeat:no-repeat;
+    /* Landscape: the art is 16:9, so cover crops only a little top or bottom; 55% keeps the moon and the camp. */
+    background-position:0 0,0 0,50% 55%;
+  }
+  /* Portrait (phones, tablets upright): cover fits the height and crops the sides. 20% keeps the camp (tent,
+     the character with headphones, campfire, corgi) in view instead of the empty middle of the lake. */
+  @media (orientation:portrait){
+    :where(:root[data-ui="2"]) .wall{background-position:0 0,0 0,20% 50%}
+  }
+  /* Icon labels and zone headings: a deep-indigo halo instead of v2.4's single soft shadow. The art has bright
+     spots (the moon, the lantern, the blossoms) that can land under a label at some sizes; the halo keeps the text
+     legible without darkening the picture itself. */
+  :where(:root[data-ui="2"]) .lbl,:where(:root[data-ui="2"]) .zh{
+    text-shadow:0 1px 2px rgba(5,7,25,.95),0 0 6px rgba(5,7,25,.8),0 0 14px rgba(5,7,25,.5);
+  }
+  /* A selected label keeps its solid violet pill (v2.4's .dicon.sel .lbl beats this anyway; stated for clarity). */
+  /* The lock screen shows the wallpaper too (blurred), so it changes with it. */
+  :where(:root[data-ui="2"]) #lock::before{
+    background-image:url(images/wallpaper-pixelverse-lakeside-night.png);
+    background-image:image-set(url(images/wallpaper-pixelverse-lakeside-night.webp) type("image/webp"),url(images/wallpaper-pixelverse-lakeside-night.png) type("image/png"));
+    background-position:50% 55%;
+  }
+  @media (orientation:portrait){
+    :where(:root[data-ui="2"]) #lock::before{background-position:20% 50%}
+  }
 </style>
 </head>
 <body>
@@ -881,7 +991,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.4.3</span>
+    <span class="mb-ver">v2.4.4</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.com/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
