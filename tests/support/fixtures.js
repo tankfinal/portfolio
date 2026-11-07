@@ -97,7 +97,7 @@ async function settle(page){
     const small = matchMedia("(max-width: 768px)").matches;
     const img = new Image();
     img.src = document.documentElement.getAttribute("data-ui") === "2"
-      ? "images/wallpaper-pixelverse-lakeside-night.webp"
+      ? "images/wallpaper-pixelverse-lakeside-night.png"
       : small ? "images/wallpaper-komezuka-sm.jpg" : "images/wallpaper-komezuka.jpg";
     await img.decode();
   });

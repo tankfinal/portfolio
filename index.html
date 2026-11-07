@@ -905,11 +905,9 @@
   }
 
   /* ---------- TankOS 2.0 wallpaper (?ui=2): Pixelverse lakeside night ---------- */
-  /* images/wallpaper-pixelverse-lakeside-night.png is the approved artwork (1672×941), kept byte for byte; browsers
-     get the .webp made from it (q90, 300 KB instead of 2.2 MB) and fall back to the PNG. The Komezuka photo stays
-     the v2.4 wallpaper. Only ?ui=2 ever downloads the new files, and ?ui=2 never downloads the photo.
-     No var() in the image declarations on purpose: a var() that fails turns the whole declaration into "unset"
-     instead of falling back to the PNG line above it. */
+  /* images/wallpaper-pixelverse-lakeside-night.png is the approved artwork (1672×941), used as delivered: no
+     re-encoded or resized copies. The Komezuka photo stays the v2.4 wallpaper. Only ?ui=2 ever downloads the new
+     file, and ?ui=2 never downloads the photo. */
   :root[data-ui="2"]{--wall-dim:0}   /* the overlay below replaces v2.4's flat black dim */
   :where(:root[data-ui="2"]) .wall{
     background-color:var(--tank-bg);
@@ -919,10 +917,6 @@
       linear-gradient(180deg,rgba(16,14,48,.45) 0,rgba(16,14,48,0) 16%,rgba(16,14,48,0) 74%,rgba(16,14,48,.42) 100%),
       linear-gradient(90deg,rgba(16,14,48,.34) 0,rgba(16,14,48,0) 22%,rgba(16,14,48,0) 78%,rgba(16,14,48,.30) 100%),
       url(images/wallpaper-pixelverse-lakeside-night.png);
-    background-image:
-      linear-gradient(180deg,rgba(16,14,48,.45) 0,rgba(16,14,48,0) 16%,rgba(16,14,48,0) 74%,rgba(16,14,48,.42) 100%),
-      linear-gradient(90deg,rgba(16,14,48,.34) 0,rgba(16,14,48,0) 22%,rgba(16,14,48,0) 78%,rgba(16,14,48,.30) 100%),
-      image-set(url(images/wallpaper-pixelverse-lakeside-night.webp) type("image/webp"),url(images/wallpaper-pixelverse-lakeside-night.png) type("image/png"));
     background-size:auto,auto,cover;
     background-repeat:no-repeat;
     /* Landscape: the art is 16:9, so cover crops only a little top or bottom; 55% keeps the moon and the camp. */
@@ -943,7 +937,6 @@
   /* The lock screen shows the wallpaper too (blurred), so it changes with it. */
   :where(:root[data-ui="2"]) #lock::before{
     background-image:url(images/wallpaper-pixelverse-lakeside-night.png);
-    background-image:image-set(url(images/wallpaper-pixelverse-lakeside-night.webp) type("image/webp"),url(images/wallpaper-pixelverse-lakeside-night.png) type("image/png"));
     background-position:50% 55%;
   }
   @media (orientation:portrait){

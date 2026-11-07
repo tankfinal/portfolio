@@ -76,7 +76,7 @@ test.describe("?ui=2 Nocturne preview", () => {
       await boot(page, { path: "/?ui=2", locked: true });
       await page.evaluate(async () => {
         await document.fonts.ready;
-        const i = new Image(); i.src = "images/wallpaper-pixelverse-lakeside-night.webp"; await i.decode();
+        const i = new Image(); i.src = "images/wallpaper-pixelverse-lakeside-night.png"; await i.decode();
       });
       await shot(page, "lock-1366-ui2.png");
     });
