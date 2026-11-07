@@ -30,6 +30,16 @@ module.exports = defineConfig({
     serviceWorkers: "block",
     trace: "off"
   },
+  projects: [
+    // Today's UI: every test, including the visual baselines.
+    { name: "default" },
+    // The same behaviour tests with the TankOS 2.0 flag on: the new theme must not change how anything works.
+    {
+      name: "ui2",
+      testMatch: ["window-manager.spec.js", "dock-and-apps.spec.js", "layout.spec.js"],
+      use: { tankUi: "2" }
+    }
+  ],
   webServer: {
     command: "node tests/support/serve.js " + PORT,
     url: "http://127.0.0.1:" + PORT + "/index.html",

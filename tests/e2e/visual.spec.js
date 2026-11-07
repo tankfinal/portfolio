@@ -66,3 +66,32 @@ test.describe("390×844", () => {
     await shot(page, "app-390.png");
   });
 });
+
+// TankOS 2.0 preview (?ui=2): the same screens with the Nocturne tokens. Only colours differ from the ones above.
+test.describe("?ui=2 Nocturne preview", () => {
+  test.describe("1366×657", () => {
+    test.use({ viewport: { width: 1366, height: 657 } });
+
+    test("desktop with README", async ({ page }) => {
+      await boot(page, { path: "/?ui=2" });
+      await shot(page, "desktop-1366-ui2.png");
+    });
+
+    test("two windows, one unfocused", async ({ page }) => {
+      await boot(page, { path: "/?ui=2" });
+      await openFromDesktop(page, "calc");
+      await shot(page, "windows-1366-ui2.png");
+    });
+  });
+
+  test.describe("390×844", () => {
+    test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+
+    test("app open full screen", async ({ page }) => {
+      await boot(page, { path: "/?ui=2" });
+      await page.locator('.desktop .dicon[data-open="contact"]').tap();
+      await expect(win(page, "contact")).toHaveClass(/\bfocused\b/);
+      await shot(page, "app-390-ui2.png");
+    });
+  });
+});

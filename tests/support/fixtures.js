@@ -48,7 +48,10 @@ async function mockExternal(route){
 }
 
 const test = base.test.extend({
-  context: async ({ context }, use) => {
+  // TankOS 2.0 feature flag for the whole test: "2" stores localStorage.ui = "2" before the page loads, the same
+  // state a visitor has after opening ?ui=2 once. The "ui2" project in playwright.config.js sets it.
+  tankUi: [null, { option: true }],
+  context: async ({ context, tankUi }, use) => {
     await context.route("**/*", (route) => {
       const url = route.request().url();
       if (url.startsWith("data:") || url.startsWith("blob:")) return route.continue();
@@ -60,6 +63,11 @@ const test = base.test.extend({
     await context.addInitScript(() => {
       try { if (!localStorage.getItem("lang")) localStorage.setItem("lang", "zh"); } catch (e) {}
     });
+    if (tankUi === "2") {
+      await context.addInitScript(() => {
+        try { if (!sessionStorage.getItem("pw.ui.set")) { localStorage.setItem("ui", "2"); sessionStorage.setItem("pw.ui.set", "1"); } } catch (e) {}
+      });
+    }
     await use(context);
   },
   page: async ({ page }, use) => {
