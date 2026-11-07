@@ -137,3 +137,109 @@ for (const [w, h] of [[390, 844], [360, 740]]) {
     });
   });
 }
+
+// ---------- wallpaper ----------
+const PNG = "images/wallpaper-pixelverse-lakeside-night.png";
+const WEBP = "images/wallpaper-pixelverse-lakeside-night.webp";
+// SHA-256 of the approved artwork as delivered (TankOS-PR5-Pixelverse-Package.zip). The repo copy must stay byte
+// for byte the same: re-exporting, cropping or "optimizing" it in place would fail here.
+const PNG_SHA256 = "964e813727a9b6e894004f715978480d1f84542e0769d8edeb9d97cca5147cf4";
+
+function wall(page){
+  return page.evaluate(() => {
+    const s = getComputedStyle(document.querySelector(".wall"));
+    const lock = document.getElementById("lock");
+    return {
+      image: s.backgroundImage, size: s.backgroundSize, pos: s.backgroundPosition, color: s.backgroundColor,
+      dim: getComputedStyle(document.querySelector(".wall-dim")).opacity,
+      lock: lock ? getComputedStyle(lock, "::before").backgroundImage : null
+    };
+  });
+}
+
+// Every wallpaper file the page asks for.
+function watchWallpapers(page){
+  const seen = [];
+  page.on("request", (r) => { const m = r.url().match(/images\/(wallpaper-[^?]+)/); if (m) seen.push(m[1]); });
+  return seen;
+}
+
+test.describe("wallpaper", () => {
+  test("the approved PNG is in the repo unchanged (1672×941), with a same-size WebP made from it", async ({ page, request }) => {
+    const crypto = require("crypto"), fs = require("fs"), path = require("path");
+    const buf = fs.readFileSync(path.join(__dirname, "..", "..", PNG));
+    expect(crypto.createHash("sha256").update(buf).digest("hex")).toBe(PNG_SHA256);
+    // The Komezuka photo is kept for a future wallpaper picker.
+    for (const f of ["images/wallpaper-komezuka.jpg", "images/wallpaper-komezuka-sm.jpg", PNG, WEBP]) {
+      expect((await request.get("/" + f)).status(), f).toBe(200);
+    }
+    await page.goto("/");
+    const dims = await page.evaluate(async (srcs) => Promise.all(srcs.map(async (src) => {
+      const i = new Image(); i.src = src; await i.decode(); return [i.naturalWidth, i.naturalHeight];
+    })), [PNG, WEBP]);
+    expect(dims).toEqual([[1672, 941], [1672, 941]]);
+    expect(fs.statSync(path.join(__dirname, "..", "..", WEBP)).size).toBeLessThan(400 * 1024);
+  });
+
+  test("?ui=1: the Komezuka photo and v2.4's dim; the new art is never downloaded", async ({ page }) => {
+    const seen = watchWallpapers(page);
+    await boot(page, { path: "/?ui=1" });
+    const w = await wall(page);
+    expect(w.image).toContain("wallpaper-komezuka.jpg");
+    expect(w.image).not.toContain("pixelverse");
+    expect(seen.some((f) => /pixelverse/.test(f))).toBe(false);
+  });
+
+  test("?ui=2: the Pixelverse art (WebP) under a light night overlay; the photo and the 2.2 MB PNG are not downloaded", async ({ page }) => {
+    const seen = watchWallpapers(page);
+    await boot(page, { path: "/?ui=2" });
+    const w = await wall(page);
+    expect(w.image).toContain("wallpaper-pixelverse-lakeside-night.webp");
+    expect(w.image).toContain("wallpaper-pixelverse-lakeside-night.png");      // the image-set fallback
+    expect(w.image).not.toContain("komezuka");
+    // Two overlay layers, deep indigo-violet, never fully opaque.
+    const layers = w.image.match(/linear-gradient\([^)]*\)[^)]*\)/g) || [];
+    expect(w.image.match(/linear-gradient/g)).toHaveLength(2);
+    const alphas = (w.image.match(/rgba\(16, 14, 48, ([\d.]+)\)/g) || []).map((m) => +m.match(/([\d.]+)\)$/)[1]);
+    expect(alphas.length).toBeGreaterThan(0);
+    expect(Math.max(...alphas)).toBeLessThanOrEqual(0.45);
+    expect(w).toMatchObject({ size: "auto, auto, cover", pos: "0px 0px, 0px 0px, 50% 55%", color: "rgb(11, 16, 32)", dim: "0" });
+    expect(seen).toEqual(["wallpaper-pixelverse-lakeside-night.webp"]);
+  });
+
+  test("?ui=2: the PNG line comes first, so browsers without image-set() still get the art", async ({ request }) => {
+    const html = await (await request.get("/")).text();
+    const block = html.slice(html.indexOf(':where(:root[data-ui="2"]) .wall{'));
+    const png = block.indexOf("url(images/wallpaper-pixelverse-lakeside-night.png);");
+    const set = block.indexOf("image-set(url(images/wallpaper-pixelverse-lakeside-night.webp)");
+    expect(png).toBeGreaterThan(-1);
+    expect(set).toBeGreaterThan(png);
+  });
+
+  test("?ui=2: the lock screen shows the new art too; ?ui=1 keeps the photo", async ({ page }) => {
+    await boot(page, { path: "/?ui=2", locked: true });
+    expect((await wall(page)).lock).toContain("pixelverse-lakeside-night.webp");
+    await boot(page, { path: "/?ui=1", locked: true });
+    expect((await wall(page)).lock).toContain("wallpaper-komezuka.jpg");
+  });
+
+  test("?ui=2: icon labels get the indigo halo; ?ui=1 keeps the v2.4 shadow", async ({ page }) => {
+    await boot(page, { path: "/?ui=2" });
+    const lbl = page.locator('.dicon[data-open="terminal"] .lbl');
+    expect(await lbl.evaluate((e) => getComputedStyle(e).textShadow)).toContain("rgba(5, 7, 25, 0.95)");
+    await boot(page, { path: "/?ui=1" });
+    expect(await lbl.evaluate((e) => getComputedStyle(e).textShadow)).toBe("rgba(0, 0, 0, 0.6) 0px 1px 3px");
+  });
+
+  for (const [w, h] of [[390, 844], [768, 1024]]) {
+    test.describe(`?ui=2 portrait ${w}×${h}`, () => {
+      test.use({ viewport: { width: w, height: h }, isMobile: true, hasTouch: true });
+      test("the crop keeps the camp in view (20% from the left); same WebP, no separate phone file", async ({ page }) => {
+        const seen = watchWallpapers(page);
+        await boot(page, { path: "/?ui=2" });
+        expect((await wall(page)).pos).toBe("0px 0px, 0px 0px, 20% 50%");
+        expect(seen).toEqual(["wallpaper-pixelverse-lakeside-night.webp"]);
+      });
+    });
+  }
+});

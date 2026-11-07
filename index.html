@@ -903,6 +903,52 @@
   @media (prefers-reduced-transparency:reduce){
     :where(:root[data-ui="2"]) .menubar{background:var(--tank-bg);-webkit-backdrop-filter:none;backdrop-filter:none}
   }
+
+  /* ---------- TankOS 2.0 wallpaper (?ui=2): Pixelverse lakeside night ---------- */
+  /* images/wallpaper-pixelverse-lakeside-night.png is the approved artwork (1672×941), kept byte for byte; browsers
+     get the .webp made from it (q90, 300 KB instead of 2.2 MB) and fall back to the PNG. The Komezuka photo stays
+     the v2.4 wallpaper. Only ?ui=2 ever downloads the new files, and ?ui=2 never downloads the photo.
+     No var() in the image declarations on purpose: a var() that fails turns the whole declaration into "unset"
+     instead of falling back to the PNG line above it. */
+  :root[data-ui="2"]{--wall-dim:0}   /* the overlay below replaces v2.4's flat black dim */
+  :where(:root[data-ui="2"]) .wall{
+    background-color:var(--tank-bg);
+    /* Night overlay, deep indigo-violet, kept light: darker under the menu bar and the Dock and behind the icon
+       columns at the sides, clear in the middle so the moon, lake and camp keep their colour. */
+    background-image:
+      linear-gradient(180deg,rgba(16,14,48,.45) 0,rgba(16,14,48,0) 16%,rgba(16,14,48,0) 74%,rgba(16,14,48,.42) 100%),
+      linear-gradient(90deg,rgba(16,14,48,.34) 0,rgba(16,14,48,0) 22%,rgba(16,14,48,0) 78%,rgba(16,14,48,.30) 100%),
+      url(images/wallpaper-pixelverse-lakeside-night.png);
+    background-image:
+      linear-gradient(180deg,rgba(16,14,48,.45) 0,rgba(16,14,48,0) 16%,rgba(16,14,48,0) 74%,rgba(16,14,48,.42) 100%),
+      linear-gradient(90deg,rgba(16,14,48,.34) 0,rgba(16,14,48,0) 22%,rgba(16,14,48,0) 78%,rgba(16,14,48,.30) 100%),
+      image-set(url(images/wallpaper-pixelverse-lakeside-night.webp) type("image/webp"),url(images/wallpaper-pixelverse-lakeside-night.png) type("image/png"));
+    background-size:auto,auto,cover;
+    background-repeat:no-repeat;
+    /* Landscape: the art is 16:9, so cover crops only a little top or bottom; 55% keeps the moon and the camp. */
+    background-position:0 0,0 0,50% 55%;
+  }
+  /* Portrait (phones, tablets upright): cover fits the height and crops the sides. 20% keeps the camp (tent,
+     the character with headphones, campfire, corgi) in view instead of the empty middle of the lake. */
+  @media (orientation:portrait){
+    :where(:root[data-ui="2"]) .wall{background-position:0 0,0 0,20% 50%}
+  }
+  /* Icon labels and zone headings: a deep-indigo halo instead of v2.4's single soft shadow. The art has bright
+     spots (the moon, the lantern, the blossoms) that can land under a label at some sizes; the halo keeps the text
+     legible without darkening the picture itself. */
+  :where(:root[data-ui="2"]) .lbl,:where(:root[data-ui="2"]) .zh{
+    text-shadow:0 1px 2px rgba(5,7,25,.95),0 0 6px rgba(5,7,25,.8),0 0 14px rgba(5,7,25,.5);
+  }
+  /* A selected label keeps its solid violet pill (v2.4's .dicon.sel .lbl beats this anyway; stated for clarity). */
+  /* The lock screen shows the wallpaper too (blurred), so it changes with it. */
+  :where(:root[data-ui="2"]) #lock::before{
+    background-image:url(images/wallpaper-pixelverse-lakeside-night.png);
+    background-image:image-set(url(images/wallpaper-pixelverse-lakeside-night.webp) type("image/webp"),url(images/wallpaper-pixelverse-lakeside-night.png) type("image/png"));
+    background-position:50% 55%;
+  }
+  @media (orientation:portrait){
+    :where(:root[data-ui="2"]) #lock::before{background-position:20% 50%}
+  }
 </style>
 </head>
 <body>
@@ -945,7 +991,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.4.3</span>
+    <span class="mb-ver">v2.4.4</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.com/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>

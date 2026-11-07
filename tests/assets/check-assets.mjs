@@ -24,7 +24,8 @@ const FORBIDDEN = [
 // Must stay public, or the site breaks.
 const REQUIRED = [
   "index.html", "classic/index.html", "os/index.html", "apps/trace.js",
-  "images/wallpaper-komezuka.jpg", "images/wallpaper-komezuka-sm.jpg"
+  "images/wallpaper-komezuka.jpg", "images/wallpaper-komezuka-sm.jpg",
+  "images/wallpaper-pixelverse-lakeside-night.png", "images/wallpaper-pixelverse-lakeside-night.webp"
 ];
 
 const run = spawnSync("npx", ["--yes", WRANGLER, "deploy", "--dry-run"], {

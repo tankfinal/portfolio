@@ -92,9 +92,13 @@ async function boot(page, opts){
 async function settle(page){
   await page.evaluate(async () => {
     await document.fonts.ready;
+    // Wait for the wallpaper this page actually shows (v2.4's photo, or the 2.0 art under ?ui=2), so the test
+    // itself never downloads the other one.
     const small = matchMedia("(max-width: 768px)").matches;
     const img = new Image();
-    img.src = small ? "images/wallpaper-komezuka-sm.jpg" : "images/wallpaper-komezuka.jpg";
+    img.src = document.documentElement.getAttribute("data-ui") === "2"
+      ? "images/wallpaper-pixelverse-lakeside-night.webp"
+      : small ? "images/wallpaper-komezuka-sm.jpg" : "images/wallpaper-komezuka.jpg";
     await img.decode();
   });
   await expect(page.locator("#mbWho")).toBeVisible();
