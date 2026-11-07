@@ -197,26 +197,170 @@ test.describe("?ui=2 App Launcher (desktop)", () => {
     await expect(win(page, "fukuoka")).toHaveClass(/\bfocused\b/);
   });
 
-  test("Chinese / English: groups and names follow the language, even while open", async ({ page }) => {
+  test("Chinese / English: groups and names follow the language", async ({ page }) => {
+    await page.locator("#btnEn").click();
     await openLauncher(page);
-    await page.locator("#btnEn").click();                     // the menu bar stays above the launcher
     await expect(page.locator("#launcher .ln-group h3")).toHaveText(GROUPS_EN);
     await expect(page.locator('#launcher .ln-app[data-open="calc"] .ln-name')).toHaveText("Calculator");
     await expect(page.getByRole("dialog", { name: "All apps" })).toHaveCount(1);
     await expect(page.locator("#btnLaunch .tip")).toHaveText("All apps");
   });
 
-  test("layers: above windows and the Dock, under the menu bar; Spotlight replaces it", async ({ page }) => {
+  test("layers: the backdrop covers the menu bar, the windows and the Dock; Spotlight replaces it", async ({ page }) => {
     await openLauncher(page);
     const hit = await page.evaluate(() => ({
-      menu: document.elementFromPoint(683, 10).closest(".menubar") !== null,
+      menu: document.elementFromPoint(683, 10).id,
       dock: document.elementFromPoint(683, 735).id
     }));
-    expect(hit.menu).toBe(true);
-    expect(hit.dock).toBe("launcher");                       // the Dock is under the backdrop
+    expect(hit).toEqual({ menu: "launcher", dock: "launcher" });
     await page.keyboard.press("Control+k");
     await expect(page.locator("#spot")).toBeVisible();
     await expect(page.locator("#launcher")).toBeHidden();
+  });
+});
+
+// ---------- the launcher as a true modal dialog (review P2) ----------
+const BEHIND = [".menubar", "#desktop", "#windows", "#dock"];
+function inertState(page){
+  return page.evaluate((sels) => sels.map((s) => document.querySelector(s).hasAttribute("inert")), BEHIND);
+}
+// Every element that is a visible, open modal dialog right now.
+function openModals(page){
+  return page.evaluate(() => [...document.querySelectorAll('[aria-modal="true"]')]
+    .filter((d) => d.getClientRects().length > 0).map((d) => d.getAttribute("aria-label") || d.getAttribute("aria-labelledby")));
+}
+
+test.describe("?ui=2 App Launcher is a true modal", () => {
+  test.beforeEach(async ({ page }) => { await boot(page, { path: "/?ui=2" }); });
+
+  test("the menu bar, desktop, windows and Dock are inert while it is open, and only then", async ({ page }) => {
+    expect(await inertState(page)).toEqual([false, false, false, false]);
+    await openLauncher(page);
+    expect(await inertState(page)).toEqual([true, true, true, true]);
+    await page.keyboard.press("Escape");
+    expect(await inertState(page)).toEqual([false, false, false, false]);
+  });
+
+  test("Tab and Shift+Tab never leave it (40 presses each way)", async ({ page }) => {
+    await openLauncher(page);
+    for (const key of ["Tab", "Shift+Tab"]) {
+      for (let i = 0; i < 40; i++) {
+        await page.keyboard.press(key);
+        expect(await page.evaluate(() => document.getElementById("launcher").contains(document.activeElement)), `${key} #${i}`).toBe(true);
+      }
+    }
+  });
+
+  test("the background is out of the accessibility tree while it is open (Chromium's real AX tree)", async ({ page }) => {
+    // Read the browser's own accessibility tree over CDP: Playwright's ariaSnapshot() does not apply inert.
+    const cdp = await page.context().newCDPSession(page);
+    const names = async () => {
+      const { nodes } = await cdp.send("Accessibility.getFullAXTree");
+      return nodes.filter((n) => !n.ignored && n.name && n.name.value).map((n) => n.role.value + ":" + n.name.value);
+    };
+    const before = await names();
+    expect(before).toContain("navigation:Dock");
+    expect(before).toContain("button:EN");                    // menu bar
+    expect(before).toContain("dialog:README.md");             // window
+    await openLauncher(page);
+    const during = await names();
+    expect(during).toContain("dialog:所有 App");
+    expect(during).not.toContain("navigation:Dock");
+    expect(during).not.toContain("button:EN");
+    expect(during).not.toContain("dialog:README.md");
+    await page.keyboard.press("Escape");
+    expect(await names()).toContain("navigation:Dock");
+  });
+
+  for (const how of ["Escape", "close button", "backdrop"]) {
+    test(`closing with ${how} returns focus to the launcher button`, async ({ page }) => {
+      await openLauncher(page);
+      await page.keyboard.press("ArrowRight");
+      if (how === "Escape") await page.keyboard.press("Escape");
+      if (how === "close button") await page.locator("#lnClose").click();
+      if (how === "backdrop") await page.mouse.click(20, 640);
+      await expect(page.locator("#launcher")).toBeHidden();
+      await expect(page.locator("#btnLaunch")).toBeFocused();
+    });
+  }
+
+  test("opening an app hands focus to its window (keyboard)", async ({ page }) => {
+    await page.locator("#btnLaunch").focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#launcher")).toBeVisible();
+    await page.keyboard.press("ArrowRight");                          // 釜山旅遊
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#launcher")).toBeHidden();
+    const w = win(page, "busan");
+    await expect(w).toHaveClass(/\bfocused\b/);
+    expect(await w.evaluate((el) => el === document.activeElement || el.contains(document.activeElement))).toBe(true);
+    expect(await page.evaluate(() => document.activeElement === document.body)).toBe(false);
+    // Tab moves on into the window, not back into the hidden launcher.
+    await page.keyboard.press("Tab");
+    expect(await w.evaluate((el) => el.contains(document.activeElement))).toBe(true);
+  });
+
+  test("the terminal still focuses its own prompt", async ({ page }) => {
+    await openLauncher(page);
+    await page.locator('#launcher .ln-app[data-open="terminal"]').click();
+    await expect(win(page, "terminal").locator("input")).toBeFocused();
+  });
+
+  test("an app that is already open but minimized comes back and gets focus", async ({ page }) => {
+    await win(page, "readme").locator(".tl-min").click();
+    await openLauncher(page);
+    await page.locator('#launcher .ln-app[data-open="readme"]').click();
+    const w = win(page, "readme");
+    await expect(w).not.toHaveClass(/\bminimized\b/);
+    expect(await w.evaluate((el) => el === document.activeElement)).toBe(true);
+  });
+
+  test("the private link opens a new tab and focus returns to the launcher button", async ({ page }) => {
+    await openLauncher(page);
+    await Promise.all([page.waitForEvent("popup"), page.locator('#launcher .ln-app[data-open="private"]').click()]);
+    await expect(page.locator("#btnLaunch")).toBeFocused();
+    expect(await inertState(page)).toEqual([false, false, false, false]);
+  });
+
+  test("a language change while open keeps focus on the same item, never on <body>", async ({ page }) => {
+    await openLauncher(page);
+    const calc = page.locator('#launcher .ln-app[data-open="calc"]');
+    await calc.focus();
+    // The menu bar is inert now, so the change comes from code (as any future language source would).
+    await page.evaluate(() => document.getElementById("btnEn").click());
+    await expect(page.locator("#launcher .ln-group h3")).toHaveText(GROUPS_EN);
+    await expect(calc).toBeFocused();
+    await expect(calc.locator(".ln-name")).toHaveText("Calculator");
+    // The close button and the classic link keep focus too.
+    await page.locator("#lnClose").focus();
+    await page.evaluate(() => document.getElementById("btnZh").click());
+    await expect(page.locator("#lnClose")).toBeFocused();
+    await page.locator('#launcher a.ln-app[href="classic/"]').focus();
+    await page.evaluate(() => document.getElementById("btnEn").click());
+    await expect(page.locator('#launcher a.ln-app[href="classic/"]')).toBeFocused();
+    expect(await page.evaluate(() => document.activeElement === document.body)).toBe(false);
+  });
+
+  test("Spotlight and the launcher are never open together", async ({ page }) => {
+    await openLauncher(page);
+    expect(await openModals(page)).toEqual(["lnTitle"]);
+    await page.keyboard.press("Control+k");                  // Spotlight from inside the launcher
+    await expect(page.locator("#spot")).toBeVisible();
+    expect(await openModals(page)).toEqual(["Spotlight"]);
+    expect(await inertState(page)).toEqual([false, false, false, false]);
+    await expect(page.locator("#spIn")).toBeFocused();
+    await page.keyboard.press("Escape");
+    await openLauncher(page);                                // and the launcher closes Spotlight
+    await page.keyboard.press("/");
+    await expect(page.locator("#spot")).toBeVisible();
+    await expect(page.locator("#launcher")).toBeHidden();
+    expect(await openModals(page)).toEqual(["Spotlight"]);
+    await page.keyboard.press("Escape");
+    await page.keyboard.press("Control+k");
+    await expect(page.locator("#spot")).toBeVisible();
+    await page.evaluate(() => document.getElementById("btnLaunch").click());   // launcher while Spotlight is up
+    await expect(page.locator("#spot")).toBeHidden();
+    expect(await openModals(page)).toEqual(["lnTitle"]);
   });
 });
 

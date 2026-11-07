@@ -999,10 +999,10 @@
     :where(:root[data-ui="2"]) .dock > :where(.dk:not([data-m]),.dk-sep){display:none}
   }
 
-  /* The launcher: above the windows (#windows, 10) and the Dock (8000), under the menu bar (9000), Spotlight (9600)
-     and the lock screen (9800), so the clock, language and Spotlight stay reachable. */
+  /* The launcher is a true modal: above the windows (#windows, 10), the Dock (8000) and the menu bar (9000), all of
+     which are inert while it is open; under Spotlight (9600, which closes it) and the lock screen (9800). */
   :where(:root[data-ui="2"]) #launcher{
-    position:fixed;inset:0;z-index:8500;
+    position:fixed;inset:0;z-index:9500;
     display:flex;align-items:flex-end;justify-content:center;
     padding:calc(var(--menu-h) + 12px) 12px calc(var(--dock-space) + 12px);
     background:rgba(5,7,25,.45);
@@ -1041,6 +1041,8 @@
     display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
   }
   :where(:root[data-ui="2"]) .ln-app:hover{background:rgba(255,255,255,.08)}
+  /* A window that receives focus from the launcher already shows it with its focused chrome (PR-4). */
+  :where(:root[data-ui="2"]) .win:focus-visible{outline:none}
   :where(:root[data-ui="2"]) .ln-app:focus-visible{outline:2px solid var(--tank-border-focus);outline-offset:0;background:rgba(139,124,255,.16)}
   :where(:root[data-ui="2"]) .ln-app.run::after{
     content:"";position:absolute;top:59px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;
@@ -3164,7 +3166,8 @@
   var launcher = document.getElementById("launcher");
   var lnBody = document.getElementById("lnBody");
   var btnLaunch = document.getElementById("btnLaunch");
-  var lnReturn = null;
+  // Everything behind the launcher. While it is open these are inert: no Tab, no clicks, out of the a11y tree.
+  var lnBehind = [document.querySelector(".menubar"), desk, layer, dock];
 
   // The short name the desktop icon shows (app.<id>), not the long site title Spotlight and window titles use.
   function shortName(id){ return I18N["app." + id] ? t("app." + id) : appName(id); }
@@ -3202,33 +3205,51 @@
     }).join("");
   }
 
+  function lnInert(on){
+    lnBehind.forEach(function(el){ if (on) el.setAttribute("inert", ""); else el.removeAttribute("inert"); });
+  }
+
   function lnOpen(){
     if (locked) return;
-    if (!spot.hidden) spotClose();
-    lnReturn = document.activeElement;
+    if (!spot.hidden) spotClose();          // one modal at a time
     lnRender();
     launcher.hidden = false;
+    lnInert(true);
     btnLaunch.setAttribute("aria-expanded", "true");
     var first = lnBody.querySelector(".ln-app");
     if (first) first.focus();
   }
-  // restore=false when an app was just opened: the new window is what the visitor is looking at now.
+  // Closing hands focus back to the launcher button (the Dock is no longer inert by then). restore=false leaves
+  // focus to whoever closed it: an app that just opened, or Spotlight.
   function lnClose(restore){
     if (launcher.hidden) return;
     launcher.hidden = true;
+    lnInert(false);
     btnLaunch.setAttribute("aria-expanded", "false");
-    if (restore !== false && lnReturn && lnReturn.focus) lnReturn.focus();
-    lnReturn = null;
+    if (restore !== false) btnLaunch.focus();
+  }
+
+  // After opening an app from the launcher, focus goes to its window (the terminal focuses its own prompt), so
+  // keyboard and screen-reader users land in the app they picked. Link apps (the private site) open a new tab;
+  // focus then returns to the launcher button.
+  function lnFocusApp(id){
+    var w = wins[id] && wins[id].el;
+    if (!w) { btnLaunch.focus(); return; }
+    if (w.contains(document.activeElement)) return;
+    if (!w.hasAttribute("tabindex")) w.setAttribute("tabindex", "-1");
+    w.focus({preventScroll: true});
   }
 
   btnLaunch.addEventListener("click", function(){ if (launcher.hidden) lnOpen(); else lnClose(); });
   document.getElementById("lnClose").addEventListener("click", function(){ lnClose(); });
-  launcher.addEventListener("pointerdown", function(e){ if (e.target === launcher) lnClose(); });
+  // preventDefault: otherwise the mousedown that follows moves focus off the launcher button we just focused.
+  launcher.addEventListener("pointerdown", function(e){ if (e.target === launcher) { e.preventDefault(); lnClose(); } });
   lnBody.addEventListener("click", function(e){
     var item = e.target.closest(".ln-app");
     if (!item) return;
     lnClose(false);
-    if (item.dataset.open) open(item.dataset.open);   // links (the classic site) navigate on their own, as in the Dock
+    // Links (the classic site) navigate on their own, as in the Dock.
+    if (item.dataset.open) { open(item.dataset.open); lnFocusApp(item.dataset.open); }
   });
 
   // Keyboard: Esc closes; Tab stays inside; arrows move between apps (up/down to the nearest one in the next row).
@@ -3261,7 +3282,15 @@
     }
     if (next) { e.preventDefault(); next.focus(); }
   });
-  langHooks.push(function(){ if (!launcher.hidden) lnRender(); });
+  // A language change while it is open re-renders the list; focus stays on the same item (never on <body>).
+  langHooks.push(function(){
+    if (launcher.hidden) return;
+    var a = document.activeElement, key = null;
+    if (a && launcher.contains(a)) key = a.id ? "#" + a.id : a.dataset.open ? '[data-open="' + a.dataset.open + '"]' : a.getAttribute("href") ? '[href="' + a.getAttribute("href") + '"]' : null;
+    lnRender();
+    var back = (key && launcher.querySelector(key)) || lnBody.querySelector(".ln-app");
+    if (back) back.focus();
+  });
 
   /* ---------- lock screen ---------- */
   var lock = document.getElementById("lock");
