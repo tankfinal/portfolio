@@ -17,7 +17,9 @@ module.exports = defineConfig({
   workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? [["list"], ["github"], ["html", { open: "never" }]] : [["list"]],
   expect: {
-    toHaveScreenshot: { animations: "disabled", caret: "hide", scale: "css" }
+    // threshold 0.01 (default 0.2): rendering in the pinned image is exact, and both 0.2 and 0.05 let a 6%
+    // see-through change (ghost text of the window below) pass as "unchanged"; 0.01 catches it.
+    toHaveScreenshot: { animations: "disabled", caret: "hide", scale: "css", threshold: 0.01 }
   },
   use: {
     baseURL: "http://127.0.0.1:" + PORT,

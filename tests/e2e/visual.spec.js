@@ -82,6 +82,25 @@ test.describe("?ui=2 Nocturne preview", () => {
       await openFromDesktop(page, "calc");
       await shot(page, "windows-1366-ui2.png");
     });
+
+    test("apps that keep their own window colours, plus a file app", async ({ page }) => {
+      await boot(page, { path: "/?ui=2" });
+      await win(page, "readme").locator(".tl-close").click();
+      await openFromDesktop(page, "terminal");
+      const trace = await openFromDesktop(page, "trace");
+      await expect(trace.locator(".app-load")).toHaveCount(0);
+      await openFromDesktop(page, "calc");
+      await shot(page, "apps-1366-ui2.png");
+    });
+  });
+
+  test.describe("1024×768", () => {
+    test.use({ viewport: { width: 1024, height: 768 } });
+
+    test("desktop with README", async ({ page }) => {
+      await boot(page, { path: "/?ui=2" });
+      await shot(page, "desktop-1024-ui2.png");
+    });
   });
 
   test.describe("390×844", () => {
