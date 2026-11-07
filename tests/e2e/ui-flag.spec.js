@@ -97,10 +97,10 @@ test.describe("?ui=2 (Nocturne preview)", () => {
     await boot(page, { path: "/?ui=2" });
     expect(await vars(page, Object.keys(COMPAT))).toEqual(COMPAT);
     // Real elements pick it up through the old names.
+    // (Window chrome itself is PR-4's: see window-chrome.spec.js. Here only what reads --win-* directly.)
     const readme = win(page, "readme");
-    await expect(readme).toHaveCSS("background-color", "rgb(17, 26, 51)");
-    await expect(readme.locator(".bar")).toHaveCSS("background-color", "rgb(26, 38, 74)");
     await expect(readme.locator(".doc h2")).toHaveCSS("color", "rgb(242, 244, 255)");
+    await expect(readme.locator(".doc .md").first()).toHaveCSS("color", "rgb(255, 90, 78)");
     await expect(readme.locator(".doc .sub")).toHaveCSS("color", "rgb(149, 163, 196)");
   });
 
@@ -209,7 +209,7 @@ for (const def of ["1", "2"]) {
         expect(await load(page, `/?ui=${pick}`)).toEqual({ ui: pick, stored: "blocked" });
         await page.keyboard.press("Space");
         await expect(page.locator("#lock")).toHaveCount(0);
-        await expect(win(page, "readme")).toHaveCSS("background-color", pick === "2" ? "rgb(17, 26, 51)" : "rgb(255, 255, 255)");
+        await expect(win(page, "readme").locator(".doc h2")).toHaveCSS("color", pick === "2" ? "rgb(242, 244, 255)" : "rgb(29, 29, 31)");
       }
       expect(await load(page, "/")).toEqual({ ui: def, stored: "blocked" });   // nothing to remember it with
     });
@@ -246,14 +246,15 @@ test.describe("no flash of the old theme", () => {
 });
 
 test.describe("everything else is scoped to the flag", () => {
-  test("every rule that mentions --tank-* or data-ui lives under :root[data-ui=\"2\"]", async ({ request }) => {
+  test("every rule that mentions --tank-* or data-ui lives under :root[data-ui=\"2\"] or :where() of it", async ({ request }) => {
     const html = await (await request.get("/")).text();
     const css = html.slice(html.indexOf("<style>"), html.indexOf("</style>")).replace(/\/\*[\s\S]*?\*\//g, "");
     // Split into top-level rules: "selector{ ... }" (no nested at-rules use these yet).
     const rules = css.match(/[^{}]+\{[^{}]*\}/g) || [];
     const offenders = rules.filter((r) => /--tank-|data-ui/.test(r))
       .map((r) => r.slice(0, r.indexOf("{")).trim())
-      .filter((sel) => !sel.split(",").every((s) => s.trim().startsWith(':root[data-ui="2"]')));
+      // Either form: :root[data-ui="2"] (tokens) or :where(:root[data-ui="2"]) (PR-4's zero-specificity restyles).
+      .filter((sel) => !sel.split(/,(?![^(]*\))/).every((s) => /^(:root\[data-ui="2"\]|:where\(:root\[data-ui="2"\]\))/.test(s.trim())));
     expect(offenders).toEqual([]);
   });
 });

@@ -774,6 +774,71 @@
     .win,.win.closing,.bk-piece.turn{animation:none}
     .win,.dk,.dk .ic{transition:none}
   }
+
+  /* ---------- TankOS 2.0 window system (?ui=2) ---------- */
+  /* Every rule is wrapped in :where(...), which adds no specificity, so each one ties with the v2.4 rule it restyles
+     and wins only by coming last. Any more specific v2.4 rule still wins as before: maximized and phone windows,
+     and the apps that colour their own window (.term-win, .calc-win). No new animation or transition, so the
+     reduced-motion rules above keep covering everything. */
+  .bar-ic{display:none}
+
+  /* Unfocused: opaque, plain lavender edge, softer shadow. Not glass: without blur any see-through shows the text
+     of the window underneath as sharp ghosting, so translucency is only used where it is blurred (the focused one). */
+  :where(:root[data-ui="2"]) .win{
+    background:var(--tank-surface);
+    border:1px solid var(--tank-border);
+    border-radius:var(--tank-radius-lg);
+    box-shadow:0 14px 40px rgba(2,4,17,.42);
+  }
+  /* Focused: lighter glass, violet edge, the full window shadow with its soft glow. */
+  :where(:root[data-ui="2"]) .win:where(.focused){
+    background:var(--tank-glass);
+    border-color:rgba(139,124,255,.45);
+    box-shadow:var(--tank-shadow-window);
+  }
+  :where(:root[data-ui="2"]) .bar{
+    height:var(--tank-window-titlebar-height);
+    padding:0 14px;
+    background:rgba(255,255,255,.035);
+    border-bottom:1px solid var(--tank-border);
+  }
+  :where(:root[data-ui="2"]) .win:where(:not(.focused)) .bar{background:transparent}
+  :where(:root[data-ui="2"]) .title{
+    display:flex;align-items:center;justify-content:center;gap:var(--tank-space-2);min-width:0;
+    font-size:var(--tank-font-size-sm);
+  }
+  :where(:root[data-ui="2"]) .title-t{min-width:0;overflow:hidden;text-overflow:ellipsis}
+  :where(:root[data-ui="2"]) .bar-ic{display:block;flex:none;line-height:0}
+  :where(:root[data-ui="2"]) .bar-ic .ic{--s:18px;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.28),0 1px 2px rgba(0,0,0,.35)}
+  :where(:root[data-ui="2"]) .win:where(:not(.focused)) .bar-ic{opacity:.55;filter:saturate(.5)}
+
+  /* Blur is the expensive part, so: desktop widths only, only the focused window (one blurred window at most),
+     and none while a window is being dragged. */
+  @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    @media (min-width:769px){
+      :where(:root[data-ui="2"]) .win:where(.focused){
+        -webkit-backdrop-filter:blur(var(--tank-glass-blur)) saturate(140%);
+        backdrop-filter:blur(var(--tank-glass-blur)) saturate(140%);
+      }
+      :where(:root[data-ui="2"]) body.dragging .win{-webkit-backdrop-filter:none;backdrop-filter:none}
+    }
+  }
+  /* Phones and tablets in portrait: full-screen windows, opaque, no blur. */
+  @media (max-width:768px){
+    :where(:root[data-ui="2"]) .win{
+      background:var(--tank-surface);
+      border-width:0 0 1px;
+      border-radius:0 0 var(--tank-radius-lg) var(--tank-radius-lg);
+      box-shadow:var(--tank-shadow-dock);
+    }
+  }
+  /* Opaque fallback: no backdrop-filter, or the visitor asked for less transparency. */
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    :where(:root[data-ui="2"]) .win{background:var(--tank-surface)}
+  }
+  @media (prefers-reduced-transparency:reduce){
+    :where(:root[data-ui="2"]) .win{background:var(--tank-surface);-webkit-backdrop-filter:none;backdrop-filter:none}
+  }
 </style>
 </head>
 <body>
@@ -816,7 +881,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.4.2</span>
+    <span class="mb-ver">v2.4.3</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.com/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -1374,7 +1439,9 @@
         '<button class="tl tl-min" type="button" aria-label="Minimize"><svg viewBox="0 0 8 8"><path d="M1.5 4h5"/></svg></button>' +
         '<button class="tl tl-max" type="button" aria-label="Zoom"><svg viewBox="0 0 8 8"><path d="M4 1.5v5M1.5 4h5"/></svg></button>' +
       '</div>' +
-      '<div class="title"></div>' +
+      // .bar-ic is the 2.0 title-bar icon (hidden in v2.4); the text sits in its own span because a language
+      // switch rewrites it with textContent, which would wipe the icon.
+      '<div class="title"><span class="bar-ic" aria-hidden="true"></span><span class="title-t"></span></div>' +
       '<div class="bar-r"></div>' +
     '</div>';
 
@@ -1387,7 +1454,8 @@
     el.innerHTML = BAR;
     var title = el.querySelector(".title");
     title.id = "wt-" + id;
-    title.setAttribute("data-i18n", a.k ? a.k + ".t" : "app." + id);
+    title.querySelector(".title-t").setAttribute("data-i18n", a.k ? a.k + ".t" : "app." + id);
+    title.querySelector(".bar-ic").innerHTML = iconOf(id);
 
     var body;
     if (a.url) {
