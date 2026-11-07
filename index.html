@@ -6,21 +6,21 @@
 <meta name="theme-color" content="#0a1238">
 <script>
   // TankOS 2.0 feature flag. Runs before any CSS or <body>, so the page never paints in the wrong theme.
-  //   ?ui=2        preview the new Nocturne UI (remembered in localStorage.ui)
-  //   ?ui=1        back to the current UI (forgets the preview)
+  //   ?ui=2        the new Nocturne UI      } either one is an explicit choice, saved in localStorage.ui,
+  //   ?ui=1        the current (v2.4) UI    } so it outlives a reload and a later change of DEFAULT_UI
+  // Precedence: ?ui= in the URL  >  the saved choice  >  DEFAULT_UI. Anything else ("3", "", junk in storage) is
+  // ignored. With storage blocked, ?ui= still decides that one load.
   // Everything new is scoped to :root[data-ui="2"]; without it the page is exactly v2.4.x.
-  // Turning 2.0 on for everyone (v2.5.0) means changing DEFAULT_UI to "2".
+  // Turning 2.0 on for everyone (v2.5.0) means changing DEFAULT_UI to "2"; ?ui=1 then keeps the old UI for whoever wants it.
   (function(){
     var DEFAULT_UI = "1";
-    var ui = DEFAULT_UI;
-    try {
-      var q = new URLSearchParams(location.search).get("ui");
-      if (q === "2") localStorage.setItem("ui", "2");
-      else if (q === "1") localStorage.removeItem("ui");
-      if (localStorage.getItem("ui") === "2") ui = "2";
-    } catch (e) {
-      if (/[?&]ui=2(&|$)/.test(location.search)) ui = "2";   // storage blocked: the query still works for this load
-    }
+    var m = /[?&]ui=([12])(?:&|$)/.exec(location.search);
+    var asked = m ? m[1] : null;
+    var saved = null;
+    try { saved = localStorage.getItem("ui"); } catch (e) {}
+    if (saved !== "1" && saved !== "2") saved = null;
+    if (asked && asked !== saved) { try { localStorage.setItem("ui", asked); } catch (e) {} }
+    var ui = asked || saved || DEFAULT_UI;
     if (ui === "2") {
       document.documentElement.setAttribute("data-ui", "2");
       document.querySelector('meta[name="theme-color"]').setAttribute("content", "#0b1020");

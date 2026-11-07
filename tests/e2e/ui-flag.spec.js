@@ -132,37 +132,89 @@ test.describe("?ui=2 (Nocturne preview)", () => {
   });
 });
 
-test.describe("remembering and leaving the preview", () => {
-  test("after ?ui=2 once, the plain address keeps the preview", async ({ page }) => {
-    await boot(page, { path: "/?ui=2" });
-    await boot(page, { path: "/" });
-    expect((await flag(page)).attr).toBe("2");
-    await boot(page, { path: "/?lang=x" });   // other query strings do not touch it
-    expect((await flag(page)).attr).toBe("2");
-  });
+// Precedence: ?ui= in the URL  >  the saved choice (localStorage.ui)  >  DEFAULT_UI.
+// Run against today's DEFAULT_UI ("1") and the planned v2.5.0 one ("2"). For "2" the page is served with only that
+// literal changed, so this checks the real script, not a copy of its logic.
+const FLAG_LITERAL = 'var DEFAULT_UI = "1";';
 
-  test("?ui=1 turns it off and forgets it", async ({ page }) => {
-    await boot(page, { path: "/?ui=2" });
-    await boot(page, { path: "/?ui=1" });
-    expect(await flag(page)).toEqual({ attr: null, stored: null, themeColor: "#0a1238", scheme: "normal" });
-    await boot(page, { path: "/" });
-    expect((await flag(page)).attr).toBeNull();
+async function useDefault(page, def){
+  if (def === "1") return;
+  await page.route(/127\.0\.0\.1:4321\/(\?.*)?$/, async (route) => {
+    const res = await route.fetch();
+    const html = await res.text();
+    if (html.split(FLAG_LITERAL).length !== 2) throw new Error("DEFAULT_UI literal not found exactly once in index.html");
+    await route.fulfill({ response: res, body: html.replace(FLAG_LITERAL, 'var DEFAULT_UI = "' + def + '";') });
   });
+}
 
-  test("with storage blocked, ?ui=2 still works for that load and nothing breaks", async ({ page }) => {
-    await page.addInitScript(() => {
-      const no = () => { throw new DOMException("blocked", "SecurityError"); };
-      Storage.prototype.getItem = no; Storage.prototype.setItem = no; Storage.prototype.removeItem = no;
-    });
-    await page.goto("/?ui=2");
-    await page.keyboard.press("Space");
-    await expect(page.locator("#lock")).toHaveCount(0);
-    expect(await page.evaluate(() => document.documentElement.getAttribute("data-ui"))).toBe("2");
-    await expect(win(page, "readme")).toHaveCSS("background-color", "rgb(17, 26, 51)");
-    await page.goto("/");
-    expect(await page.evaluate(() => document.documentElement.getAttribute("data-ui"))).toBeNull();
+// What the visitor gets: "2" when data-ui="2" is set, otherwise "1"; plus what is saved.
+async function load(page, path){
+  await page.goto(path);
+  return page.evaluate(() => {
+    let stored;
+    try { stored = localStorage.getItem("ui"); } catch (e) { stored = "blocked"; }
+    return { ui: document.documentElement.getAttribute("data-ui") === "2" ? "2" : "1", stored };
   });
+}
+
+test("the DEFAULT_UI simulation rewrites the real script", async ({ page }) => {
+  await useDefault(page, "2");
+  expect(await load(page, "/")).toEqual({ ui: "2", stored: null });
 });
+
+for (const def of ["1", "2"]) {
+  const other = def === "1" ? "2" : "1";
+
+  test.describe(`flag precedence with DEFAULT_UI = "${def}"`, () => {
+    test.beforeEach(async ({ page }) => { await useDefault(page, def); });
+
+    test("no choice: the default, and nothing is saved", async ({ page }) => {
+      expect(await load(page, "/")).toEqual({ ui: def, stored: null });
+      expect(await load(page, "/?lang=en")).toEqual({ ui: def, stored: null });   // other parameters do nothing
+    });
+
+    for (const pick of ["1", "2"]) {
+      test(`?ui=${pick} wins over the default and survives reloads`, async ({ page }) => {
+        expect(await load(page, `/?ui=${pick}`)).toEqual({ ui: pick, stored: pick });
+        expect(await load(page, "/")).toEqual({ ui: pick, stored: pick });
+        await page.reload();
+        expect(await page.evaluate(() => document.documentElement.getAttribute("data-ui") === "2" ? "2" : "1")).toBe(pick);
+      });
+    }
+
+    test("the URL beats the saved choice, and replaces it", async ({ page }) => {
+      expect(await load(page, `/?ui=${other}`)).toEqual({ ui: other, stored: other });
+      expect(await load(page, `/?ui=${def}`)).toEqual({ ui: def, stored: def });
+      // Saved "same as default" is still a saved choice: it outlives a later change of the default.
+      expect(await load(page, "/")).toEqual({ ui: def, stored: def });
+      expect(await load(page, `/?ui=${other}&x=1`)).toEqual({ ui: other, stored: other });
+      expect(await load(page, "/")).toEqual({ ui: other, stored: other });
+    });
+
+    test("invalid values are ignored: unknown ?ui=, junk in storage", async ({ page }) => {
+      expect(await load(page, "/?ui=3")).toEqual({ ui: def, stored: null });
+      expect(await load(page, "/?ui=")).toEqual({ ui: def, stored: null });
+      expect(await load(page, `/?ui=${other}`)).toEqual({ ui: other, stored: other });
+      expect(await load(page, "/?ui=banana")).toEqual({ ui: other, stored: other });   // keeps the saved choice
+      await page.evaluate(() => localStorage.setItem("ui", "banana"));
+      expect(await load(page, "/")).toEqual({ ui: def, stored: "banana" });
+    });
+
+    test("with storage blocked, ?ui= decides that load and the page still works", async ({ page }) => {
+      await page.addInitScript(() => {
+        const no = () => { throw new DOMException("blocked", "SecurityError"); };
+        Storage.prototype.getItem = no; Storage.prototype.setItem = no; Storage.prototype.removeItem = no;
+      });
+      for (const pick of ["1", "2"]) {
+        expect(await load(page, `/?ui=${pick}`)).toEqual({ ui: pick, stored: "blocked" });
+        await page.keyboard.press("Space");
+        await expect(page.locator("#lock")).toHaveCount(0);
+        await expect(win(page, "readme")).toHaveCSS("background-color", pick === "2" ? "rgb(17, 26, 51)" : "rgb(255, 255, 255)");
+      }
+      expect(await load(page, "/")).toEqual({ ui: def, stored: "blocked" });   // nothing to remember it with
+    });
+  });
+}
 
 test.describe("no flash of the old theme", () => {
   test("data-ui is set before <body> exists and before any stylesheet is parsed", async ({ page }) => {
