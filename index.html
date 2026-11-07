@@ -635,8 +635,10 @@
 
   /* ---------- phones ---------- */
   @media (max-width:768px){
-    /* Ten Dock icons share the width left after the eleven 6px gaps, the padding, the separator and a margin. */
-    :root{--ds:clamp(24px,calc((100vw - 116px) / 10),52px)}
+    /* Twelve Dock icons (11 apps + classic) share the width left after the twelve 6px gaps (72px), the padding (12px),
+       the separator with its margins (7px), the border (1px) and 8px clear on each side: 108px. Adding a Dock icon
+       means changing the 12 here; tests/e2e/layout.spec.js checks the Dock fits from 320px up. */
+    :root{--ds:clamp(16px,calc((100vw - 108px) / 12),52px)}
     .desktop{overflow-y:auto;overscroll-behavior:contain;padding:14px 6px calc(var(--dock-space) + 8px)}
     .zones-l,.zones-r,.zone-about{position:static}
     .zones-l{gap:16px}
@@ -707,7 +709,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.4.0</span>
+    <span class="mb-ver">v2.4.1</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.com/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -2891,7 +2893,22 @@
     if (e.key === "/" && !typing && spot.hidden && focused !== "calc") { e.preventDefault(); spotOpen(); }
   });
 
-  if (!narrow.matches) open("readme");
+  // The README that opens on load must not cover the desktop icons. Below about 1150px the centred 680px window
+  // overlaps an icon column, so it is fitted into the gap between the two columns instead (narrower if need be,
+  // never under the 320px minimum). Only this first window; open() places every other window as before.
+  function fitBetweenZones(el){
+    var lz = desk.querySelector(".zones-l").getBoundingClientRect();
+    var rz = desk.querySelector(".zones-r").getBoundingClientRect();
+    var x0 = Math.ceil(lz.right) + 12, x1 = Math.floor(rz.left) - 12;
+    // offsetLeft/offsetWidth, not getBoundingClientRect: the opening animation scales the window.
+    if (el.offsetLeft >= x0 && el.offsetLeft + el.offsetWidth <= x1) return;
+    if (x1 - x0 < 320) return;
+    var w = Math.min(el.offsetWidth, x1 - x0);
+    el.style.width = w + "px";
+    el.style.left = Math.round(x0 + (x1 - x0 - w) / 2) + "px";
+  }
+
+  if (!narrow.matches) { open("readme"); fitBetweenZones(wins.readme.el); }
   if (!document.hidden) whoStart();
 })();
 </script>

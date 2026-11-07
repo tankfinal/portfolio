@@ -7,24 +7,29 @@ const { test, expect, boot, win, openFromDesktop } = require("../support/fixture
 
 test.skip(!process.env.TANKOS_VISUAL, "visual baselines run only in the pinned Playwright image (npm run test:docker)");
 
+// The version in the menu bar changes on every release; mask it so a version bump alone never touches a baseline.
+function shot(page, name){
+  return expect(page).toHaveScreenshot(name, { mask: [page.locator(".mb-ver")], maskColor: "#FF00FF" });
+}
+
 test.describe("1366×657", () => {
   test.use({ viewport: { width: 1366, height: 657 } });
 
   test("lock screen", async ({ page }) => {
     await boot(page, { locked: true });
     await page.evaluate(() => document.fonts.ready);
-    await expect(page).toHaveScreenshot("lock-1366.png");
+    await shot(page, "lock-1366.png");
   });
 
   test("desktop with README", async ({ page }) => {
     await boot(page);
-    await expect(page).toHaveScreenshot("desktop-1366.png");
+    await shot(page, "desktop-1366.png");
   });
 
   test("two windows, one unfocused", async ({ page }) => {
     await boot(page);
     await openFromDesktop(page, "calc");
-    await expect(page).toHaveScreenshot("windows-1366.png");
+    await shot(page, "windows-1366.png");
   });
 });
 
@@ -33,7 +38,16 @@ test.describe("1024×768", () => {
 
   test("desktop with README", async ({ page }) => {
     await boot(page);
-    await expect(page).toHaveScreenshot("desktop-1024.png");
+    await shot(page, "desktop-1024.png");
+  });
+});
+
+test.describe("768×1024 tablet portrait", () => {
+  test.use({ viewport: { width: 768, height: 1024 }, isMobile: true, hasTouch: true });
+
+  test("home", async ({ page }) => {
+    await boot(page);
+    await shot(page, "home-768.png");
   });
 });
 
@@ -42,13 +56,13 @@ test.describe("390×844", () => {
 
   test("home", async ({ page }) => {
     await boot(page);
-    await expect(page).toHaveScreenshot("home-390.png");
+    await shot(page, "home-390.png");
   });
 
   test("app open full screen", async ({ page }) => {
     await boot(page);
     await page.locator('.desktop .dicon[data-open="contact"]').tap();
     await expect(win(page, "contact")).toHaveClass(/\bfocused\b/);
-    await expect(page).toHaveScreenshot("app-390.png");
+    await shot(page, "app-390.png");
   });
 });

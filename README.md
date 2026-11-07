@@ -228,7 +228,8 @@ npm run check:assets   # 用 wrangler dry-run 列出會變成公開檔案的清�
 - **不碰正式資料**：測試用 `tests/support/serve.js` 在本機起站，`/api/*` 一律回固定的假資料，iframe 裡的作品站、活動監視器、GitHub API 也都換成假的回應，不會打到 D1 或任何外部網站
 - **不會不穩定**：時間固定在 2026-11-07 10:30（Asia/Taipei），開「減少動態效果」讓 TankOS 跳過動畫，截圖前等字型與桌布載完；不設 retry，偶發失敗就會被看到
 - **基準截圖**只在 `mcr.microsoft.com/playwright:v1.63.0-noble` 裡比對（字型與繪製要一模一樣），所以 `npm test` 會跳過，`test:docker` 與 CI 才跑。升 `@playwright/test` 版本時，image tag（`package.json` 的 scripts 與 `.github/workflows/e2e.yml`）要一起改，並重產截圖
-- **已知 bug** 用 `test.fail()` 記錄（`tests/e2e/layout.spec.js` 的 KNOWN BUG A、B）：測試寫的是正確行為，所以現在預期失敗；修好以後它會變紅（「Expected to fail, but passed」），這時把 `test.fail()` 和旁邊的「reproduces」測試一起拿掉
+- **已知 bug** 用 `test.fail()` 記錄：測試寫的是正確行為，所以現在預期失敗；修好以後它會變紅（「Expected to fail, but passed」），這時把 `test.fail()` 和旁邊的「reproduces」測試一起拿掉。寫法見 `tests/e2e/layout.spec.js` 開頭（v2.4.1 修掉的 Dock 溢出、README 蓋住 icon 就是這樣記錄的）
+- **基準截圖遮住選單列的版號**（洋紅色方塊），只升版不會讓截圖失效
 - **新增根目錄檔案**時，不是網站的檔案記得加進 `.assetsignore`，`npm run check:assets` 會擋
 - CI（GitHub Actions `e2e`）在 `gh-pages` 以外的每次 push 與對 `main` 的 PR 跑，只測試、不部署
 - Workers Builds 看到 `package-lock.json` 會先 `npm ci`（只裝 `@playwright/test`，不下載瀏覽器），部署指令跟結果都不變；想省掉這一步可以在 Dashboard 的 build 變數設 `SKIP_DEPENDENCY_INSTALL=1`
