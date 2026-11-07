@@ -4,6 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a1238">
+<script>
+  // TankOS 2.0 feature flag. Runs before any CSS or <body>, so the page never paints in the wrong theme.
+  //   ?ui=2        preview the new Nocturne UI (remembered in localStorage.ui)
+  //   ?ui=1        back to the current UI (forgets the preview)
+  // Everything new is scoped to :root[data-ui="2"]; without it the page is exactly v2.4.x.
+  // Turning 2.0 on for everyone (v2.5.0) means changing DEFAULT_UI to "2".
+  (function(){
+    var DEFAULT_UI = "1";
+    var ui = DEFAULT_UI;
+    try {
+      var q = new URLSearchParams(location.search).get("ui");
+      if (q === "2") localStorage.setItem("ui", "2");
+      else if (q === "1") localStorage.removeItem("ui");
+      if (localStorage.getItem("ui") === "2") ui = "2";
+    } catch (e) {
+      if (/[?&]ui=2(&|$)/.test(location.search)) ui = "2";   // storage blocked: the query still works for this load
+    }
+    if (ui === "2") {
+      document.documentElement.setAttribute("data-ui", "2");
+      document.querySelector('meta[name="theme-color"]').setAttribute("content", "#0b1020");
+    }
+  })();
+</script>
 <title>TankOS · Tank Yang</title>
 <meta name="description" content="Tank Yang 的桌面版作品集。福岡自駕旅遊、釜山旅遊、陽明山慶生旅遊、我是社畜四個作品直接在視窗裡跑，另有即時監控各站狀態的活動監視器、Spotlight 搜尋、經歷與聯絡方式。">
 <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23D62828'/><text x='16' y='23' font-size='19' font-family='Helvetica,Arial,sans-serif' font-weight='700' text-anchor='middle' fill='%23fff'>T</text></svg>">
@@ -55,6 +78,90 @@
     --win-shadow:0 24px 70px rgba(0,0,0,.65),0 0 0 .5px rgba(255,255,255,.14);
     --wall-dim:.18;
   }
+
+  /* ---------- TankOS 2.0 design tokens (Nocturne × Pixelverse) ---------- */
+  /* Only under :root[data-ui="2"] (the feature flag in <head>), so the default page is unchanged. 2.0 is dark only:
+     these come after the light/dark blocks above with the same specificity, so they win whatever the OS asks for.
+     Red stays the brand (logo, favicon, classic site); violet is for interaction and selection. */
+  :root[data-ui="2"]{
+    color-scheme:dark;
+    --tank-bg:#0B1020;
+    --tank-surface:#111A33;
+    --tank-surface-elevated:#1A264A;
+    --tank-primary:#8B7CFF;
+    --tank-accent:#C58AFF;
+    --tank-brand:#D62828;          /* fills: the T logo, favicon */
+    --tank-brand-text:#FF5A4E;     /* red as text on Nocturne surfaces (4.8:1 or better) */
+    --tank-success:#4ADE80;
+    --tank-warning:#FBBF24;
+    --tank-danger:#FB7171;
+    --tank-text:#F2F4FF;
+    --tank-text-secondary:#BCC6E2;
+    --tank-text-muted:#95A3C4;
+    --tank-border:rgba(204,197,255,.18);
+    --tank-border-focus:rgba(178,151,255,.8);
+    --tank-glass:rgba(21,29,61,.88);
+    --tank-glass-strong:rgba(18,25,53,.94);
+    --tank-glass-blur:24px;
+    --tank-shadow-window:0 24px 72px rgba(2,4,17,.52),0 0 28px rgba(133,105,239,.12);
+    --tank-shadow-dock:0 14px 42px rgba(5,7,25,.5);
+    --tank-radius-sm:8px;
+    --tank-radius-md:12px;
+    --tank-radius-lg:16px;
+    --tank-radius-xl:20px;
+    --tank-radius-pill:999px;
+    --tank-space-1:4px;
+    --tank-space-2:8px;
+    --tank-space-3:12px;
+    --tank-space-4:16px;
+    --tank-space-5:24px;
+    --tank-space-6:32px;
+    --tank-space-7:48px;
+    /* No webfont: the current stacks already cover PingFang TC / Noto Sans TC for Chinese. */
+    --tank-font-ui:var(--sys);
+    --tank-font-code:var(--mono);
+    --tank-font-size-xs:12px;
+    --tank-font-size-sm:13px;
+    --tank-font-size-md:14px;
+    --tank-font-size-lg:18px;
+    --tank-font-size-xl:24px;
+    /* Sizes for the shell PRs to come; nothing reads them yet (the menu bar is still --menu-h). */
+    --tank-menubar-height:36px;
+    --tank-window-titlebar-height:44px;
+    --tank-dock-icon-size:48px;
+    --tank-dock-height:72px;
+    /* Layers, in today's order. Windows stack inside #windows (its own stacking context) from 100 up. */
+    --tank-z-desktop:0;
+    --tank-z-window:100;
+    --tank-z-dock:1000;
+    --tank-z-menubar:1050;
+    --tank-z-menu:1100;
+    --tank-z-dialog:1200;
+    --tank-z-toast:1300;
+    --tank-z-drag:1350;
+    --tank-z-lock:1400;
+    --tank-motion-fast:120ms;
+    --tank-motion-normal:200ms;
+    --tank-motion-slow:280ms;
+    --tank-ease:cubic-bezier(.2,.8,.2,1);
+
+    /* Compatibility: the v2.4 variables keep their names and now resolve to Nocturne, so every window body,
+       template app and apps/<id>.js (trace.js reads --win-*) follows the theme without being rewritten. */
+    --win-bg:var(--tank-surface);
+    --win-bar:var(--tank-surface-elevated);
+    --win-side:var(--tank-bg);
+    --win-fg:var(--tank-text);
+    --win-soft:var(--tank-text-secondary);
+    --win-mute:var(--tank-text-muted);
+    --win-line:var(--tank-border);
+    --accent:var(--tank-brand-text);
+    --sel:var(--tank-primary);
+    --tl-off:#3A4468;
+    --win-shadow:var(--tank-shadow-window);
+    --wall-dim:.18;
+  }
+  /* Embedded sites keep their own colour scheme; a dark parent would otherwise force an opaque backdrop behind them. */
+  :root[data-ui="2"] iframe{color-scheme:normal}
 
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;overflow:hidden;overscroll-behavior:none}
@@ -709,7 +816,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.4.1</span>
+    <span class="mb-ver">v2.4.2</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.com/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
