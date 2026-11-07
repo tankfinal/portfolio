@@ -21,7 +21,10 @@ async function measure(page){
       vw: innerWidth, vh: innerHeight,
       scrollW: document.documentElement.scrollWidth,
       dock: rect(document.getElementById("dock")),
-      dockIcons: [...document.querySelectorAll("#dock .dk")].map(rect),
+      ui2: document.documentElement.getAttribute("data-ui") === "2",
+      // Only the Dock items actually shown: v2.4 never shows the 2.0 launcher button, and the 2.0 phone Dock shows
+      // only its pinned apps.
+      dockIcons: [...document.querySelectorAll("#dock .dk")].filter((e) => getComputedStyle(e).display !== "none").map(rect),
       left: union([...document.querySelectorAll(".zones-l .dicon")]),
       right: union(right)
     };
@@ -56,7 +59,7 @@ test.describe("1366×657 laptop (short screen)", () => {
     const m = await measure(page);
     expect(m.scrollW).toBeLessThanOrEqual(m.vw);
     expectDockFits(m);
-    expect(m.dockIcons[0].w).toBe(52);
+    expect(m.dockIcons[0].w).toBe(m.ui2 ? 48 : 52);   // 2.0: --tank-dock-icon-size
   });
 
   test("the README window opens where it always has, clear of both icon columns", async ({ page }) => {
@@ -129,7 +132,7 @@ test.describe("768×1024 tablet portrait (phone layout)", () => {
     const m = await measure(page);
     expect(m.scrollW).toBeLessThanOrEqual(m.vw);
     expectDockFits(m);
-    expect(m.dockIcons[0].w).toBe(52);
+    expect(m.dockIcons[0].w).toBe(m.ui2 ? 48 : 52);   // 2.0: --tank-dock-icon-size
   });
 
   test("a tap opens an app full width above the Dock", async ({ page }) => {
@@ -152,17 +155,28 @@ test.describe("390×844 phone", () => {
     expect(m.scrollW).toBeLessThanOrEqual(m.vw);
   });
 
-  test("bug B fixed: the Dock and all twelve of its icons fit inside the screen", async ({ page }) => {
-    await expect(page.locator("#dock .dk")).toHaveCount(12);
+  test("bug B fixed: the Dock fits inside the screen (v2.4: all twelve; 2.0: pinned apps + launcher)", async ({ page }) => {
     const m = await measure(page);
     expectDockFits(m);
-    // About 8px clear on each side, as the --ds formula intends (the .5px border and centring shift it a little).
-    expect(m.dock.x).toBeGreaterThanOrEqual(7);
-    expect(m.dock.x).toBeLessThanOrEqual(9);
+    if (m.ui2) {
+      expect(m.dockIcons).toHaveLength(4);
+      for (const ic of m.dockIcons) expect([ic.w, ic.h]).toEqual([48, 48]);
+    } else {
+      expect(m.dockIcons).toHaveLength(12);
+      // About 8px clear on each side, as the --ds formula intends (the .5px border and centring shift it a little).
+      expect(m.dock.x).toBeGreaterThanOrEqual(7);
+      expect(m.dock.x).toBeLessThanOrEqual(9);
+    }
   });
 
   test("every Dock button still opens its app", async ({ page }) => {
-    await page.locator('#dock .dk[data-open="terminal"]').tap();
+    // 2.0 keeps the terminal out of the phone Dock; it opens from the launcher.
+    if (await page.evaluate(() => document.documentElement.getAttribute("data-ui") === "2")) {
+      await page.locator("#btnLaunch").tap();
+      await page.locator('#launcher .ln-app[data-open="terminal"]').tap();
+    } else {
+      await page.locator('#dock .dk[data-open="terminal"]').tap();
+    }
     await expect(win(page, "terminal")).toHaveClass(/\bfocused\b/);
     await page.locator('#dock .dk[data-open="readme"]').tap();
     await expect(win(page, "readme")).toHaveClass(/\bfocused\b/);

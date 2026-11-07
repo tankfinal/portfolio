@@ -86,6 +86,13 @@ test.describe("?ui=2 Nocturne preview", () => {
       await shot(page, "desktop-1366-ui2.png");
     });
 
+    test("App Launcher open", async ({ page }) => {
+      await boot(page, { path: "/?ui=2" });
+      await page.locator("#btnLaunch").click();
+      await expect(page.locator("#launcher")).toBeVisible();
+      await shot(page, "launcher-1366-ui2.png");
+    });
+
     test("bare desktop: wallpaper, menu bar, icons", async ({ page }) => {
       await boot(page, { path: "/?ui=2" });
       await win(page, "readme").locator(".tl-close").click();
@@ -133,6 +140,13 @@ test.describe("?ui=2 Nocturne preview", () => {
     test("home", async ({ page }) => {
       await boot(page, { path: "/?ui=2" });
       await shot(page, "home-390-ui2.png");
+    });
+
+    test("App Launcher sheet", async ({ page }) => {
+      await boot(page, { path: "/?ui=2" });
+      await page.locator("#btnLaunch").tap();
+      await expect(page.locator("#launcher")).toBeVisible();
+      await shot(page, "launcher-390-ui2.png");
     });
 
     test("app open full screen", async ({ page }) => {

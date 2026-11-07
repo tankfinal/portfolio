@@ -121,9 +121,10 @@ test.describe("?ui=2 (Nocturne preview)", () => {
     });
   }
 
-  test("layout is v2.4's: same sizes and columns, the Dock untouched; only the taller 2.0 menu bar moves things down", async ({ page }) => {
+  test("desktop layout is v2.4's: same sizes and columns; only the taller 2.0 menu bar moves things down", async ({ page }) => {
     const read = () => page.evaluate(() => ({
       bar: document.querySelector(".menubar").getBoundingClientRect().height,
+      dockTop: document.getElementById("dock").getBoundingClientRect().top,
       dock: [...document.querySelectorAll("#dock .dk")].map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round).join(","); }),
       icons: [...document.querySelectorAll(".dicon")].map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round); }),
       wins: [...document.querySelectorAll("section.win")].map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round); })
@@ -134,14 +135,19 @@ test.describe("?ui=2 (Nocturne preview)", () => {
     const after = await read();
     expect(before.bar).toBe(28);
     expect(after.bar).toBe(36);                       // --tank-menubar-height (PR-5)
-    expect(after.dock).toEqual(before.dock);          // the Dock does not move
+    // The Dock is restyled in 2.0 (PR-6: 48px icons, the launcher button); dock-and-apps / layout / dock2 cover it.
+    expect(after.dock.length).toBe(before.dock.length);
     const shift = after.bar - before.bar;
     // Desktop icons: same x, width, height; y moved down by exactly the extra menu-bar height.
     expect(after.icons).toEqual(before.icons.map(([x, y, w, h]) => [x, y + shift, w, h]));
-    // Windows: same x and width, moved down the same; open() fits the height to the space above the Dock, which is
-    // now `shift` shorter, so a window that filled it is `shift` shorter too (README at 1366×768: 642 → 634).
+    // Windows: same x and width, moved down the same. open() fits the height to the space between the menu bar
+    // and the Dock, both of which 2.0 changes, so a window that filled it can only get shorter, and it still ends
+    // above the Dock (README at 1366×768: 642 → 632).
     expect(after.wins.map(([x, y, w]) => [x, y, w])).toEqual(before.wins.map(([x, y, w]) => [x, y + shift, w]));
-    after.wins.forEach(([, , , h], i) => expect([before.wins[i][3], before.wins[i][3] - shift]).toContain(h));
+    after.wins.forEach(([, y, , h], i) => {
+      expect(h).toBeLessThanOrEqual(before.wins[i][3]);
+      expect(y + h).toBeLessThanOrEqual(after.dockTop);
+    });
   });
 });
 
