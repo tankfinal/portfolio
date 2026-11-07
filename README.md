@@ -40,7 +40,8 @@ images/
 ├── yangmingshan-trip.jpg
 ├── wallpaper-komezuka.jpg     # TankOS 桌布（1920px）
 ├── wallpaper-komezuka-sm.jpg  # 手機版桌布（1200px）
-├── wallpaper-pixelverse-lakeside-night.png   # TankOS 2.0（?ui=2）桌布，1672×941，核准的素材原檔，照原樣使用，不要自行重新匯出、壓縮或修改
+├── wallpaper-pixelverse-lakeside-night.png   # TankOS 2.0（?ui=2）桌布原檔，1672×941，核准的素材，不要重新匯出或修改
+├── wallpaper-pixelverse-lakeside-night.webp  # 由上面那張轉的 WebP q90（300 KB），2.0 實際載入這張
 ├── shachiku.jpg
 ├── open-tonight.jpg
 ├── wordtrailer.jpg
@@ -100,7 +101,7 @@ macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.htm
 - **獨立檔案 App**（`APPS` 裡帶 `file` 的，目前有 `trace`）：程式、CSS、中英字串都在 `apps/<id>.js`，第一次開視窗才用 `<script>` 載入（網址帶 `?v=<版號>`，升版就不會吃到舊快取；`file` 也可以是陣列，幾支檔案同時載入，其中一支呼叫 `TankOS.define`），載入中顯示轉圈，失敗顯示重試。檔案呼叫 `TankOS.define(id, {html, css, i18n, init})` 登記自己：`html` 是視窗內容（根元素帶 `body` class），`css` 第一次載入時注入一次，`i18n` 併進 `I18N`（key 用自己的前綴），`init(body, os)` 可以回傳一個關視窗時要跑的函式。`os` 是檔案唯一拿得到的東西：`t`、`fill`、`lang()`、`onLang(f)`（回傳取消函式）、`api`（Worker 網址）、`open`、`still`（減少動態效果的 media query）、`ver`（站台版號，App 自己 fetch 的檔案拿來加 `?v=`）。新增一個：寫 `apps/<id>.js`，`APPS` 加 `{w, h, file:"apps/<id>.js"}`，`I18N` 加 `app.<id>`，桌面 icon（含 `.ic-<id>` 顏色與 SVG symbol）、`KW`、`index()` 的清單、終端機 `OPENABLE` 與 `ls` 各補一處；App 名稱和 icon 留在 `index.html`，因為載入前桌面和 Spotlight 就要顯示。
 - **私人版入口**：選單列右側的 🔒「私人版」，開新分頁到 [portfolio-private](https://github.com/tankfinal/portfolio-private)（Cloudflare Access 保護），跟私人版選單列的「公開版」對稱。手機只剩鎖頭。Spotlight 與 `open private` 也能開（`APPS.private` 用 `link` 標記，`open()` 直接開新分頁）。Access 登入頁不能放進 iframe，所以不開視窗。私人內容一律不進這個 repo，這裡只有入口。
 - **TankOS 2.0 預覽（feature flag）**：網址加 `?ui=2` 會在 `<html>` 加上 `data-ui="2"`，換成 Nocturne 深色主題；`?ui=1` 是目前的介面。兩個都是明確的選擇，記在 `localStorage.ui`，之後直接開首頁、重新整理都維持，預設值改了也一樣。優先順序是網址的 `?ui=` > 記住的選擇 > `DEFAULT_UI`，其他值一律忽略；瀏覽器擋 storage 時，`?ui=` 只對那一次載入有效。判斷寫在 `<head>` 最前面的 `<script>`，在任何 CSS 與 `<body>` 之前執行，所以不會先閃一下舊主題。沒有這個屬性時畫面跟 v2.4 一模一樣。2.0 的東西一律寫在 `:root[data-ui="2"]` 底下：design token 是 `--tank-*`（顏色、圓角、間距、字級、z-index、動畫，值照 Design System v1），舊的 `--win-*`、`--accent`、`--sel` 名稱不變、改指到 token，所以各 App 與 `apps/<id>.js` 不用改就會跟著換色。2.0 只有深色，不管系統設定；紅色仍是品牌色（`--tank-brand`，文字用較亮的 `--tank-brand-text`），紫色（`--tank-primary`）給互動與選取。正式切成 2.0（v2.5.0）時把 flag script 的 `DEFAULT_UI` 改成 `"2"`，想留在舊介面的人用 `?ui=1`。
-- **2.0 選單列與桌布**（`<style>` 最後的「TankOS 2.0 menu bar」「TankOS 2.0 wallpaper」）：選單列高度是 `--tank-menubar-height`（36px），經由 `--menu-h` 讓桌面與視窗圖層跟著下移；背景與聚焦視窗同一種玻璃，項目與 v2.4 完全相同，T 維持品牌紅。桌布是 Pixelverse 湖畔露營夜景，照核准的原檔 PNG 使用，不另做衍生檔（要壓縮或縮圖由素材提供者決定）。上面疊兩層很淡的深靛紫漸層（選單列與 Dock 附近、左右 icon 欄稍深，中間保持原色）；桌面標籤加深靛色光暈，月亮或燈籠剛好在標籤底下時也讀得清楚。橫向 `cover` + `50% 55%` 讓月亮與營地都在畫面裡，直向（手機、平板）改 `20% 50%` 保留營地。鎖定畫面的模糊背景跟著換。米塚照片仍是 v2.4 的桌布，之後可做成可選
+- **2.0 選單列與桌布**（`<style>` 最後的「TankOS 2.0 menu bar」「TankOS 2.0 wallpaper」）：選單列高度是 `--tank-menubar-height`（36px），經由 `--menu-h` 讓桌面與視窗圖層跟著下移；背景與聚焦視窗同一種玻璃，項目與 v2.4 完全相同，T 維持品牌紅。桌布是 Pixelverse 湖畔露營夜景：原檔 PNG 保留不動，瀏覽器載入它轉出的 WebP，不支援時退回 PNG（圖片宣告刻意不用 `var()`，否則退回會失效）。上面疊兩層很淡的深靛紫漸層（選單列與 Dock 附近、左右 icon 欄稍深，中間保持原色）；桌面標籤加深靛色光暈，月亮或燈籠剛好在標籤底下時也讀得清楚。橫向 `cover` + `50% 55%` 讓月亮與營地都在畫面裡，直向（手機、平板）改 `20% 50%` 保留營地。鎖定畫面的模糊背景跟著換。米塚照片仍是 v2.4 的桌布，之後可做成可選
 - **2.0 視窗**（`<style>` 最後的「TankOS 2.0 window system」）：16px 圓角、1px 淡紫邊、44px 標題列，標題左邊是 App 的 icon（`.bar-ic`，複製桌面或 Dock 上那顆；v2.4 隱藏）。聚焦的視窗是半透明玻璃加 24px 模糊、紫色邊與光暈；沒聚焦的是不透明底色（沒有模糊時半透明會透出底下視窗的字）、icon 變淡，內文不變淡。模糊很吃效能，所以只給聚焦的那一個、只在 769px 以上、拖曳時暫停；手機與平板直向、不支援 `backdrop-filter`、或系統要求減少透明度時一律不透明。規則都包在 `:where(:root[data-ui="2"])` 裡（不增加 specificity），所以放大、手機全螢幕、終端機與計算機自己的視窗配色這些 v2.4 規則照樣生效；沒有新增動畫，減少動態效果的設定照舊涵蓋
 - **鎖定畫面**：每次進站都會出現（米塚模糊背景、時鐘、Tank Yang），點一下或按任意鍵解鎖。markup 帶 `hidden`，由 JS 打開，所以沒有 JS 時不會擋住頁面。
 - **Spotlight**：⌘K / Ctrl+K、`/`，或選單列的放大鏡。索引在 `index()`：App、經歷（`e1`–`e6`）、技術名詞、動作（切語言、經典版、GitHub）。
