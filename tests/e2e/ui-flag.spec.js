@@ -1,6 +1,8 @@
 // TankOS 2.0 feature flag (<head> script in index.html) and the Nocturne design tokens (:root[data-ui="2"]).
-// The flag must default to off, be applied before anything renders, and only ever change colours through tokens.
+// The flag is applied before anything renders and only ever changes colours through tokens. Since v2.5.0 its
+// default is 2.0; ?ui=1 is v2.4. These tests are about the flag itself, so they run as a new visitor (nothing saved).
 const { test, expect, boot, win, openFromDesktop } = require("../support/fixtures");
+test.use({ tankUi: null });
 
 // The DS v1 tokens (TankOS-Design-System-v1, tankos-tokens.css) plus the TankOS additions, exactly as authored.
 const TOKENS = {
@@ -53,10 +55,10 @@ async function flag(page){
   }));
 }
 
-test.describe("default (flag off): exactly v2.4", () => {
-  test("no data-ui, no 2.0 tokens, today's colours", async ({ page }) => {
-    await boot(page);
-    expect(await flag(page)).toEqual({ attr: null, stored: null, themeColor: "#0a1238", scheme: "normal" });
+test.describe("?ui=1: exactly v2.4", () => {
+  test("no data-ui, no 2.0 tokens, v2.4's colours", async ({ page }) => {
+    await boot(page, { path: "/?ui=1" });
+    expect(await flag(page)).toEqual({ attr: null, stored: "1", themeColor: "#0a1238", scheme: "normal" });
     const t = await vars(page, Object.keys(TOKENS));
     for (const k of Object.keys(TOKENS)) expect(t[k], k).toBe("");
     expect(await vars(page, Object.keys(TODAY_LIGHT))).toEqual(TODAY_LIGHT);
@@ -65,16 +67,16 @@ test.describe("default (flag off): exactly v2.4", () => {
 
   test.describe("with a dark OS", () => {
     test.use({ colorScheme: "dark" });
-    test("today's dark theme is untouched", async ({ page }) => {
-      await boot(page);
+    test("v2.4's dark theme is untouched", async ({ page }) => {
+      await boot(page, { path: "/?ui=1" });
       expect((await flag(page)).attr).toBeNull();
       expect(await vars(page, Object.keys(TODAY_DARK))).toEqual(TODAY_DARK);
     });
   });
 
-  test("an unknown ?ui value is ignored", async ({ page }) => {
+  test("an unknown ?ui value is ignored: a new visitor gets the default (2.0) and nothing is saved", async ({ page }) => {
     await boot(page, { path: "/?ui=3" });
-    expect(await flag(page)).toMatchObject({ attr: null, stored: null });
+    expect(await flag(page)).toMatchObject({ attr: "2", stored: null });
   });
 });
 
@@ -132,7 +134,7 @@ test.describe("?ui=2 (Nocturne preview)", () => {
       right: [...document.querySelectorAll(".zones-r .dicon:not([data-open=settings])")].map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round); }),
       wins: [...document.querySelectorAll("section.win")].map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round); })
     }));
-    await boot(page);
+    await boot(page, { path: "/?ui=1" });
     const before = await read();
     await boot(page, { path: "/?ui=2" });
     const after = await read();
@@ -158,16 +160,15 @@ test.describe("?ui=2 (Nocturne preview)", () => {
 });
 
 // Precedence: ?ui= in the URL  >  the saved choice (localStorage.ui)  >  DEFAULT_UI.
-// Run against today's DEFAULT_UI ("1") and the planned v2.5.0 one ("2"). For "2" the page is served with only that
-// literal changed, so this checks the real script, not a copy of its logic.
-const FLAG_LITERAL = 'var DEFAULT_UI = "1";';
+// Run against both defaults: the shipped one (v2.5.0: "2") and "1" (v2.4.x, and what a rollback would set). The page
+// is served with only that literal set, so this checks the real script, not a copy of its logic.
+const FLAG_LITERAL = /var DEFAULT_UI = "[12]";/;
 
 async function useDefault(page, def){
-  if (def === "1") return;
   await page.route(/127\.0\.0\.1:4321\/(\?.*)?$/, async (route) => {
     const res = await route.fetch();
     const html = await res.text();
-    if (html.split(FLAG_LITERAL).length !== 2) throw new Error("DEFAULT_UI literal not found exactly once in index.html");
+    if ((html.match(new RegExp(FLAG_LITERAL, "g")) || []).length !== 1) throw new Error("DEFAULT_UI literal not found exactly once in index.html");
     await route.fulfill({ response: res, body: html.replace(FLAG_LITERAL, 'var DEFAULT_UI = "' + def + '";') });
   });
 }
@@ -182,9 +183,10 @@ async function load(page, path){
   });
 }
 
-test("the DEFAULT_UI simulation rewrites the real script", async ({ page }) => {
-  await useDefault(page, "2");
-  expect(await load(page, "/")).toEqual({ ui: "2", stored: null });
+test("the shipped default is 2.0, and the DEFAULT_UI simulation rewrites the real script", async ({ page }) => {
+  expect(await load(page, "/")).toEqual({ ui: "2", stored: null });           // as shipped, no rewrite
+  await useDefault(page, "1");
+  expect(await load(page, "/")).toEqual({ ui: "1", stored: null });
 });
 
 for (const def of ["1", "2"]) {
