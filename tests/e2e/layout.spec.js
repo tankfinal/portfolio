@@ -11,7 +11,9 @@ const { test, expect, boot, win, box } = require("../support/fixtures");
 async function measure(page){
   return page.evaluate(() => {
     const rect = (el) => { const r = el.getBoundingClientRect(); return { x: r.left, y: r.top, right: r.right, bottom: r.bottom, w: r.width, h: r.height }; };
-    const union = (els) => els.map(rect).reduce((a, r) => a ? {
+    // Only what is on screen: 2.0's Settings icon is in the DOM but display:none under ?ui=1.
+    const shownOnly = (els) => els.filter((e) => e.getClientRects().length > 0);
+    const union = (els) => shownOnly(els).map(rect).reduce((a, r) => a ? {
       x: Math.min(a.x, r.x), y: Math.min(a.y, r.y), right: Math.max(a.right, r.right), bottom: Math.max(a.bottom, r.bottom)
     } : r, null);
     const right = [...document.querySelectorAll(".zones-r .dicon")];
