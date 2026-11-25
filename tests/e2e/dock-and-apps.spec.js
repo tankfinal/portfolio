@@ -6,7 +6,7 @@ const DOCK = ["fukuoka", "busan", "yangmingshan", "wordtrailer", "pockettrip", "
   "readme", "terminal", "contact"];
 
 // Every app with a desktop icon, and what kind of window it opens (see APPS in index.html).
-const SITE = ["fukuoka", "busan", "yangmingshan", "wordtrailer", "pockettrip", "averlyn", "shachiku", "nightmarket"];
+const SITE = ["fukuoka", "busan", "yangmingshan", "wordtrailer", "pockettrip", "averlyn", "dayday", "shachiku", "nightmarket"];
 const TEMPLATE = ["blocks", "terminal", "activity", "calc", "calendar", "readme", "contact"];
 const FILE = ["trace"];
 

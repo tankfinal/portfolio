@@ -255,9 +255,9 @@
   .icons{list-style:none;display:grid;grid-template-columns:repeat(2,96px);gap:6px 2px}
   .dicon{width:96px;padding:6px 2px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;border-radius:8px}
   .dicon .ic{--s:60px}
-  /* Short laptop screens (1366×768 minus the browser bar is about 625–657px): the left column has three rows of
-     projects, so icons shrink a little and pack tighter to keep the games zone clear of the Dock. */
-  @media (min-width:769px) and (max-height:720px){
+  /* Short screens (1366×768 minus the browser bar is about 625–657px; 1024×768 and 1440×760 too): the left column
+     has four rows of projects, so icons shrink a little and pack tighter to keep the games zone clear of the Dock. */
+  @media (min-width:769px) and (max-height:800px){
     .zones-l,.zones-r{gap:12px}
     .icons{gap:2px 2px}
     .dicon{padding:4px 2px 2px;gap:4px}
@@ -291,6 +291,7 @@
   .ic-wordtrailer{background:linear-gradient(160deg,#2BB673,#0F8A4F 60%,#0A6238)}
   .ic-pockettrip{background:#FBF6EA url(images/pocket-trip-icon.png) center/cover no-repeat}
   .ic-averlyn{background:#F0628E url(images/averlyn-icon.png) center/cover no-repeat}
+  .ic-dayday{background:linear-gradient(160deg,#F6B26B,#E07A3F 60%,#B8552B)}
   .ic-terminal{background:linear-gradient(180deg,#3A3A3E,#151517);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
   .ic-contact{background:linear-gradient(160deg,#8AA4FF,#4A5CF0 60%,#3241C4)}
   .ic-readme{background:none;box-shadow:none}
@@ -914,6 +915,12 @@
     :where(:root[data-ui="2"]) .menubar{background:var(--tank-glass-strong)}
   }
   :where(:root[data-ui="2"][data-transparency="reduced"]) .menubar{background:var(--tank-bg);-webkit-backdrop-filter:none;backdrop-filter:none}
+  /* This bar is 8px taller than v2.4's (36px against 28px), so the whole desktop sits 8px lower. On short screens the
+     left column (four rows of projects) then ends 8px short of the 16px it keeps above the Dock at 1366×657; the gap
+     between its two zones closes up to make room instead of the icons shrinking. */
+  @media (min-width:769px) and (max-height:720px){
+    :where(:root[data-ui="2"]) .zones-l{gap:3px}
+  }
 
   /* ---------- TankOS 2.0 wallpaper (?ui=2): Pixelverse lakeside night ---------- */
   /* images/wallpaper-pixelverse-lakeside-night.png is the approved artwork (1672×941), kept byte for byte; browsers
@@ -1199,13 +1206,13 @@
      title bar all show the same <span class="ic ic-<id>">, cloned by iconOf(), so this one rule set covers all of
      them. The glyph, letter or live date inside is hidden here (the element stays aria-hidden or unnamed, as before;
      buttons keep their i18n names). v2.4 never matches, so it neither changes nor downloads these. */
-  :where(:root[data-ui="2"]) .ic:is(.ic-fukuoka,.ic-busan,.ic-yms,.ic-wordtrailer,.ic-averlyn,.ic-trace,
+  :where(:root[data-ui="2"]) .ic:is(.ic-fukuoka,.ic-busan,.ic-yms,.ic-wordtrailer,.ic-averlyn,.ic-dayday,.ic-trace,
     .ic-blocks,.ic-nightmarket,.ic-terminal,.ic-activity,.ic-calc,.ic-cal,.ic-launch,.ic-settings,.ic-readme,
     .ic-contact,.ic-about,.ic-classic,.ic-private,.ic-shachiku){
     background:var(--logo) center/100% 100% no-repeat;color:transparent;font-size:0;
     box-shadow:none;
   }
-  :where(:root[data-ui="2"]) .ic:is(.ic-fukuoka,.ic-busan,.ic-yms,.ic-wordtrailer,.ic-trace,.ic-blocks,.ic-nightmarket,
+  :where(:root[data-ui="2"]) .ic:is(.ic-fukuoka,.ic-busan,.ic-yms,.ic-wordtrailer,.ic-dayday,.ic-trace,.ic-blocks,.ic-nightmarket,
     .ic-terminal,.ic-activity,.ic-calc,.ic-cal,.ic-launch,.ic-settings,.ic-readme,.ic-contact,.ic-private,
     .ic-shachiku) > *{display:none}
   :where(:root[data-ui="2"]) .ic-fukuoka{--logo:url(images/icons/fukuoka.webp)}
@@ -1213,6 +1220,7 @@
   :where(:root[data-ui="2"]) .ic-yms{--logo:url(images/icons/yangmingshan.webp)}
   :where(:root[data-ui="2"]) .ic-wordtrailer{--logo:url(images/icons/wordtrailer.webp)}
   :where(:root[data-ui="2"]) .ic-averlyn{--logo:url(images/icons/averlyn.webp)}
+  :where(:root[data-ui="2"]) .ic-dayday{--logo:url(images/icons/dayday.webp)}
   :where(:root[data-ui="2"]) .ic-trace{--logo:url(images/icons/trace.webp)}
   :where(:root[data-ui="2"]) .ic-blocks{--logo:url(images/icons/blocks.webp)}
   :where(:root[data-ui="2"]) .ic-nightmarket{--logo:url(images/icons/nightmarket.webp)}
@@ -1241,6 +1249,7 @@
   <symbol id="g-bell" viewBox="0 0 24 24"><path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 2h-14z"/><path d="M10 20.5a2 2 0 0 0 4 0"/><path d="M3.5 8a8.5 8.5 0 0 1 2.3-3.6M20.5 8a8.5 8.5 0 0 0-2.3-3.6" opacity=".7"/></symbol>
   <symbol id="g-stall" viewBox="0 0 24 24"><path d="M4.5 4.5h15L21 9H3z"/><path d="M3 9a2.25 2.25 0 0 0 4.5 0 2.25 2.25 0 0 0 4.5 0 2.25 2.25 0 0 0 4.5 0 2.25 2.25 0 0 0 4.5 0"/><path d="M5 11.5v8M19 11.5v8M3.5 15.5h17"/></symbol>
   <symbol id="g-wordtrailer" viewBox="0 0 24 24"><rect x="3.5" y="7" width="14" height="13.5" rx="2"/><path d="M7 12h7M7 16h4.5"/><path d="M7.5 3.5H18.5a2 2 0 0 1 2 2V16" opacity=".7"/></symbol>
+  <symbol id="g-dayday" viewBox="0 0 24 24"><path d="M2.5 10.5c2.6-.4 4.3-2.2 5.6-4.7h7.8c1.3 2.5 3 4.3 5.6 4.7"/><path d="M5.2 10.4V20h13.6v-9.6"/><path d="M7.8 20v-5h2.8v5"/><rect x="13" y="13" width="3.6" height="3.4" rx=".5" fill="currentColor"/></symbol>
   <symbol id="g-route" viewBox="0 0 24 24"><circle cx="5" cy="17.5" r="2.3"/><circle cx="19" cy="6.5" r="2.3"/><path d="M7.2 16.4c3.2-1.6 1.6-6.2 4.8-7.6 1.6-.7 3.3-.9 4.8-1.6"/><path d="M12 19.5h7.5M16.8 17l2.7 2.5-2.7 2.5" opacity=".7"/></symbol>
   <symbol id="g-blocks" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect x="3.5" y="13" width="7.5" height="7.5" rx="1.6"/><path d="M15 17h4M17 15v4" opacity=".7"/></symbol>
   <symbol id="g-term" viewBox="0 0 24 24"><path d="M5 7l5 5-5 5"/><path d="M12.5 17.5H19"/></symbol>
@@ -1272,7 +1281,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.6.5</span>
+    <span class="mb-ver">v2.7.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.com/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -1293,6 +1302,7 @@
         <li><button class="dicon" type="button" data-open="wordtrailer"><span class="ic ic-wordtrailer"><svg><use href="#g-wordtrailer"/></svg></span><span class="lbl" data-i18n="app.wordtrailer">WordTrailer</span></button></li>
         <li><button class="dicon" type="button" data-open="pockettrip"><span class="ic ic-pockettrip"></span><span class="lbl" data-i18n="app.pockettrip">口袋旅行</span></button></li>
         <li><button class="dicon" type="button" data-open="averlyn"><span class="ic ic-averlyn"></span><span class="lbl" data-i18n="app.averlyn">Averlyn 疫苗</span></button></li>
+        <li><button class="dicon" type="button" data-open="dayday"><span class="ic ic-dayday"><svg><use href="#g-dayday"/></svg></span><span class="lbl" data-i18n="app.dayday">DayDay</span></button></li>
       </ul>
     </section>
     <section class="zone zone-lab" aria-labelledby="zLab">
@@ -1646,6 +1656,10 @@
     "w9.d": {zh:"女兒出生後要打 36 劑疫苗，公費、自費和每劑的間隔很難記。這個網站照台灣的建議時程排好：最上面是下一劑還有幾天、那天要打哪幾劑、她會是幾個月大，下面依日期列出每一劑，點開看說明、副作用和注意事項，逾期的標紅。紀錄只給家人看，所以放在密碼後面：資料只在登入後由 Worker 回傳，不在前端程式裡。", en:"Our daughter needs 36 doses, and the free and paid ones, plus the gaps between them, are hard to keep track of. This site lays them out on Taiwan’s recommended schedule: at the top, how many days until the next dose, which shots that day and how old she’ll be; below, every dose by date, with what it’s for, side effects and notes, and overdue ones in red. The records are for family only, so they sit behind a password: the Worker returns them only after sign-in, and they are not in the front-end bundle."},
     "w9.s2": {zh:"Cloudflare Workers，push 到 main 自動部署；密碼雜湊與登入紀錄存 D1", en:"Cloudflare Workers, deployed on every push to main; password hash and sign-ins in D1"},
     "w9.s3": {zh:"下一劑倒數、時程與進度、每劑說明", en:"Next-dose countdown, schedule and progress, notes for every dose"},
+    "w10.t": {zh:"DayDay：每天都能回來的小房間", en:"DayDay: A Little Room to Come Back to Every Day"},
+    "w10.d": {zh:"一個手繪日式風的小天地，每天想做什麼就進來。房間裡可以寫日記，日記本的封面、信紙自己挑，內文加密後存在雲端，用 Google 登入就能在不同裝置同步；祈福裡有台灣的廟和日本的神社，在台灣那邊稟告生辰、擲筊抽六十甲子籤，一天一支。畫面跟著台灣時間換成白天、黃昏、夜晚，香爐上的煙是即時畫出來的。以手機直式為主，沒登入也能先逛逛。之後還會加上院子、廚房這些日常的地方。", en:"A small hand-painted, Japanese-style place to drop into whenever you like. In the room you keep a diary with your own choice of covers and letter paper; entries are encrypted and synced across devices with Google sign-in. In the shrine scene there is a Taiwanese temple and a Japanese shrine: at the temple you state your birth details, cast moon blocks and draw one of the sixty fortune poems, one a day. Scenes follow Taiwan time through day, dusk and night, and the incense smoke is drawn live. Built for phones in portrait; guests can look around without signing in. A garden and a kitchen are on the way. The site is in Chinese."},
+    "w10.s2": {zh:"Cloudflare Workers ＋ D1，wrangler 部署", en:"Cloudflare Workers + D1, deployed with wrangler"},
+    "w10.s3": {zh:"加密日記同步、台式抽籤、依時段換景", en:"Encrypted diary sync, Taiwanese fortune sticks, scenes that follow the time of day"},
     "hero.lede": {zh:"十二年後端，從政府標案、博弈金流、交易所大數據一路做到區塊鏈合規，現在在 XREX 帶後端團隊。工作以外，喜歡把生活裡的小麻煩做成真的能用的工具。",
                    en:"Twelve years in backend engineering, from government systems and gaming payments to big data at a crypto exchange and now blockchain compliance. Today I lead the backend team at XREX. Outside work, I like turning small everyday annoyances into tools that actually get used."},
     "exp.now": {zh:"現職", en:"Current"},
@@ -1708,6 +1722,7 @@
     "app.wordtrailer":{zh:"WordTrailer", en:"WordTrailer"},
     "app.pockettrip":{zh:"口袋旅行", en:"PocketTrip"},
     "app.averlyn":{zh:"Averlyn 疫苗", en:"Averlyn's Vaccines"},
+    "app.dayday":{zh:"DayDay", en:"DayDay"},
     "app.calc":    {zh:"計算機", en:"Calculator"},
     "app.calendar":{zh:"日曆", en:"Calendar"},
     "app.settings":{zh:"設定", en:"Settings"},
@@ -1838,6 +1853,10 @@
     // Our daughter's vaccine schedule behind its own password (tankfinal/averlyn-vaccine, private, so no Source link).
     averlyn:{k:"w9", url:"https://averlyn-vaccine.xarenvich.com/",
               spec:[["spec.build",null,"React 19 · TypeScript · Vite"], ["spec.deploy","w9.s2"], ["spec.feat","w9.s3"]], w:1080, h:720},
+    // A hand-painted daily room with its own Worker and D1 (tankfinal/dayday, private, so no Source link). The site is a
+    // portrait phone layout, so the window is tall: the 270px sidebar plus about a 470px column for the preview (DayDay's own column is 460px).
+    dayday:{k:"w10", url:"https://dayday.xarenvich.com/",
+              spec:[["spec.build",null,"Vanilla JS · ES Modules · WebGL · Canvas 2D"], ["spec.deploy","w10.s2"], ["spec.feat","w10.s3"]], w:740, h:820},
     readme:  {w:680, h:660},
     terminal:{w:700, h:560, cls:"term-win"},
     contact: {w:440, h:450},
@@ -2201,7 +2220,8 @@
     {app:"nightmarket",  repo:"open-tonight",       url:"https://open-tonight.xarenvich.com/", private:true},
     {app:"wordtrailer",  repo:"wordtrailer",        url:"https://wordtrailer.xarenvich.com/", private:true},
     {app:"pockettrip",   repo:"pocket-trip",        url:"https://pocket-trip.xarenvich.com/", private:true},
-    {app:"averlyn",      repo:"averlyn-vaccine",    url:"https://averlyn-vaccine.xarenvich.com/", private:true}
+    {app:"averlyn",      repo:"averlyn-vaccine",    url:"https://averlyn-vaccine.xarenvich.com/", private:true},
+    {app:"dayday",       repo:"dayday",             url:"https://dayday.xarenvich.com/", private:true}
   ];
   var langHooks = [];
 
@@ -3051,7 +3071,7 @@
     ["exit",             "close this window"]
   ];
   var CMDS = ["help","whoami","who","neofetch","ls","open","git","kubectl","top","cat","contact","date","clear","exit","sudo"];
-  var OPENABLE = ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","wordtrailer","pockettrip","averlyn","calc","calendar","about","readme","contact","private"];
+  var OPENABLE = ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","wordtrailer","pockettrip","averlyn","dayday","calc","calendar","about","readme","contact","private"];
   // `git log` reads GitHub's public API without signing in, so it only offers the public repos.
   var REPOS = SERVICES.filter(function(s){ return !s.private; }).map(function(s){ return s.repo; });
 
@@ -3226,7 +3246,7 @@
           neofetch();
           return;
         case "ls":
-          line("fukuoka/   busan/   yangmingshan/   activity   blocks   trace   shachiku   nightmarket   wordtrailer   pockettrip   averlyn   calc   calendar   README.md   contact   private/ 🔒");
+          line("fukuoka/   busan/   yangmingshan/   activity   blocks   trace   shachiku   nightmarket   wordtrailer   pockettrip   averlyn   dayday   calc   calendar   README.md   contact   private/ 🔒");
           return;
         case "open":
           var id = resolveApp(rest);
@@ -3641,6 +3661,7 @@
     averlyn:"Averlyn 疫苗 女兒 寶寶 嬰兒 預防針 打針 疫苗 公費 自費 時程 接種 vaccine baby shots schedule",
     pockettrip:"口袋旅行 口袋名單 PocketTrip pocket trip 美食 小吃 餐廳 景點 收藏 評分 心得 地圖 Google Maps LINE 清單 吃什麼 旅行 老婆",
     wordtrailer:"WordTrailer 預告片 trailer cuecard 單字 美劇 影集 預習 英文 學英文 片語 俚語 字幕 六人行 CEFR vocabulary english flashcard friends subtitle",
+    dayday:"DayDay 日記 寫日記 祈福 抽籤 籤詩 擲筊 六十甲子籤 廟 神社 日式 手繪 房間 diary journal fortune temple shrine omikuji",
     readme:"關於 經歷 履歷 about bio resume experience",
     terminal:"終端機 shell cli zsh command",
     calc:"計算機 計算 算數 加減乘除 calculator calc math",
@@ -3663,7 +3684,7 @@
 
   function index(){
     var items = [];
-    ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","wordtrailer","pockettrip","averlyn","terminal","calc","calendar","about","readme","contact","private","settings"].filter(function(id){ return !APPS[id].ui2 || isUI2(); }).forEach(function(id){
+    ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","wordtrailer","pockettrip","averlyn","dayday","terminal","calc","calendar","about","readme","contact","private","settings"].filter(function(id){ return !APPS[id].ui2 || isUI2(); }).forEach(function(id){
       items.push({label:appName(id), sub:"", kind:t("os.spot.app"), icon:iconOf(id), keys:(id + " " + KW[id]).toLowerCase(), app:id, go:function(){ open(id); }});
     });
     EXP.forEach(function(e){

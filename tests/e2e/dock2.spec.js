@@ -9,7 +9,7 @@ const PRIMARY = "rgb(139, 124, 255)";
 // The launcher's groups and items, in order, in the language on screen.
 const GROUPS_ZH = ["作品", "遊戲區", "小工具", "關於我", "其他"];
 const GROUPS_EN = ["Projects", "Games", "Utilities", "About me", "More"];
-const APP_IDS = ["fukuoka", "busan", "yangmingshan", "wordtrailer", "pockettrip", "averlyn",
+const APP_IDS = ["fukuoka", "busan", "yangmingshan", "wordtrailer", "pockettrip", "averlyn", "dayday",
   "blocks", "trace", "shachiku", "nightmarket", "terminal", "activity", "calc", "calendar", "settings", "readme", "contact",
   "about", "private"];
 
@@ -185,7 +185,7 @@ test.describe("?ui=2 App Launcher (desktop)", () => {
     await page.keyboard.press("ArrowRight");
     await expect(page.locator('#launcher .ln-app[data-open="busan"]')).toBeFocused();
     await page.keyboard.press("ArrowDown");
-    await expect(page.locator('#launcher .ln-app[data-open="trace"]')).toBeFocused();   // same column, next row
+    await expect(page.locator('#launcher .ln-app[data-open="dayday"]')).toBeFocused();  // next row: Projects wraps, DayDay is the nearest below
     await page.keyboard.press("End");
     await expect(page.locator('#launcher a.ln-app[href="classic/"]')).toBeFocused();
     await page.keyboard.press("Tab");

@@ -29,8 +29,8 @@ const REQUIRED = [
   "images/wallpaper-komezuka.jpg", "images/wallpaper-komezuka-sm.jpg",
   "images/wallpaper-pixelverse-lakeside-night.png", "images/wallpaper-pixelverse-lakeside-night.webp",
   // TankOS 2.0 app logos (Brand Icons v3, v2.6.4): one per app plus the Launcher, Classic and Private entries.
-  // PocketTrip keeps its original logo in both UIs.
-  "images/pocket-trip-icon.png",
+  // PocketTrip keeps its original logo in both UIs; DayDay brings its own hand-painted logo (not in the v3 pack).
+  "images/pocket-trip-icon.png", "images/icons/dayday.webp",
   ...["fukuoka", "busan", "yangmingshan", "wordtrailer", "averlyn", "trace", "blocks", "nightmarket",
     "terminal", "activity", "calc", "calendar", "launcher", "settings", "readme", "contact", "about", "classic",
     "private", "shachiku"].map((id) => `images/icons/${id}.webp`)

@@ -532,6 +532,28 @@
         <img src="../images/averlyn-vaccine.jpg" alt="Averlyn 疫苗的登入畫面：粉紅色針筒的 App 圖示" loading="lazy" width="900" height="562">
       </a>
     </article>
+
+    <article class="work-item">
+      <div class="w-num mono">09</div>
+      <div>
+        <div class="w-head">
+          <h3 class="w-title" data-i18n="w10.t">DayDay：每天都能回來的小房間</h3>
+          <span class="w-year mono">2026</span>
+        </div>
+        <p class="w-desc" data-i18n="w10.d">一個手繪日式風的小天地，每天想做什麼就進來。房間裡可以寫日記，日記本的封面、信紙自己挑，內文加密後存在雲端，用 Google 登入就能在不同裝置同步；祈福裡有台灣的廟和日本的神社，在台灣那邊稟告生辰、擲筊抽六十甲子籤，一天一支。畫面跟著台灣時間換成白天、黃昏、夜晚，香爐上的煙是即時畫出來的。以手機直式為主，沒登入也能先逛逛。之後還會加上院子、廚房這些日常的地方。</p>
+        <dl class="w-spec mono">
+          <dt data-i18n="spec.build">Build</dt><dd>Vanilla JS · ES Modules · WebGL · Canvas 2D</dd>
+          <dt data-i18n="spec.deploy">Deploy</dt><dd data-i18n="w10.s2">Cloudflare Workers ＋ D1，wrangler 部署</dd>
+          <dt data-i18n="spec.feat">Feature</dt><dd data-i18n="w10.s3">加密日記同步、台式抽籤、依時段換景</dd>
+        </dl>
+        <div class="w-links">
+          <a href="https://dayday.xarenvich.com/" target="_blank" rel="noopener" data-i18n="link.visit">開啟網站</a>
+        </div>
+      </div>
+      <a class="w-shot" href="https://dayday.xarenvich.com/" target="_blank" rel="noopener">
+        <img src="../images/dayday.jpg" alt="DayDay 房間畫面：手繪日式風的小房間" loading="lazy" width="900" height="562">
+      </a>
+    </article>
   </div>
 </section>
 
@@ -937,6 +959,10 @@
     "w9.d":{zh:"女兒出生後要打 36 劑疫苗，公費、自費和每劑的間隔很難記。這個網站照台灣的建議時程排好：最上面是下一劑還有幾天、那天要打哪幾劑、她會是幾個月大，下面依日期列出每一劑，點開看說明、副作用和注意事項，逾期的標紅。紀錄只給家人看，所以放在密碼後面：資料只在登入後由 Worker 回傳，不在前端程式裡。", en:"Our daughter needs 36 doses, and the free and paid ones, plus the gaps between them, are hard to keep track of. This site lays them out on Taiwan’s recommended schedule: at the top, how many days until the next dose, which shots that day and how old she’ll be; below, every dose by date, with what it’s for, side effects and notes, and overdue ones in red. The records are for family only, so they sit behind a password: the Worker returns them only after sign-in, and they are not in the front-end bundle."},
     "w9.s2":{zh:"Cloudflare Workers，push 到 main 自動部署；密碼雜湊與登入紀錄存 D1", en:"Cloudflare Workers, deployed on every push to main; password hash and sign-ins in D1"},
     "w9.s3":{zh:"下一劑倒數、時程與進度、每劑說明", en:"Next-dose countdown, schedule and progress, notes for every dose"},
+    "w10.t":{zh:"DayDay：每天都能回來的小房間", en:"DayDay: A Little Room to Come Back to Every Day"},
+    "w10.d":{zh:"一個手繪日式風的小天地，每天想做什麼就進來。房間裡可以寫日記，日記本的封面、信紙自己挑，內文加密後存在雲端，用 Google 登入就能在不同裝置同步；祈福裡有台灣的廟和日本的神社，在台灣那邊稟告生辰、擲筊抽六十甲子籤，一天一支。畫面跟著台灣時間換成白天、黃昏、夜晚，香爐上的煙是即時畫出來的。以手機直式為主，沒登入也能先逛逛。之後還會加上院子、廚房這些日常的地方。", en:"A small hand-painted, Japanese-style place to drop into whenever you like. In the room you keep a diary with your own choice of covers and letter paper; entries are encrypted and synced across devices with Google sign-in. In the shrine scene there is a Taiwanese temple and a Japanese shrine: at the temple you state your birth details, cast moon blocks and draw one of the sixty fortune poems, one a day. Scenes follow Taiwan time through day, dusk and night, and the incense smoke is drawn live. Built for phones in portrait; guests can look around without signing in. A garden and a kitchen are on the way. The site is in Chinese."},
+    "w10.s2":{zh:"Cloudflare Workers ＋ D1，wrangler 部署", en:"Cloudflare Workers + D1, deployed with wrangler"},
+    "w10.s3":{zh:"加密日記同步、台式抽籤、依時段換景", en:"Encrypted diary sync, Taiwanese fortune sticks, scenes that follow the time of day"},
 
     "exp.h":   {zh:"Experience", en:"Experience"},
     "exp.note":{zh:"2014 年至今。區塊鏈金融、加密貨幣交易所、遊戲、政府標案。",
