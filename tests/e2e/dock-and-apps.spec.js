@@ -1,30 +1,34 @@
 // Dock, app registry and app lifecycle: open, close, minimize, focus, running dots, Spotlight, language.
-const { test, expect, boot, win, openFromDesktop } = require("../support/fixtures");
+const { test, expect, boot, win, openFromDesktop, openApp } = require("../support/fixtures");
 
-// Today's Dock, in order. Changing it is a product decision, so this list changes with it on purpose.
-const DOCK = ["fukuoka", "busan", "yangmingshan", "wordtrailer", "pockettrip", "averlyn", "shachiku", "nightmarket",
-  "readme", "terminal", "contact"];
+// Today's Dock apps, in order (then the separator, the classic site and the launcher). Changing it is a product
+// decision, so this list changes with it on purpose. Since v3.0.0 the Dock holds system apps only.
+const DOCK = ["readme", "contact", "terminal", "activity", "calc", "calendar", "settings"];
 
-// Every app with a desktop icon, and what kind of window it opens (see APPS in index.html).
+// Every app with a window, and what kind of window it opens (see APPS in index.html).
 const SITE = ["fukuoka", "busan", "yangmingshan", "wordtrailer", "pockettrip", "averlyn", "dayday", "shachiku", "nightmarket"];
 const TEMPLATE = ["blocks", "terminal", "activity", "calc", "calendar", "readme", "contact"];
 const FILE = ["trace"];
+// On the desktop pages, in order: the projects and games.
+const DESKTOP = ["fukuoka", "busan", "yangmingshan", "wordtrailer", "pockettrip", "averlyn", "dayday",
+  "blocks", "trace", "shachiku", "nightmarket"];
 
 async function runningIds(page){
   return page.locator("#dock .dk.run").evaluateAll((els) => els.map((e) => e.dataset.open));
 }
 
 test.describe("Dock", () => {
-  test.beforeEach(async ({ page }) => { await boot(page); });
+  test.beforeEach(async ({ page }) => { await boot(page, { readme: true }); });
 
-  test("holds today's apps in order, then a separator and the classic site", async ({ page }) => {
-    // Only the buttons on screen with an app: 2.0 adds Settings after the separator (PR-7) and the launcher (PR-6).
-    const ids = await page.locator("#dock button.dk[data-open]").evaluateAll((els) => els.filter((e) => e.getClientRects().length).map((e) => e.dataset.open));
-    const ui2 = await page.evaluate(() => document.documentElement.getAttribute("data-ui") === "2");
-    expect(ids).toEqual(ui2 ? DOCK.concat("settings") : DOCK);
+  test("holds today's apps in order, then a separator, the classic site and the launcher", async ({ page }) => {
+    const items = await page.locator("#dock > *").evaluateAll((els) => els.filter((e) => e.getClientRects().length)
+      .map((e) => e.dataset.open || (e.classList.contains("dk-sep") ? "|" : e.getAttribute("href") || e.id)));
+    expect(items).toEqual([...DOCK, "|", "classic/", "btnLaunch"]);
     await expect(page.locator("#dock")).toHaveAttribute("aria-label", "Dock");
     await expect(page.locator("#dock .dk-sep")).toHaveCount(1);
     await expect(page.locator("#dock a.dk").last()).toHaveAttribute("href", "classic/");
+    // No project or game in the Dock.
+    for (const id of DESKTOP) await expect(page.locator(`#dock [data-open="${id}"]`)).toHaveCount(0);
   });
 
   test("every Dock button has an accessible name", async ({ page }) => {
@@ -51,17 +55,20 @@ test.describe("Dock", () => {
     expect(await runningIds(page)).toEqual([]);
   });
 
-  test("an app without a Dock icon gets no Dock entry while open (current behaviour)", async ({ page }) => {
-    // Design-system plan R6 will show running-but-unpinned apps after the separator; update this test then.
+  test("a project gets no Dock entry while open; minimized, one click on its desktop icon brings it back", async ({ page }) => {
+    // Accepted in v3.0.0: projects and games never show in the Dock, running or not.
+    await win(page, "readme").locator(".tl-close").click();
     const before = await page.locator("#dock .dk").count();
-    const calc = await openFromDesktop(page, "calc");
+    const site = await openFromDesktop(page, "fukuoka");
     await expect(page.locator("#dock .dk")).toHaveCount(before);
-    // Minimized, it shrinks toward the middle of the Dock and comes back from its desktop icon.
-    await calc.locator(".tl-min").click();
-    await expect(calc).toHaveClass(/\bminimized\b/);
-    await page.locator('.desktop .dicon[data-open="calc"]').dblclick();
-    await expect(calc).not.toHaveClass(/\bminimized\b/);
-    await expect(calc).toHaveClass(/\bfocused\b/);
+    await site.evaluate((el) => { el.__pwSame = true; });
+    // Minimized, it shrinks toward the middle of the Dock and comes back from its desktop icon, with one click.
+    await site.locator(".tl-min").click();
+    await expect(site).toHaveClass(/\bminimized\b/);
+    await page.locator('#desktop .dicon[data-open="fukuoka"]').click();
+    await expect(site).not.toHaveClass(/\bminimized\b/);
+    await expect(site).toHaveClass(/\bfocused\b/);
+    expect(await site.evaluate((el) => el.__pwSame === true)).toBe(true);
   });
 
   test("Dock buttons work from the keyboard", async ({ page }) => {
@@ -74,10 +81,10 @@ test.describe("Dock", () => {
 test.describe("apps", () => {
   test.beforeEach(async ({ page }) => { await boot(page); });
 
-  test("the desktop lists every app that has an icon", async ({ page }) => {
-    const ids = await page.locator(".desktop .dicon").evaluateAll((els) => els.filter((e) => e.getClientRects().length).map((e) => e.dataset.open));
-    const ui2 = await page.evaluate(() => document.documentElement.getAttribute("data-ui") === "2");
-    expect(ids.sort()).toEqual([...SITE, ...TEMPLATE, ...FILE, ...(ui2 ? ["settings"] : [])].sort());   // Settings: 2.0 only
+  test("the desktop holds the projects and games, in order", async ({ page }) => {
+    const ids = await page.locator("#desktop .dicon").evaluateAll((els) => els.map((e) => e.dataset.open));
+    expect(ids).toEqual(DESKTOP);
+    expect([...SITE, ...FILE, "blocks"].sort()).toEqual([...DESKTOP].sort());
   });
 
   for (const id of SITE) {
@@ -100,13 +107,12 @@ test.describe("apps", () => {
 
   for (const id of TEMPLATE) {
     test(`app "${id}" opens focused, minimizes, restores and closes`, async ({ page }) => {
-      if (id === "readme") await win(page, "readme").locator(".tl-close").click();
-      const w = await openFromDesktop(page, id);
+      const w = await openApp(page, id);
       await expect(w).toHaveClass(/\bfocused\b/);
       await expect(w.locator(".body").first()).toBeVisible();
       await w.locator(".tl-min").click();
       await expect(w).toHaveClass(/\bminimized\b/);
-      await page.locator('.desktop .dicon[data-open="' + id + '"]').dblclick();
+      await openApp(page, id);
       await expect(w).not.toHaveClass(/\bminimized\b/);
       await w.locator(".tl-close").click();
       await expect(w).toHaveCount(0);
@@ -132,19 +138,16 @@ test.describe("apps", () => {
     await expect(w.locator(".app-load")).toHaveCount(0);
   });
 
-  test("a mouse click selects a desktop icon; a double-click opens it", async ({ page }) => {
-    const icon = page.locator('.desktop .dicon[data-open="calendar"]');
-    await icon.click();
-    await expect(icon).toHaveClass(/\bsel\b/);
-    await expect(win(page, "calendar")).toHaveCount(0);
-    await icon.dblclick();
-    await expect(win(page, "calendar")).toHaveClass(/\bfocused\b/);
+  test("one mouse click on a desktop icon opens it (like an iPad)", async ({ page }) => {
+    await page.locator('#desktop .dicon[data-open="blocks"]').click();
+    await expect(win(page, "blocks")).toHaveClass(/\bfocused\b/);
+    await expect(page.locator("section.win")).toHaveCount(1);
   });
 
   test("keyboard activation of a desktop icon opens it at once", async ({ page }) => {
-    await page.locator('.desktop .dicon[data-open="calendar"]').focus();
+    await page.locator('#desktop .dicon[data-open="blocks"]').focus();
     await page.keyboard.press("Enter");
-    await expect(win(page, "calendar")).toHaveClass(/\bfocused\b/);
+    await expect(win(page, "blocks")).toHaveClass(/\bfocused\b/);
   });
 
   test("the menu bar T opens About TankOS (GitHub API mocked)", async ({ page }) => {
@@ -173,16 +176,17 @@ test.describe("apps", () => {
   test("the language choice applies everywhere and survives a reload", async ({ page }) => {
     await page.locator("#btnEn").click();
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    await expect(page.locator('.desktop .dicon[data-open="calc"] .lbl')).toHaveText("Calculator");
+    await expect(page.locator('#desktop .dicon[data-open="blocks"] .lbl')).toHaveText("Block Puzzle");
+    await expect(page.locator('#dock .dk[data-open="calc"] .tip')).toHaveText("Calculator");
     expect(await page.evaluate(() => localStorage.getItem("lang"))).toBe("en");
     await boot(page);
     await expect(page.locator("#btnEn")).toHaveClass(/\bon\b/);
-    await expect(page.locator('.desktop .dicon[data-open="calc"] .lbl')).toHaveText("Calculator");
+    await expect(page.locator('#desktop .dicon[data-open="blocks"] .lbl')).toHaveText("Block Puzzle");
   });
 
   test("window controls have screen-reader names (English-only today)", async ({ page }) => {
     // Design-system plan R3 translates these; update the expected names then.
-    const bar = win(page, "readme").locator(".bar");
+    const bar = (await openApp(page, "readme")).locator(".bar");
     await expect(bar.getByRole("button", { name: "Close" })).toHaveCount(1);
     await expect(bar.getByRole("button", { name: "Minimize" })).toHaveCount(1);
     await expect(bar.getByRole("button", { name: "Zoom" })).toHaveCount(1);

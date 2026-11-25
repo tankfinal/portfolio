@@ -1,7 +1,7 @@
-// v2.5.0: TankOS 2.0 becomes the default. These tests start as a new visitor (nothing saved) unless they say
-// otherwise, and check who gets which UI, that explicit choices are never overwritten, and that the way back works.
+// Release checks for a visitor with nothing saved: the version, the wallpaper actually downloaded, settings that
+// survive a reload, the main flows at four sizes, and the static files. (v3.0.0 removed the v2.4 UI: the flag
+// itself is covered by ui-flag.spec.js.)
 const { test, expect, boot, win, settle } = require("../support/fixtures");
-test.use({ tankUi: null });
 
 async function state(page){
   return page.evaluate(() => {
@@ -15,18 +15,17 @@ function wallpapers(page){
   return seen;
 }
 
-test.describe("who gets which UI", () => {
-  test("a new visitor gets TankOS 2.0, and nothing is saved for them", async ({ page }) => {
+test.describe("a new visitor", () => {
+  test("gets TankOS 2.0 at v3.0.0, with only the Pixelverse WebP downloaded, and nothing saved", async ({ page }) => {
     const seen = wallpapers(page);
     await boot(page);
-    expect(await state(page)).toEqual({ ui: "2", stored: null, ver: "v2.7.0" });
-    expect(seen).toEqual(["wallpaper-pixelverse-lakeside-night.webp"]);   // not the v2.4 photo
-    // Nothing saved: a later change of the default (or a rollback) reaches them too.
+    expect(await state(page)).toEqual({ ui: "2", stored: null, ver: "v3.0.0" });
+    expect(seen).toEqual(["wallpaper-pixelverse-lakeside-night.webp"]);   // not the Komezuka photo
     await boot(page);
     expect((await state(page)).stored).toBeNull();
   });
 
-  test("2.0 is set before the first paint for a new visitor (no flash of v2.4)", async ({ page }) => {
+  test("2.0 is set before the first paint", async ({ page }) => {
     await page.addInitScript(() => {
       window.__uiSeen = null;
       new MutationObserver((list, obs) => {
@@ -37,66 +36,16 @@ test.describe("who gets which UI", () => {
     expect(await page.evaluate(() => window.__uiSeen)).toEqual({ body: false, sheets: 0 });
   });
 
-  for (const saved of ["1", "2"]) {
-    test(`a returning visitor who chose ${saved === "1" ? "v2.4" : "2.0"} keeps it; the new default never overwrites it`, async ({ page }) => {
-      await page.addInitScript((v) => { if (!sessionStorage.getItem("seeded")) { localStorage.setItem("ui", v); sessionStorage.setItem("seeded", "1"); } }, saved);
-      await boot(page);
-      expect(await state(page)).toMatchObject({ ui: saved, stored: saved });
-      await boot(page);
-      expect(await state(page)).toMatchObject({ ui: saved, stored: saved });
-    });
-  }
-
-  test("a v2.4-era visitor (language saved, no UI choice) gets 2.0 in their language", async ({ page }) => {
+  test("a returning visitor with a saved language gets 2.0 in their language", async ({ page }) => {
     await page.addInitScript(() => { if (!sessionStorage.getItem("seeded")) { localStorage.setItem("lang", "en"); sessionStorage.setItem("seeded", "1"); } });
     await boot(page);
     expect(await state(page)).toMatchObject({ ui: "2", stored: null });
-    await expect(page.locator('.desktop .dicon[data-open="calc"] .lbl')).toHaveText("Calculator");
+    await expect(page.locator('#desktop .dicon[data-open="blocks"] .lbl')).toHaveText("Block Puzzle");
   });
 });
 
-test.describe("?ui=1 and ?ui=2 both work, and stick", () => {
-  test("?ui=1 → v2.4, remembered; ?ui=2 → back to 2.0, remembered", async ({ page }) => {
-    await boot(page, { path: "/?ui=1" });
-    expect(await state(page)).toMatchObject({ ui: "1", stored: "1" });
-    await expect(page.locator("#btnLaunch")).toBeHidden();               // the v2.4 Dock
-    await boot(page);
-    expect(await state(page)).toMatchObject({ ui: "1", stored: "1" });
-    await boot(page, { path: "/?ui=2" });
-    expect(await state(page)).toMatchObject({ ui: "2", stored: "2" });
-    await boot(page);
-    expect(await state(page)).toMatchObject({ ui: "2", stored: "2" });
-  });
-
-  test("with storage blocked: the default is 2.0, and ?ui=1 still works for that load", async ({ page }) => {
-    await page.addInitScript(() => {
-      const no = () => { throw new DOMException("blocked", "SecurityError"); };
-      Storage.prototype.getItem = no; Storage.prototype.setItem = no; Storage.prototype.removeItem = no;
-    });
-    for (const [path, ui] of [["/", "2"], ["/?ui=1", "1"], ["/?ui=2", "2"], ["/", "2"]]) {
-      await page.goto(path);
-      expect(await state(page), path).toMatchObject({ ui, stored: "blocked" });
-    }
-  });
-});
-
-test.describe("the way back from Settings", () => {
-  test("Settings › Switch back to v2.4 lands on v2.4 and stays there; ?ui=2 returns", async ({ page }) => {
-    await boot(page);
-    await page.locator('#dock .dk[data-open="settings"]').click();
-    const s = win(page, "settings");
-    await expect(s).toHaveClass(/\bfocused\b/);
-    await Promise.all([page.waitForURL(/\?ui=1$/), s.locator('[data-act="v1"]').click()]);
-    expect(await state(page)).toMatchObject({ ui: "1", stored: "1" });
-    await boot(page);
-    expect(await state(page)).toMatchObject({ ui: "1", stored: "1" });
-    await boot(page, { path: "/?ui=2" });
-    expect(await state(page)).toMatchObject({ ui: "2", stored: "2" });
-  });
-});
-
-test.describe("2.0 preferences on the default UI", () => {
-  test("wallpaper, transparency and motion chosen without ?ui=2 survive a reload", async ({ page }) => {
+test.describe("2.0 preferences", () => {
+  test("wallpaper, transparency and motion survive a reload", async ({ page }) => {
     await boot(page);
     await page.locator('#dock .dk[data-open="settings"]').click();
     const s = win(page, "settings");
@@ -116,7 +65,7 @@ test.describe("2.0 preferences on the default UI", () => {
   });
 });
 
-test.describe("main flows on the default UI", () => {
+test.describe("main flows", () => {
   for (const [w, h, m] of [[1366, 657, 0], [1024, 768, 0], [768, 1024, 1], [390, 844, 1]]) {
     test.describe(`${w}×${h}`, () => {
       test.use({ viewport: { width: w, height: h }, isMobile: !!m, hasTouch: !!m });
@@ -142,20 +91,10 @@ test.describe("main flows on the default UI", () => {
   }
 });
 
-test.describe("v2.4 is still all there", () => {
-  test("its wallpapers and pages are still served", async ({ request }) => {
+test.describe("static files", () => {
+  test("the Komezuka wallpapers (a Settings choice), the classic site, /os/ and apps/ are served", async ({ request }) => {
     for (const f of ["/images/wallpaper-komezuka.jpg", "/images/wallpaper-komezuka-sm.jpg", "/classic/", "/os/", "/apps/trace.js"]) {
       expect((await request.get(f)).status(), f).toBe(200);
     }
-  });
-});
-
-// Guard for the test setup itself: the v24 project must really test v2.4 now that the site's default is 2.0.
-test.describe("test setup", () => {
-  test.use({ tankUi: "1" });
-  test("a visitor who chose v2.4 (the v24 project's setup) gets v2.4 on the plain address", async ({ page }) => {
-    await boot(page);
-    expect(await state(page)).toMatchObject({ ui: "1", stored: "1" });
-    await expect(page.locator("#btnLaunch")).toBeHidden();
   });
 });

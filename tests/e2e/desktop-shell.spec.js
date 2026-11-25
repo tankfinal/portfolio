@@ -1,11 +1,10 @@
-// TankOS 2.0 desktop shell (PR-5): the Nocturne menu bar and the Pixelverse wallpaper, both only under ?ui=2.
-// ?ui=1 must stay exactly v2.4 (also covered pixel for pixel by the visual baselines).
+// TankOS 2.0 desktop shell (PR-5): the Nocturne menu bar and the Pixelverse wallpaper.
 const { test, expect, boot, win } = require("../support/fixtures");
 
 const GLASS = "rgba(21, 29, 61, 0.88)";        // --tank-glass
 const FOCUS_RING = "rgba(178, 151, 255, 0.8)"; // --tank-border-focus
 
-// Every item the v2.4 menu bar has, in order. 2.0 restyles them; it must not add or drop any.
+// Every item the menu bar has. Adding or dropping one is a product decision, so this list changes with it.
 const ITEMS = ["#btnAbout", "#mbApp", ".mb-item", ".mb-ver", ".mb-priv", "#btnSpot", "#btnZh", "#btnEn", "#mbWho", "#clock"];
 
 function bar(page){
@@ -37,16 +36,8 @@ function contrastOverWhite(page, sel){
   }, sel);
 }
 
-test.describe("menu bar, ?ui=1: v2.4", () => {
-  test("28px, the old translucent bar, 16px logo", async ({ page }) => {
-    await boot(page, { path: "/?ui=1" });
-    expect(await bar(page)).toMatchObject({ h: 28, bg: "rgba(14, 16, 40, 0.38)", desktopTop: 28, windowsTop: 28 });
-    await expect(page.locator("#btnAbout")).toHaveCSS("width", "16px");
-  });
-});
-
-test.describe("menu bar, ?ui=2: Nocturne", () => {
-  test.beforeEach(async ({ page }) => { await boot(page, { path: "/?ui=2" }); });
+test.describe("menu bar: Nocturne", () => {
+  test.beforeEach(async ({ page }) => { await boot(page); });
 
   test("--tank-menubar-height (36px), window glass, lavender rule, blur; desktop and windows start under it", async ({ page }) => {
     const h = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--tank-menubar-height").trim());
@@ -56,12 +47,14 @@ test.describe("menu bar, ?ui=2: Nocturne", () => {
     });
   });
 
-  test("same items in the same order as v2.4, and nothing new", async ({ page }) => {
-    const v2 = await page.evaluate(() => [...document.querySelectorAll(".menubar *")].filter((e) => e.id || e.className).length);
+  test("the same items as always, in order, and nothing new", async ({ page }) => {
     for (const sel of ITEMS) await expect(page.locator(".menubar " + sel)).toHaveCount(1);
-    await boot(page, { path: "/?ui=1" });
-    const v1 = await page.evaluate(() => [...document.querySelectorAll(".menubar *")].filter((e) => e.id || e.className).length);
-    expect(v2).toBe(v1);
+    const order = await page.evaluate((sels) => sels.map((s) => document.querySelector(".menubar " + s))
+      .every((el, i, all) => i === 0 || (all[i - 1].compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)), ITEMS);
+    expect(order).toBe(true);
+    // Elements in the bar with an id or a class (SVG elements count: their className is an object): 17, the same
+    // as v2.7.0 had in both UIs.
+    expect(await page.evaluate(() => [...document.querySelectorAll(".menubar *")].filter((e) => e.id || e.className).length)).toBe(17);
   });
 
   test("the T logo stays brand red (D2)", async ({ page }) => {
@@ -97,7 +90,7 @@ test.describe("menu bar, ?ui=2: Nocturne", () => {
     await expect(page.locator("#btnZh")).toHaveCSS("background-color", "rgba(139, 124, 255, 0.28)");
     await page.locator("#btnEn").click();
     await expect(page.locator("#btnEn")).toHaveCSS("background-color", "rgba(139, 124, 255, 0.28)");
-    await expect(page.locator("#mbApp")).toHaveText("README.md");
+    await expect(page.locator("#mbApp")).toHaveText("TankOS");
     await expect(page.locator("#clock")).toHaveText("Sat, Nov 7, 10:30 AM");
   });
 
@@ -116,16 +109,16 @@ test.describe("menu bar, ?ui=2: Nocturne", () => {
   test("prefers-reduced-transparency: an opaque bar", async ({ page }) => {
     const cdp = await page.context().newCDPSession(page);
     await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-transparency", value: "reduce" }] });
-    await boot(page, { path: "/?ui=2" });
+    await boot(page);
     expect(await bar(page)).toMatchObject({ bg: "rgb(11, 16, 32)", blur: "none" });
   });
 });
 
 for (const [w, h] of [[390, 844], [360, 740]]) {
-  test.describe(`menu bar, ?ui=2 on a ${w}px phone`, () => {
+  test.describe(`menu bar on a ${w}px phone`, () => {
     test.use({ viewport: { width: w, height: h }, isMobile: true, hasTouch: true });
-    test("36px, same items hidden as v2.4, and the app name is not cut off", async ({ page }) => {
-      await boot(page, { path: "/?ui=2" });
+    test("36px, the usual items hidden, and the app name is not cut off", async ({ page }) => {
+      await boot(page);
       expect((await bar(page)).h).toBe(36);
       await expect(page.locator(".mb-item")).toBeHidden();
       await expect(page.locator(".mb-ver")).toBeHidden();
@@ -181,18 +174,9 @@ test.describe("wallpaper", () => {
     expect(fs.statSync(path.join(__dirname, "..", "..", WEBP)).size).toBeLessThan(400 * 1024);
   });
 
-  test("?ui=1: the Komezuka photo and v2.4's dim; the new art is never downloaded", async ({ page }) => {
+  test("the Pixelverse art (WebP) under a light night overlay; the photo and the 2.2 MB PNG are not downloaded", async ({ page }) => {
     const seen = watchWallpapers(page);
-    await boot(page, { path: "/?ui=1" });
-    const w = await wall(page);
-    expect(w.image).toContain("wallpaper-komezuka.jpg");
-    expect(w.image).not.toContain("pixelverse");
-    expect(seen.some((f) => /pixelverse/.test(f))).toBe(false);
-  });
-
-  test("?ui=2: the Pixelverse art (WebP) under a light night overlay; the photo and the 2.2 MB PNG are not downloaded", async ({ page }) => {
-    const seen = watchWallpapers(page);
-    await boot(page, { path: "/?ui=2" });
+    await boot(page);
     const w = await wall(page);
     expect(w.image).toContain("wallpaper-pixelverse-lakeside-night.webp");
     expect(w.image).toContain("wallpaper-pixelverse-lakeside-night.png");      // the image-set fallback
@@ -207,7 +191,7 @@ test.describe("wallpaper", () => {
     expect(seen).toEqual(["wallpaper-pixelverse-lakeside-night.webp"]);
   });
 
-  test("?ui=2: the PNG line comes first, so browsers without image-set() still get the art", async ({ request }) => {
+  test("the PNG line comes first, so browsers without image-set() still get the art", async ({ request }) => {
     const html = await (await request.get("/")).text();
     const block = html.slice(html.indexOf(':where(:root[data-ui="2"]) .wall{'));
     const png = block.indexOf("url(images/wallpaper-pixelverse-lakeside-night.png);");
@@ -216,27 +200,23 @@ test.describe("wallpaper", () => {
     expect(set).toBeGreaterThan(png);
   });
 
-  test("?ui=2: the lock screen shows the new art too; ?ui=1 keeps the photo", async ({ page }) => {
-    await boot(page, { path: "/?ui=2", locked: true });
+  test("the lock screen shows the new art too", async ({ page }) => {
+    await boot(page, { locked: true });
     expect((await wall(page)).lock).toContain("pixelverse-lakeside-night.webp");
-    await boot(page, { path: "/?ui=1", locked: true });
-    expect((await wall(page)).lock).toContain("wallpaper-komezuka.jpg");
   });
 
-  test("?ui=2: icon labels get the indigo halo; ?ui=1 keeps the v2.4 shadow", async ({ page }) => {
-    await boot(page, { path: "/?ui=2" });
-    const lbl = page.locator('.dicon[data-open="terminal"] .lbl');
+  test("icon labels get the indigo halo", async ({ page }) => {
+    await boot(page);
+    const lbl = page.locator('.dicon[data-open="fukuoka"] .lbl');
     expect(await lbl.evaluate((e) => getComputedStyle(e).textShadow)).toContain("rgba(5, 7, 25, 0.95)");
-    await boot(page, { path: "/?ui=1" });
-    expect(await lbl.evaluate((e) => getComputedStyle(e).textShadow)).toBe("rgba(0, 0, 0, 0.6) 0px 1px 3px");
   });
 
   for (const [w, h] of [[390, 844], [768, 1024]]) {
-    test.describe(`?ui=2 portrait ${w}×${h}`, () => {
+    test.describe(`portrait ${w}×${h}`, () => {
       test.use({ viewport: { width: w, height: h }, isMobile: true, hasTouch: true });
       test("the crop keeps the camp in view (20% from the left); same WebP, no separate phone file", async ({ page }) => {
         const seen = watchWallpapers(page);
-        await boot(page, { path: "/?ui=2" });
+        await boot(page);
         expect((await wall(page)).pos).toBe("0px 0px, 0px 0px, 20% 50%");
         expect(seen).toEqual(["wallpaper-pixelverse-lakeside-night.webp"]);
       });

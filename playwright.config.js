@@ -32,18 +32,7 @@ module.exports = defineConfig({
     serviceWorkers: "block",
     trace: "off"
   },
-  projects: [
-    // v2.4 (?ui=1): every test, including the seven v2.4 visual baselines, as a visitor who chose v2.4. Since
-    // v2.5.0 the site's default is 2.0, so this project pins v2.4 explicitly to keep its full regression suite.
-    // Specs about the flag itself and the release (ui-flag, release) opt out with tankUi: null (a new visitor).
-    { name: "v24", use: { tankUi: "1" } },
-    // The same behaviour tests with the TankOS 2.0 flag on: the new theme must not change how anything works.
-    {
-      name: "ui2",
-      testMatch: ["window-manager.spec.js", "dock-and-apps.spec.js", "layout.spec.js"],
-      use: { tankUi: "2" }
-    }
-  ],
+  // One project, every spec file (no testMatch): since v3.0.0 TankOS is always 2.0, so there is no UI to pin.
   webServer: {
     command: "node tests/support/serve.js " + PORT,
     url: "http://127.0.0.1:" + PORT + "/index.html",

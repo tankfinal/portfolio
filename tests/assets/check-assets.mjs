@@ -21,7 +21,9 @@ const FORBIDDEN = [
   "tests/", ".github/", "node_modules/", "test-results/", "playwright-report/", "blob-report/",
   ".git/", ".gitignore", ".assetsignore", ".wrangler/", "api/", "README.md", "CLAUDE.md", "wrangler.jsonc",
   // Source art and build script for the app logos (Brand Icons v3); only images/icons/*.webp is served.
-  "design/"
+  "design/",
+  // Feature specs: planning documents only.
+  "spec/"
 ];
 // Must stay public, or the site breaks.
 const REQUIRED = [

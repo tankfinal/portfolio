@@ -1,5 +1,4 @@
-// TankOS 2.0 Dock and App Launcher (PR-6), only under ?ui=2. ?ui=1 keeps the v2.4 Dock exactly (also pixel for
-// pixel in the visual baselines). Window/Dock behaviour in 2.0 is also re-run by the "ui2" project.
+// TankOS 2.0 Dock and App Launcher (PR-6; since v3.0.0 the Dock holds the system apps only).
 const { test, expect, boot, win } = require("../support/fixtures");
 
 const GLASS = "rgba(21, 29, 61, 0.88)";
@@ -31,42 +30,25 @@ async function openLauncher(page, tap){
   await expect(page.locator("#launcher")).toBeVisible();
 }
 
-test.describe("?ui=1: the v2.4 Dock, unchanged", () => {
-  test("twelve items, 52px, no launcher button, the old dot", async ({ page }) => {
-    await boot(page, { path: "/?ui=1" });
-    const items = await shown(page);
-    expect(items.map((i) => i.id)).toEqual(["fukuoka", "busan", "yangmingshan", "wordtrailer", "pockettrip", "averlyn",
-      "shachiku", "nightmarket", "readme", "terminal", "contact", "classic/"]);
-    expect(items[0].w).toBe(52);
-    await expect(page.locator("#btnLaunch")).toBeHidden();
-    await expect(page.locator("#launcher")).toBeHidden();
-    expect(await after(page, '#dock .dk[data-open="readme"]')).toMatchObject({ w: "4px", bg: "rgba(255, 255, 255, 0.9)" });
-  });
+test.describe("desktop Dock (1366×768)", () => {
+  test.beforeEach(async ({ page }) => { await boot(page, { readme: true }); });
 
-  test.describe("with motion", () => {
-    test.use({ reducedMotion: "no-preference" });
-    test("v2.4 hover still spreads the neighbours (kept as it was)", async ({ page }) => {
-      await boot(page, { path: "/?ui=1" });
-      await page.locator('#dock .dk[data-open="busan"]').hover();
-      await expect(page.locator('#dock .dk[data-open="busan"]')).toHaveCSS("margin-left", "10px");
-    });
-  });
-});
-
-test.describe("?ui=2 desktop Dock (1366×768)", () => {
-  test.beforeEach(async ({ page }) => { await boot(page, { path: "/?ui=2" }); });
-
-  test("glass, tokens, the existing icons at 48px, plus the launcher at the end", async ({ page }) => {
+  test("glass, tokens, the system apps at 48px, then the classic site and the launcher", async ({ page }) => {
     const dock = page.locator("#dock");
     await expect(dock).toHaveCSS("background-color", GLASS);
     await expect(dock).toHaveCSS("border-top-left-radius", "20px");
     await expect(dock).toHaveCSS("border-top-width", "1px");
     const items = await shown(page);
-    expect(items).toHaveLength(14);
-    expect(items.slice(-3).map((i) => i.id)).toEqual(["settings", "classic/", "btnLaunch"]);   // after the separator
+    expect(items.map((i) => i.id)).toEqual(["readme", "contact", "terminal", "activity", "calc", "calendar", "settings", "classic/", "btnLaunch"]);
     for (const i of items) expect([i.w, i.h]).toEqual([48, 48]);
-    // The same icon elements as v2.4 (nothing regenerated).
-    await expect(page.locator('#dock .dk[data-open="fukuoka"] .ic.ic-fukuoka svg use')).toHaveAttribute("href", "#g-torii");
+    // Settings now sits before the separator; only the classic site and the launcher come after it.
+    expect(await page.locator("#dock .dk-sep ~ .dk").evaluateAll((els) => els.map((e) => e.getAttribute("href") || e.id))).toEqual(["classic/", "btnLaunch"]);
+    await expect(page.locator('#dock .dk[data-open="terminal"] .ic.ic-terminal svg use')).toHaveAttribute("href", "#g-term");
+    // The calendar keeps the markup paintCalIcons() writes into (2.0 shows the static logo over it).
+    await expect(page.locator('#dock .dk[data-open="calendar"] .ic-cal .ci-wd')).toHaveText("週六");
+    await expect(page.locator('#dock .dk[data-open="calendar"] .ic-cal .ci-d')).toHaveText("7");
+    await page.locator('#dock .dk[data-open="calendar"]').click();
+    await expect(win(page, "calendar")).toHaveClass(/\bfocused\b/);
   });
 
   test("running is a dot, the app in front a violet bar; it follows focus", async ({ page }) => {
@@ -74,21 +56,21 @@ test.describe("?ui=2 desktop Dock (1366×768)", () => {
     await page.locator('#dock .dk[data-open="contact"]').click();
     expect(await after(page, '#dock .dk[data-open="contact"]')).toMatchObject({ w: "14px", bg: PRIMARY });
     expect(await after(page, '#dock .dk[data-open="readme"]')).toMatchObject({ w: "5px", bg: "rgb(188, 198, 226)" });
-    expect((await after(page, '#dock .dk[data-open="terminal"]')).content).toBe("none");   // pinned, not running
+    expect((await after(page, '#dock .dk[data-open="activity"]')).content).toBe("none");   // pinned, not running
     // Minimized is still running, no longer in front.
     await win(page, "contact").locator(".tl-min").click();
     expect(await after(page, '#dock .dk[data-open="contact"]')).toMatchObject({ w: "5px" });
   });
 
   test("keyboard focus: a violet ring on the icon and the name shown", async ({ page }) => {
-    const b = page.locator('#dock .dk[data-open="busan"]');
-    await page.locator('#dock .dk[data-open="fukuoka"]').focus();
+    const b = page.locator('#dock .dk[data-open="contact"]');
+    await page.locator('#dock .dk[data-open="readme"]').focus();
     await page.keyboard.press("Tab");
     await expect(b).toBeFocused();
     await expect(b.locator(".ic")).toHaveCSS("outline", FOCUS_RING + " solid 2px");
     await expect(b.locator(".tip")).toHaveCSS("opacity", "1");
     await page.keyboard.press("Enter");
-    await expect(win(page, "busan")).toHaveClass(/\bfocused\b/);
+    await expect(win(page, "contact")).toHaveClass(/\bfocused\b/);
   });
 
   test("the classic site is still a plain link in the Dock", async ({ page }) => {
@@ -99,41 +81,41 @@ test.describe("?ui=2 desktop Dock (1366×768)", () => {
   test("prefers-reduced-transparency: opaque Dock", async ({ page }) => {
     const cdp = await page.context().newCDPSession(page);
     await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-transparency", value: "reduce" }] });
-    await boot(page, { path: "/?ui=2" });
+    await boot(page, { readme: true });
     await expect(page.locator("#dock")).toHaveCSS("background-color", "rgb(17, 26, 51)");
   });
 });
 
-test.describe("?ui=2 Dock hover", () => {
+test.describe("Dock hover", () => {
   test.use({ reducedMotion: "no-preference" });
   test("only the hovered icon grows; no other item moves", async ({ page }) => {
-    await boot(page, { path: "/?ui=2" });
+    await boot(page, { readme: true });
     const before = await shown(page);
-    await page.locator('#dock .dk[data-open="busan"]').hover();
-    await expect(page.locator('#dock .dk[data-open="busan"] .tip')).toHaveCSS("opacity", "1");
+    await page.locator('#dock .dk[data-open="contact"]').hover();
+    await expect(page.locator('#dock .dk[data-open="contact"] .tip')).toHaveCSS("opacity", "1");
     await page.waitForTimeout(250);   // let the 160ms transform transition finish
     const during = await shown(page);
     expect(during.map((i) => [i.x, i.w])).toEqual(before.map((i) => [i.x, i.w]));   // button boxes do not move
-    const t = await page.locator('#dock .dk[data-open="busan"] .ic').evaluate((e) => getComputedStyle(e).transform);
+    const t = await page.locator('#dock .dk[data-open="contact"] .ic').evaluate((e) => getComputedStyle(e).transform);
     expect(t).not.toBe("none");
-    for (const n of ["fukuoka", "yangmingshan"]) {
+    for (const n of ["readme", "terminal"]) {
       expect(await page.locator(`#dock .dk[data-open="${n}"] .ic`).evaluate((e) => getComputedStyle(e).transform)).toBe("none");
     }
   });
 });
 
-test.describe("?ui=2 Dock hover, reduced motion", () => {
+test.describe("Dock hover, reduced motion", () => {
   test("no magnification at all", async ({ page }) => {
-    await boot(page, { path: "/?ui=2" });
-    await page.locator('#dock .dk[data-open="busan"]').hover();
-    expect(await page.locator('#dock .dk[data-open="busan"] .ic').evaluate((e) => getComputedStyle(e).transform)).toBe("none");
+    await boot(page, { readme: true });
+    await page.locator('#dock .dk[data-open="contact"]').hover();
+    expect(await page.locator('#dock .dk[data-open="contact"] .ic').evaluate((e) => getComputedStyle(e).transform)).toBe("none");
   });
 });
 
-test.describe("?ui=2 App Launcher (desktop)", () => {
-  test.beforeEach(async ({ page }) => { await boot(page, { path: "/?ui=2" }); });
+test.describe("App Launcher (desktop)", () => {
+  test.beforeEach(async ({ page }) => { await boot(page, { readme: true }); });
 
-  test("opens as a modal dialog with every app, grouped like the desktop", async ({ page }) => {
+  test("opens as a modal dialog with every app, grouped by APPS[id].cat", async ({ page }) => {
     await openLauncher(page);
     await expect(page.locator("#btnLaunch")).toHaveAttribute("aria-expanded", "true");
     await expect(page.getByRole("dialog", { name: "所有 App" })).toHaveAttribute("aria-modal", "true");
@@ -141,6 +123,16 @@ test.describe("?ui=2 App Launcher (desktop)", () => {
     const ids = await page.locator("#launcher .ln-app[data-open]").evaluateAll((els) => els.map((e) => e.dataset.open));
     expect(ids).toEqual(APP_IDS);
     await expect(page.locator('#launcher a.ln-app[href="classic/"]')).toHaveCount(1);
+    // Each group's members, in order: desktop order for projects and games, Dock order for the rest; About TankOS,
+    // the private link and the classic site under "More".
+    const groups = await page.locator("#launcher .ln-group").evaluateAll((gs) => gs.map((g) => [...g.querySelectorAll(".ln-app")].map((a) => a.dataset.open || a.getAttribute("href"))));
+    expect(groups).toEqual([
+      ["fukuoka", "busan", "yangmingshan", "wordtrailer", "pockettrip", "averlyn", "dayday"],
+      ["blocks", "trace", "shachiku", "nightmarket"],
+      ["terminal", "activity", "calc", "calendar", "settings"],
+      ["readme", "contact"],
+      ["about", "private", "classic/"]
+    ]);
     // Short names, as on the desktop; the running app is marked (and said, for screen readers).
     await expect(page.locator('#launcher .ln-app[data-open="fukuoka"] .ln-name')).toHaveText("福岡自駕旅遊");
     await expect(page.locator('#launcher .ln-app[data-open="readme"]')).toHaveClass(/\bcur\b/);
@@ -158,6 +150,30 @@ test.describe("?ui=2 App Launcher (desktop)", () => {
       await expect(win(page, id)).toHaveClass(/\bfocused\b/);
     });
   }
+
+  test("every app has its real icon (never the · placeholder) in the launcher, Spotlight and its title bar", async ({ page }) => {
+    // iconOf() copies the icon from the desktop grid or the Dock; an app found in neither gets .ic-glyph.
+    await openLauncher(page);
+    const glyphs = await page.locator("#launcher .ln-app .ic.ic-glyph").count();
+    expect(glyphs).toBe(0);
+    await page.keyboard.press("Escape");
+    for (const id of APP_IDS) {
+      await page.keyboard.press("Control+k");
+      await page.locator("#spIn").fill(id);
+      const first = page.locator("#spList li").first();
+      await expect(first.locator(".ic"), id).not.toHaveClass(/\bic-glyph\b/);
+      await expect(first.locator(".ic"), id).toHaveClass(new RegExp("\\bic-"));
+      await page.keyboard.press("Escape");
+    }
+    for (const id of APP_IDS.filter((x) => x !== "private" && x !== "readme")) {
+      await openLauncher(page);
+      await page.locator(`#launcher .ln-app[data-open="${id}"]`).click();
+      const ic = win(page, id).locator(".bar-ic > .ic");
+      await expect(ic, id).toHaveCount(1);
+      await expect(ic, id).not.toHaveClass(/\bic-glyph\b/);
+    }
+    await expect(win(page, "readme").locator(".bar-ic > .ic")).toHaveClass(/\bic-readme\b/);
+  });
 
   test("the private link opens in a new tab, as from Spotlight", async ({ page }) => {
     await openLauncher(page);
@@ -230,8 +246,8 @@ function openModals(page){
     .filter((d) => d.getClientRects().length > 0).map((d) => d.getAttribute("aria-label") || d.getAttribute("aria-labelledby")));
 }
 
-test.describe("?ui=2 App Launcher is a true modal", () => {
-  test.beforeEach(async ({ page }) => { await boot(page, { path: "/?ui=2" }); });
+test.describe("App Launcher is a true modal", () => {
+  test.beforeEach(async ({ page }) => { await boot(page, { readme: true }); });
 
   test("the menu bar, desktop, windows and Dock are inert while it is open, and only then", async ({ page }) => {
     expect(await inertState(page)).toEqual([false, false, false, false]);
@@ -367,11 +383,11 @@ test.describe("?ui=2 App Launcher is a true modal", () => {
 
 // Phones: a short Dock (pinned apps + launcher) with 44px+ targets; every width from 320 to 430, plus a tablet.
 for (const [w, h] of [[320, 568], [360, 740], [375, 667], [390, 844], [414, 896], [430, 932], [768, 1024]]) {
-  test.describe(`?ui=2 phone Dock ${w}×${h}`, () => {
+  test.describe(`phone Dock ${w}×${h}`, () => {
     test.use({ viewport: { width: w, height: h }, isMobile: true, hasTouch: true });
 
     test("README, Contact, Classic and the launcher; every target at least 44×44; nothing overflows", async ({ page }) => {
-      await boot(page, { path: "/?ui=2" });
+      await boot(page);
       const items = await shown(page);
       expect(items.map((i) => i.id)).toEqual(["readme", "contact", "classic/", "btnLaunch"]);
       for (const i of items) {
@@ -388,7 +404,7 @@ for (const [w, h] of [[320, 568], [360, 740], [375, 667], [390, 844], [414, 896]
     });
 
     test("the launcher sheet fits, its targets are 44×44+, and a tap opens the app full screen", async ({ page }) => {
-      await boot(page, { path: "/?ui=2" });
+      await boot(page);
       await openLauncher(page, true);
       const box = await page.locator("#launcher .ln-box").boundingBox();
       expect(box.x).toBe(0);
@@ -407,10 +423,10 @@ for (const [w, h] of [[320, 568], [360, 740], [375, 667], [390, 844], [414, 896]
   });
 }
 
-test.describe("?ui=2 phone: switching between apps", () => {
+test.describe("phone: switching between apps", () => {
   test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   test("an app opened from the launcher shows as running there; the Dock still opens pinned apps", async ({ page }) => {
-    await boot(page, { path: "/?ui=2" });
+    await boot(page);
     await openLauncher(page, true);
     await page.locator('#launcher .ln-app[data-open="terminal"]').tap();
     await page.locator('#dock .dk[data-open="contact"]').tap();

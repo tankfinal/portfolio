@@ -1,13 +1,18 @@
 // Window manager (index.html: open / close / focus / focusTop / minimize / zoom / place / wire).
 // These pin today's behaviour so the 2.0 restyle can prove it changed the look and nothing else.
-const { test, expect, boot, win, openFromDesktop, box, zOrder, emptyDesktopPoint } = require("../support/fixtures");
+const { test, expect, boot, win, openApp, box, zOrder, emptyDesktopPoint } = require("../support/fixtures");
 
 test.describe("window manager (desktop 1366×768)", () => {
+  // README no longer opens on load (v3.0.0); these tests open it from the Dock to have a window to work with.
   test.beforeEach(async ({ page }) => {
-    await boot(page);
+    await boot(page, { readme: true });
   });
 
-  test("boot: README opens focused and the menu bar names it", async ({ page }) => {
+  test("boot opens no window; README from the Dock opens focused and the menu bar names it", async ({ page }) => {
+    await boot(page);
+    await expect(page.locator("section.win")).toHaveCount(0);
+    await expect(page.locator("#mbApp")).toHaveText("TankOS");
+    await page.locator('#dock .dk[data-open="readme"]').click();
     const readme = win(page, "readme");
     await expect(readme).toHaveClass(/\bfocused\b/);
     await expect(page.locator("section.win")).toHaveCount(1);
@@ -17,7 +22,7 @@ test.describe("window manager (desktop 1366×768)", () => {
   });
 
   test("opening an app focuses it and puts it on top", async ({ page }) => {
-    const calc = await openFromDesktop(page, "calc");
+    const calc = await openApp(page, "calc");
     await expect(calc).toHaveClass(/\bfocused\b/);
     await expect(win(page, "readme")).not.toHaveClass(/\bfocused\b/);
     await expect(page.locator("section.win.focused")).toHaveCount(1);
@@ -27,7 +32,7 @@ test.describe("window manager (desktop 1366×768)", () => {
   });
 
   test("pressing on a background window brings it to the front", async ({ page }) => {
-    await openFromDesktop(page, "contact");
+    await openApp(page, "contact");
     const readme = win(page, "readme");
     // Contact (440 wide) opens over README's centre, so press on a part of README it does not cover.
     const r = await box(readme), c = await box(win(page, "contact"));
@@ -47,8 +52,8 @@ test.describe("window manager (desktop 1366×768)", () => {
   });
 
   test("opening an app that is already open reuses its one window", async ({ page }) => {
-    await openFromDesktop(page, "calc");
-    await page.locator('.desktop .dicon[data-open="calc"]').dblclick();
+    await openApp(page, "calc");
+    await openApp(page, "calc");
     await page.locator('#dock .dk[data-open="readme"]').click();
     await expect(win(page, "calc")).toHaveCount(1);
     await expect(win(page, "readme")).toHaveCount(1);
@@ -114,7 +119,7 @@ test.describe("window manager (desktop 1366×768)", () => {
   });
 
   test("resizing stops at the 320×220 minimum", async ({ page }) => {
-    const contact = await openFromDesktop(page, "contact");
+    const contact = await openApp(page, "contact");
     const style = await contact.evaluate((el) => {
       const s = getComputedStyle(el);
       return { resize: s.resize, minW: s.minWidth, minH: s.minHeight };
@@ -159,7 +164,7 @@ test.describe("window manager (desktop 1366×768)", () => {
   });
 
   test("double-clicking a title-bar button does not zoom", async ({ page }) => {
-    const site = await openFromDesktop(page, "fukuoka");
+    const site = await openApp(page, "fukuoka");
     await site.locator('[data-act="side"]').dblclick();
     await expect(site).not.toHaveClass(/\bmax\b/);
     await expect(site).not.toHaveClass(/\bnoside\b/);   // toggled twice
@@ -180,8 +185,8 @@ test.describe("window manager (desktop 1366×768)", () => {
   });
 
   test("closing removes the window and focuses the one below", async ({ page }) => {
-    await openFromDesktop(page, "calc");
-    await openFromDesktop(page, "contact");
+    await openApp(page, "calc");
+    await openApp(page, "contact");
     await win(page, "contact").locator(".tl-close").click();
     await expect(win(page, "contact")).toHaveCount(0);
     await expect(win(page, "calc")).toHaveClass(/\bfocused\b/);
@@ -194,7 +199,7 @@ test.describe("window manager (desktop 1366×768)", () => {
   });
 
   test("minimize hides the window, focuses the next one, and reopening restores the same window", async ({ page }) => {
-    const contact = await openFromDesktop(page, "contact");
+    const contact = await openApp(page, "contact");
     await contact.evaluate((el) => { el.__pwSame = true; });
     await contact.locator(".tl-min").click();
     await expect(contact).toHaveClass(/\bminimized\b/);
@@ -216,7 +221,7 @@ test.describe("window manager (desktop 1366×768)", () => {
     await page.mouse.down();
     await page.mouse.move(t.x + 120, t.y + 90, { steps: 4 });
     await page.mouse.up();
-    await boot(page);
+    await boot(page, { readme: true });
     expect(await box(win(page, "readme"))).toEqual(first);
     await expect(page.locator("section.win")).toHaveCount(1);
   });

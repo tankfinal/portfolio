@@ -21,3 +21,5 @@ playwright-report
 blob-report
 # Source art for the app logos (Brand Icons v1) and the script that builds images/icons/ from it. Not served.
 design
+# Feature specs (spec/<feature>.md): planning documents, not part of the site.
+spec

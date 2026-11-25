@@ -3,39 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0a1238">
+<meta name="theme-color" content="#0b1020">
 <script>
-  // TankOS 2.0 feature flag. Runs before any CSS or <body>, so the page never paints in the wrong theme.
-  //   ?ui=2        TankOS 2.0 (Nocturne)    } either one is an explicit choice, saved in localStorage.ui,
-  //   ?ui=1        the v2.4 UI              } so it outlives a reload and a later change of DEFAULT_UI
-  // Precedence: ?ui= in the URL  >  the saved choice  >  DEFAULT_UI. Anything else ("3", "", junk in storage) is
-  // ignored. With storage blocked, ?ui= still decides that one load.
-  // Everything new is scoped to :root[data-ui="2"]; without it the page is exactly v2.4.x.
-  // Since v2.5.0, 2.0 is the default: a visitor with no saved choice gets it, and nothing is saved for them, so a
-  // later change of DEFAULT_UI reaches them too. ?ui=1 (or Settings > Switch back to v2.4) keeps v2.4 for whoever
-  // wants it. Rollback: set DEFAULT_UI back to "1"; choices already saved in localStorage.ui stay as they are.
+  // TankOS is always 2.0 (Nocturne). Runs before any CSS or <body>, so the page never paints without it.
+  // data-ui="2" stays on <html> because every 2.0 rule is scoped to :root[data-ui="2"]; ?ui= in the URL does
+  // nothing, and the old saved choice (localStorage.ui, from when ?ui=1 still meant v2.4) is cleared.
   (function(){
-    var DEFAULT_UI = "2";
-    var m = /[?&]ui=([12])(?:&|$)/.exec(location.search);
-    var asked = m ? m[1] : null;
-    var saved = null;
-    try { saved = localStorage.getItem("ui"); } catch (e) {}
-    if (saved !== "1" && saved !== "2") saved = null;
-    if (asked && asked !== saved) { try { localStorage.setItem("ui", asked); } catch (e) {} }
-    var ui = asked || saved || DEFAULT_UI;
-    if (ui === "2") {
-      document.documentElement.setAttribute("data-ui", "2");
-      document.querySelector('meta[name="theme-color"]').setAttribute("content", "#0b1020");
-      // 2.0 Settings (wallpaper, transparency, motion), also before the first paint. A saved choice wins; otherwise
-      // the system preference. Only ?ui=2 ever gets these attributes, so v2.4 is untouched. Keep in step with
-      // PREFS in the main script, which re-applies them (and follows system changes) once the page is running.
-      var pref = function(key, ok){ try { var v = localStorage.getItem(key); return ok.indexOf(v) > -1 ? v : null; } catch (e) { return null; } };
-      var sys = function(q){ return window.matchMedia && matchMedia(q).matches ? "reduced" : "normal"; };
-      var root = document.documentElement;
-      root.setAttribute("data-wall", pref("ui2.wallpaper", ["pixelverse", "komezuka"]) || "pixelverse");
-      root.setAttribute("data-transparency", pref("ui2.transparency", ["normal", "reduced"]) || sys("(prefers-reduced-transparency: reduce)"));
-      root.setAttribute("data-motion", pref("ui2.motion", ["normal", "reduced"]) || sys("(prefers-reduced-motion: reduce)"));
-    }
+    var root = document.documentElement;
+    root.setAttribute("data-ui", "2");
+    try { localStorage.removeItem("ui"); } catch (e) {}
+    // Settings (wallpaper, transparency, motion), also before the first paint. A saved choice wins; otherwise the
+    // system preference. Keep in step with PREFS in the main script, which re-applies them (and follows system
+    // changes) once the page is running.
+    var pref = function(key, ok){ try { var v = localStorage.getItem(key); return ok.indexOf(v) > -1 ? v : null; } catch (e) { return null; } };
+    var sys = function(q){ return window.matchMedia && matchMedia(q).matches ? "reduced" : "normal"; };
+    root.setAttribute("data-wall", pref("ui2.wallpaper", ["pixelverse", "komezuka"]) || "pixelverse");
+    root.setAttribute("data-transparency", pref("ui2.transparency", ["normal", "reduced"]) || sys("(prefers-reduced-transparency: reduce)"));
+    root.setAttribute("data-motion", pref("ui2.motion", ["normal", "reduced"]) || sys("(prefers-reduced-motion: reduce)"));
   })();
 </script>
 <title>TankOS · Tank Yang</title>
@@ -191,19 +175,8 @@
   .ic svg,.bar-btn svg,.group svg{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
 
   /* ---------- wallpaper ---------- */
-  /* Photo: Komezuka, Aso (taken on the Kyushu trip). The white wash fades it so icons and windows stay readable. */
-  .wall{
-    position:fixed;inset:0;z-index:0;
-    background:
-      linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.14) 45%,rgba(255,255,255,.26)),
-      url(images/wallpaper-komezuka.jpg) 54% 58% / cover no-repeat;
-    background-color:#9CB6D6;
-  }
-  @media (max-width:768px){
-    .wall{background-image:
-      linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.14) 45%,rgba(255,255,255,.26)),
-      url(images/wallpaper-komezuka-sm.jpg)}
-  }
+  /* The picture and its overlay are in "TankOS 2.0 wallpaper" below. */
+  .wall{position:fixed;inset:0;z-index:0}
   .wall-dim{position:fixed;inset:0;background:#000;opacity:var(--wall-dim);pointer-events:none;z-index:0}
 
   /* ---------- menu bar ---------- */
@@ -236,43 +209,28 @@
   .mb-who i{width:7px;height:7px;border-radius:50%;background:#34C759;box-shadow:0 0 0 2px rgba(52,199,89,.28)}
   .mb-who[hidden]{display:none}
 
-  /* ---------- desktop icons ---------- */
-  .desktop{position:fixed;top:var(--menu-h);left:0;right:0;bottom:0;z-index:1}
-  /* Icons are grouped into labelled zones: projects and lab top left, about-me bottom left. */
-  .zones-l{position:absolute;top:14px;left:14px;display:flex;flex-direction:column;gap:20px}
-  .zh{
-    display:flex;align-items:center;gap:7px;margin:0 0 6px 8px;
-    font:700 11px/1 var(--sys);letter-spacing:.14em;text-transform:uppercase;color:#fff;
-    text-shadow:0 1px 3px rgba(0,0,0,.55);
-  }
-  .zh::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--zc,#fff);box-shadow:0 0 0 2px rgba(255,255,255,.35)}
-  .zone-proj{--zc:#FF7A50}
-  .zone-lab{--zc:#5BE37D}
-  .zone-about{--zc:#8AA4FF}
-  /* Utilities sit top right, clear of the README window that opens on load. */
-  .zones-r{position:absolute;top:14px;right:14px;display:flex;flex-direction:column;gap:20px}
-  .zone-tools{--zc:#FFC94D}
-  .icons{list-style:none;display:grid;grid-template-columns:repeat(2,96px);gap:6px 2px}
-  .dicon{width:96px;padding:6px 2px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;border-radius:8px}
+  /* ---------- desktop: one grid, paged sideways ---------- */
+  /* The JS "desktop pages" section sizes the grid and places every cell (left/top/width/height) and the page dots.
+     Pages sit side by side on the track (ul.icons), which moves with transform. overflow:clip (not a scroll
+     container) keeps the browser from scrolling the desktop when Tab lands on an icon on another page. touch-action
+     leaves horizontal swipes to the paging code. */
+  .desktop{position:fixed;top:var(--menu-h);left:0;right:0;bottom:0;z-index:1;overflow:hidden;overflow:clip;touch-action:pan-y}
+  /* The track and its cells let presses through to #desktop (empty-space drags, and the press that unfocuses the
+     windows); only the icons, the widget and the dots take them. */
+  .icons{position:absolute;left:0;top:0;width:100%;height:100%;list-style:none;pointer-events:none}
+  .icons > li{position:absolute}
+  .icons.anim{transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+  .dicon{width:100%;height:100%;padding:6px 2px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;border-radius:8px;pointer-events:auto}
   .dicon .ic{--s:60px}
-  /* Short screens (1366×768 minus the browser bar is about 625–657px; 1024×768 and 1440×760 too): the left column
-     has four rows of projects, so icons shrink a little and pack tighter to keep the games zone clear of the Dock. */
-  @media (min-width:769px) and (max-height:800px){
-    .zones-l,.zones-r{gap:12px}
-    .icons{gap:2px 2px}
-    .dicon{padding:4px 2px 2px;gap:4px}
-    .dicon .ic{--s:48px}
-  }
   .lbl{
-    max-width:100%;padding:1px 6px;border-radius:4px;
+    max-width:100%;padding:1px 4px;border-radius:4px;
     font-size:12px;font-weight:500;line-height:1.3;text-align:center;color:#fff;
     text-shadow:0 1px 3px rgba(0,0,0,.6);
-    /* Wrap at spaces ("Request / 的一生"), not between CJK characters. A single long word ("Yangmingshan")
-       stays whole, as it always has. */
-    word-break:keep-all;
+    /* Wrap at spaces ("Request / 的一生"), not between CJK characters; a word too long for the cell
+       ("Yangmingshan" on a phone) breaks rather than spilling into the next one. Two lines at most. */
+    word-break:keep-all;overflow-wrap:anywhere;
+    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
   }
-  .dicon.sel .ic{filter:brightness(.78)}
-  .dicon.sel .lbl{background:var(--sel);text-shadow:none}
 
   /* ---------- app icons ---------- */
   .ic{
@@ -282,24 +240,7 @@
     box-shadow:inset 0 0 0 .5px rgba(255,255,255,.28),0 2px 6px rgba(0,0,0,.28);
   }
   .ic svg{width:58%;height:58%;stroke-width:1.8}
-  .ic-fukuoka{background:linear-gradient(160deg,#FF7A50,#D62828 68%,#A3141E)}
-  .ic-busan{background:linear-gradient(160deg,#4FE0D0,#1593C9 60%,#0D5FA8)}
-  .ic-yms{background:linear-gradient(160deg,#F2B263,#C9667A 45%,#5A3E7A 78%,#2B2350)}
-  .ic-trace{background:linear-gradient(160deg,#8E8CFF,#5E5CE6 55%,#3634A3)}
-  .ic-shachiku{background:linear-gradient(160deg,#5B1F24,#2A0E12);color:#FF6B5E;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
-  .ic-nightmarket{background:linear-gradient(160deg,#3A2A6B,#14122B);color:#FFB547;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
-  .ic-wordtrailer{background:linear-gradient(160deg,#2BB673,#0F8A4F 60%,#0A6238)}
   .ic-pockettrip{background:#FBF6EA url(images/pocket-trip-icon.png) center/cover no-repeat}
-  .ic-averlyn{background:#F0628E url(images/averlyn-icon.png) center/cover no-repeat}
-  .ic-dayday{background:linear-gradient(160deg,#F6B26B,#E07A3F 60%,#B8552B)}
-  .ic-terminal{background:linear-gradient(180deg,#3A3A3E,#151517);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
-  .ic-contact{background:linear-gradient(160deg,#8AA4FF,#4A5CF0 60%,#3241C4)}
-  .ic-readme{background:none;box-shadow:none}
-  .ic-readme svg{width:78%;height:96%;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
-  .ic-classic{
-    background:#fff;color:#D62828;
-    font:700 calc(var(--s) * .52)/1 "Helvetica Neue",Arial,sans-serif;
-  }
 
   /* ---------- dock ---------- */
   .dock{
@@ -326,10 +267,6 @@
   }
   .dk-sep{width:1px;align-self:stretch;margin:4px 3px;background:rgba(255,255,255,.4)}
   @media (hover:hover){
-    .dk:hover{margin:0 10px}
-    .dk:hover .ic{transform:scale(1.32) translateY(-4px)}
-    .dk:hover + .dk,.dk:has(+ .dk:hover){margin:0 4px}
-    .dk:hover + .dk .ic,.dk:has(+ .dk:hover) .ic{transform:scale(1.14) translateY(-2px)}
     .dk:hover .tip{opacity:1}
   }
 
@@ -529,7 +466,6 @@
   }
 
   /* ---------- Activity Monitor ---------- */
-  .ic-activity{background:linear-gradient(160deg,#4A4A52,#17171B);color:#5BE37D;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
   .act{display:flex;flex-direction:column;font-size:13px}
   .act-head{display:flex;align-items:center;gap:14px;padding:12px 16px;border-bottom:.5px solid var(--win-line);background:var(--win-side)}
   .act-sum{font-weight:600}
@@ -557,8 +493,11 @@
   .act-foot{padding:9px 16px;font-size:11.5px;color:var(--win-mute);border-top:.5px solid var(--win-line)}
 
   /* ---------- widget: next long weekend ---------- */
+  /* It fills its 2×2 cell on the desktop grid, content centred top to bottom. */
+  .wg-cell{padding:6px}
   .wg{
-    display:block;width:194px;padding:12px 14px 13px;border-radius:18px;text-align:left;color:#fff;cursor:pointer;
+    display:flex;flex-direction:column;justify-content:center;width:100%;height:100%;pointer-events:auto;
+    padding:12px 14px 13px;border-radius:18px;text-align:left;color:#fff;cursor:pointer;
     background:rgba(255,255,255,.2);border:.5px solid rgba(255,255,255,.35);box-shadow:0 8px 24px rgba(0,0,0,.18);
     backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);
     text-shadow:0 1px 3px rgba(0,0,0,.35);
@@ -572,11 +511,8 @@
   .wg-name{margin-top:8px;font-size:15px;font-weight:700}
   .wg-name small{margin-left:6px;font-size:12px;font-weight:500;opacity:.92}
   .wg-when{margin-top:3px;font-size:12px;opacity:.92}
-  /* On phones the widget goes last, so the icon zones keep their place on short screens. */
-  @media (max-width:768px){ .wg{order:1;width:auto;margin:16px 8px 0} }
 
   /* ---------- About TankOS ---------- */
-  .ic-about{background:linear-gradient(160deg,#FF5A4E,#D62828 60%,#A3141E);font:700 calc(var(--s) * .52)/1 "Helvetica Neue",Arial,sans-serif}
   .about{padding:26px 26px 18px;text-align:center}
   .ab-logo{
     width:84px;height:84px;margin:0 auto;border-radius:20px;display:grid;place-items:center;
@@ -598,8 +534,6 @@
   .ab-log .ab-note{display:block;color:var(--win-mute)}
 
   /* ---------- Calculator ---------- */
-  .ic-calc{background:linear-gradient(160deg,#5A5A60,#232325);color:#FF9F0A;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 2px 6px rgba(0,0,0,.28)}
-  .ic-calc svg{stroke-width:2.2}
   .win.calc-win{background:#1C1C1E}
   .win.calc-win .bar{background:#2A2A2C;border-color:#000}
   .win.calc-win .title{color:#D0D0D4}
@@ -660,8 +594,6 @@
 
 
   /* ---------- Block Puzzle ---------- */
-  .ic-blocks{background:linear-gradient(160deg,#FFD84D,#F2A20C 55%,#C46A00)}
-  .ic-private{background:linear-gradient(160deg,#4B5568,#1E2533 60%,#0E121B);box-shadow:inset 0 0 0 1px rgba(255,255,255,.16),0 2px 6px rgba(0,0,0,.28)}
   .blocks{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px 14px 10px;background:radial-gradient(120% 80% at 50% 0%,#4A2A1E,#1E100B);color:#F6E7D8;user-select:none;-webkit-user-select:none;overflow:hidden}
   .bk-top{width:min(100%,368px);display:flex;align-items:center;gap:16px;font-size:12px;color:#C9AE98}
   .bk-top b{display:block;font:700 20px var(--mono);color:#FFE27A;font-variant-numeric:tabular-nums;line-height:1.1}
@@ -754,18 +686,6 @@
 
   /* ---------- phones ---------- */
   @media (max-width:768px){
-    /* Twelve Dock icons (11 apps + classic) share the width left after the twelve 6px gaps (72px), the padding (12px),
-       the separator with its margins (7px), the border (1px) and 8px clear on each side: 108px. Adding a Dock icon
-       means changing the 12 here; tests/e2e/layout.spec.js checks the Dock fits from 320px up. */
-    :root{--ds:clamp(16px,calc((100vw - 108px) / 12),52px)}
-    .desktop{overflow-y:auto;overscroll-behavior:contain;padding:14px 6px calc(var(--dock-space) + 8px)}
-    .zones-l,.zones-r,.zone-about{position:static}
-    .zones-l{gap:16px}
-    .desktop{display:flex;flex-direction:column}
-    .zones-r{display:contents}
-    .zone-tools,.zone-about{margin-top:16px}
-    .icons,.zone-about .icons{grid-template-columns:repeat(4,1fr);justify-items:center}
-    .dicon{width:84px}
     .dicon .ic{--s:56px}
     .win{left:0!important;top:0!important;width:100%!important;height:calc(100% - var(--dock-space))!important;border-radius:0 0 14px 14px;resize:none}
     .side{position:absolute;top:0;bottom:0;left:0;z-index:2;width:min(320px,88%);box-shadow:8px 0 30px rgba(0,0,0,.25)}
@@ -915,12 +835,6 @@
     :where(:root[data-ui="2"]) .menubar{background:var(--tank-glass-strong)}
   }
   :where(:root[data-ui="2"][data-transparency="reduced"]) .menubar{background:var(--tank-bg);-webkit-backdrop-filter:none;backdrop-filter:none}
-  /* This bar is 8px taller than v2.4's (36px against 28px), so the whole desktop sits 8px lower. On short screens the
-     left column (four rows of projects) then ends 8px short of the 16px it keeps above the Dock at 1366×657; the gap
-     between its two zones closes up to make room instead of the icons shrinking. */
-  @media (min-width:769px) and (max-height:720px){
-    :where(:root[data-ui="2"]) .zones-l{gap:3px}
-  }
 
   /* ---------- TankOS 2.0 wallpaper (?ui=2): Pixelverse lakeside night ---------- */
   /* images/wallpaper-pixelverse-lakeside-night.png is the approved artwork (1672×941), kept byte for byte; browsers
@@ -951,13 +865,12 @@
   @media (orientation:portrait){
     :where(:root[data-ui="2"]) .wall{background-position:0 0,0 0,20% 50%}
   }
-  /* Icon labels and zone headings: a deep-indigo halo instead of v2.4's single soft shadow. The art has bright
-     spots (the moon, the lantern, the blossoms) that can land under a label at some sizes; the halo keeps the text
-     legible without darkening the picture itself. */
-  :where(:root[data-ui="2"]) .lbl,:where(:root[data-ui="2"]) .zh{
+  /* Icon labels: a deep-indigo halo instead of a single soft shadow. The art has bright spots (the moon, the
+     lantern, the blossoms) that can land under a label at some sizes; the halo keeps the text legible without
+     darkening the picture itself. */
+  :where(:root[data-ui="2"]) .lbl{
     text-shadow:0 1px 2px rgba(5,7,25,.95),0 0 6px rgba(5,7,25,.8),0 0 14px rgba(5,7,25,.5);
   }
-  /* A selected label keeps its solid violet pill (v2.4's .dicon.sel .lbl beats this anyway; stated for clarity). */
   /* The lock screen shows the wallpaper too (blurred), so it changes with it. */
   :where(:root[data-ui="2"]) #lock::before{
     background-image:url(images/wallpaper-pixelverse-lakeside-night.png);
@@ -1084,15 +997,6 @@
   :where(:root[data-ui="2"][data-transparency="reduced"]) .dock,:where(:root[data-ui="2"][data-transparency="reduced"]) .ln-box{background:var(--tank-surface);-webkit-backdrop-filter:none;backdrop-filter:none}
 
   /* ---------- TankOS 2.0 Settings (?ui=2) ---------- */
-  /* Entry points that only 2.0 has (the Settings desktop icon and Dock button). :where() keeps this at the same
-     specificity as .dk / li, so it only hides them and changes nothing else in v2.4. */
-  :where(:root:not([data-ui="2"])) .ui2-only{display:none}
-  .ic-settings{background:linear-gradient(160deg,#8A90B8,#454B70 58%,#2A2E48);color:#fff}
-  .ic-settings svg{stroke-width:1.7}
-  /* One more Dock button (Settings): narrow desktops get tighter gaps so all 14 still fit from 769px. */
-  @media (min-width:769px) and (max-width:879px){
-    :where(:root[data-ui="2"]) .dock{gap:4px}
-  }
   /* Wallpaper choice: the Komezuka photo under the same night overlay; the lock screen follows. */
   :where(:root[data-ui="2"][data-wall="komezuka"]) .wall{
     background-image:
@@ -1176,13 +1080,10 @@
   :where(:root[data-ui="2"]) .cal-day.off span,
   :where(:root[data-ui="2"]) .cal-day small.hol{color:var(--tank-brand-text)}
   :where(:root[data-ui="2"]) .cal-day.sel span{box-shadow:inset 0 0 0 1.5px var(--tank-brand-text)}
-  /* P2: phones. Four 84px icons per row do not fit under ~350px (320 has 77px per column), so the fourth column was
-     cut off; long labels with no space ("陽明山慶生旅遊") ran into their neighbours. Each icon takes its whole column
-     (94px at 390, 77px at 320), labels lose most of their side padding, and a label that still does not fit breaks
-     rather than overflowing. Labels that fit stay on one line. */
+  /* P2: phones. Four columns share the width (about 93px at 390, 76px at 320), so labels lose most of their side
+     padding; a label that still does not fit breaks rather than overflowing. Labels that fit stay on one line. */
   @media (max-width:768px){
-    :where(:root[data-ui="2"]) .dicon{width:100%}
-    :where(:root[data-ui="2"]) .lbl{padding:1px 2px;overflow-wrap:anywhere}
+    :where(:root[data-ui="2"]) .lbl{padding:1px 2px}
   }
   /* P3: the menu bar at 320–340px cut "TankOS" short. */
   @media (max-width:340px){
@@ -1197,6 +1098,15 @@
      launcher items and Settings controls had no pressed state. */
   :where(:root[data-ui="2"]) .bar-btn:hover{background:rgba(255,255,255,.10)}
   :where(:root[data-ui="2"]) :is(.bar-btn,.ln-app,.ln-close,.st-btn,.st-opt):active{background:rgba(139,124,255,.34)}
+
+  /* ---------- TankOS desktop page dots (v3.0.0) ---------- */
+  /* Centred just above the Dock (the JS sets top). Each dot is a 20×24 button around an 8px dot. */
+  :where(:root[data-ui="2"]) .pager{position:absolute;left:0;right:0;height:24px;display:flex;justify-content:center;align-items:center;gap:2px}
+  :where(:root[data-ui="2"]) .pager[hidden]{display:none}
+  :where(:root[data-ui="2"]) .pg{width:20px;height:24px;display:grid;place-items:center;border-radius:var(--tank-radius-pill);cursor:pointer}
+  :where(:root[data-ui="2"]) .pg::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--tank-text);opacity:.4;box-shadow:0 0 6px rgba(5,7,25,.8)}
+  :where(:root[data-ui="2"]) .pg[aria-current="true"]::before{opacity:1}
+  :where(:root[data-ui="2"]) .pg:focus-visible{outline:2px solid var(--tank-border-focus);outline-offset:0}
 
   /* ---------- TankOS 2.0 app logos (v2.6.0; artwork v3 since v2.6.4) ---------- */
   /* Every app keeps its own brand art (App Brand Icons v3, images/icons/<id>.webp, built by design/brand-icons-v3/build.py)
@@ -1281,7 +1191,7 @@
     <a class="mb-item" href="classic/" data-i18n="mb.classic">經典版</a>
   </div>
   <div class="mb-r">
-    <span class="mb-ver">v2.7.0</span>
+    <span class="mb-ver">v3.0.0</span>
     <a class="mb-priv" href="https://portfolio-private.xarenvich.com/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#g-lock"/></svg><span data-i18n="mb.private">私人版</span></a>
     <button class="mb-spot" id="btnSpot" type="button" data-i18n-title="os.spot.btn"><svg><use href="#g-search"/></svg></button>
     <div class="lang"><button id="btnZh" type="button">中</button><button id="btnEn" type="button">EN</button></div>
@@ -1292,54 +1202,32 @@
 
 <main class="desktop" id="desktop">
   <h1 class="sr">Tank Yang — TankOS</h1>
-  <div class="zones-l">
-    <section class="zone zone-proj" aria-labelledby="zProj">
-      <h2 class="zh" id="zProj" data-i18n="os.zone.proj">作品</h2>
-      <ul class="icons">
-        <li><button class="dicon" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="lbl" data-i18n="app.fukuoka">福岡自駕旅遊</span></button></li>
-        <li><button class="dicon" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="lbl" data-i18n="app.busan">釜山旅遊</span></button></li>
-        <li><button class="dicon" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="lbl" data-i18n="app.yangmingshan">陽明山慶生旅遊</span></button></li>
-        <li><button class="dicon" type="button" data-open="wordtrailer"><span class="ic ic-wordtrailer"><svg><use href="#g-wordtrailer"/></svg></span><span class="lbl" data-i18n="app.wordtrailer">WordTrailer</span></button></li>
-        <li><button class="dicon" type="button" data-open="pockettrip"><span class="ic ic-pockettrip"></span><span class="lbl" data-i18n="app.pockettrip">口袋旅行</span></button></li>
-        <li><button class="dicon" type="button" data-open="averlyn"><span class="ic ic-averlyn"></span><span class="lbl" data-i18n="app.averlyn">Averlyn 疫苗</span></button></li>
-        <li><button class="dicon" type="button" data-open="dayday"><span class="ic ic-dayday"><svg><use href="#g-dayday"/></svg></span><span class="lbl" data-i18n="app.dayday">DayDay</span></button></li>
-      </ul>
-    </section>
-    <section class="zone zone-lab" aria-labelledby="zLab">
-      <h2 class="zh" id="zLab" data-i18n="os.zone.lab">遊戲區</h2>
-      <ul class="icons">
-        <li><button class="dicon" type="button" data-open="blocks"><span class="ic ic-blocks"><svg><use href="#g-blocks"/></svg></span><span class="lbl" data-i18n="app.blocks">方塊消除</span></button></li>
-        <li><button class="dicon" type="button" data-open="trace"><span class="ic ic-trace"><svg><use href="#g-route"/></svg></span><span class="lbl" data-i18n="app.trace">Request 的一生</span></button></li>
-        <li><button class="dicon" type="button" data-open="shachiku"><span class="ic ic-shachiku"><svg><use href="#g-bell"/></svg></span><span class="lbl" data-i18n="app.shachiku">我是社畜</span></button></li>
-        <li><button class="dicon" type="button" data-open="nightmarket"><span class="ic ic-nightmarket"><svg><use href="#g-stall"/></svg></span><span class="lbl" data-i18n="app.nightmarket">今晚出攤</span></button></li>
-      </ul>
-    </section>
-  </div>
-  <div class="zones-r">
-  <section class="zone zone-tools" aria-labelledby="zTools">
-    <h2 class="zh" id="zTools" data-i18n="os.zone.tools">小工具</h2>
-      <ul class="icons">
-        <li><button class="dicon" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="lbl" data-i18n="app.terminal">終端機</span></button></li>
-        <li><button class="dicon" type="button" data-open="activity"><span class="ic ic-activity"><svg><use href="#g-pulse"/></svg></span><span class="lbl" data-i18n="app.activity">活動監視器</span></button></li>
-        <li><button class="dicon" type="button" data-open="calc"><span class="ic ic-calc"><svg><use href="#g-calc"/></svg></span><span class="lbl" data-i18n="app.calc">計算機</span></button></li>
-        <li><button class="dicon" type="button" data-open="calendar"><span class="ic ic-cal" aria-hidden="true"><b class="ci-wd"></b><b class="ci-d"></b></span><span class="lbl" data-i18n="app.calendar">日曆</span></button></li>
-        <li class="ui2-only"><button class="dicon" type="button" data-open="settings"><span class="ic ic-settings"><svg><use href="#g-gear"/></svg></span><span class="lbl" data-i18n="app.settings">設定</span></button></li>
-      </ul>
-  </section>
-    <button class="wg" id="wgHol" type="button" hidden>
-      <span class="wg-k" data-i18n="os.wg.title">下個連假</span>
-      <span class="wg-n"></span>
-      <span class="wg-name"></span>
-      <span class="wg-when"></span>
-    </button>
-  <section class="zone zone-about" aria-labelledby="zAbout">
-    <h2 class="zh" id="zAbout" data-i18n="os.zone.about">關於我</h2>
-      <ul class="icons">
-        <li><button class="dicon" type="button" data-open="readme"><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="lbl">README.md</span></button></li>
-        <li><button class="dicon" type="button" data-open="contact"><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="lbl" data-i18n="app.contact">聯絡我</span></button></li>
-      </ul>
-  </section>
-  </div>
+  <!-- One grid in this order, paged like an iPad home screen (JS "desktop pages" places every cell). The widget
+       takes 2×2 at the start of page 1. New apps: add an <li> here and APPS[id].cat. -->
+  <ul class="icons" id="deskIcons" data-i18n-aria="os.desk">
+    <li class="wg-cell">
+      <button class="wg" id="wgHol" type="button" hidden>
+        <span class="wg-k" data-i18n="os.wg.title">下個連假</span>
+        <span class="wg-n"></span>
+        <span class="wg-name"></span>
+        <span class="wg-when"></span>
+      </button>
+    </li>
+    <li><button class="dicon" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="lbl" data-i18n="app.fukuoka">福岡自駕旅遊</span></button></li>
+    <li><button class="dicon" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="lbl" data-i18n="app.busan">釜山旅遊</span></button></li>
+    <li><button class="dicon" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="lbl" data-i18n="app.yangmingshan">陽明山慶生旅遊</span></button></li>
+    <li><button class="dicon" type="button" data-open="wordtrailer"><span class="ic ic-wordtrailer"><svg><use href="#g-wordtrailer"/></svg></span><span class="lbl" data-i18n="app.wordtrailer">WordTrailer</span></button></li>
+    <li><button class="dicon" type="button" data-open="pockettrip"><span class="ic ic-pockettrip"></span><span class="lbl" data-i18n="app.pockettrip">口袋旅行</span></button></li>
+    <li><button class="dicon" type="button" data-open="averlyn"><span class="ic ic-averlyn"></span><span class="lbl" data-i18n="app.averlyn">Averlyn 疫苗</span></button></li>
+    <li><button class="dicon" type="button" data-open="dayday"><span class="ic ic-dayday"><svg><use href="#g-dayday"/></svg></span><span class="lbl" data-i18n="app.dayday">DayDay</span></button></li>
+    <li><button class="dicon" type="button" data-open="blocks"><span class="ic ic-blocks"><svg><use href="#g-blocks"/></svg></span><span class="lbl" data-i18n="app.blocks">方塊消除</span></button></li>
+    <li><button class="dicon" type="button" data-open="trace"><span class="ic ic-trace"><svg><use href="#g-route"/></svg></span><span class="lbl" data-i18n="app.trace">Request 的一生</span></button></li>
+    <li><button class="dicon" type="button" data-open="shachiku"><span class="ic ic-shachiku"><svg><use href="#g-bell"/></svg></span><span class="lbl" data-i18n="app.shachiku">我是社畜</span></button></li>
+    <li><button class="dicon" type="button" data-open="nightmarket"><span class="ic ic-nightmarket"><svg><use href="#g-stall"/></svg></span><span class="lbl" data-i18n="app.nightmarket">今晚出攤</span></button></li>
+  </ul>
+  <!-- After the grid, so Tab goes icons → page dots → Dock; inside #desktop, so a modal's inert covers them. -->
+  <div class="pager" id="pager" hidden></div>
+  <p class="sr" id="pageLive" aria-live="polite"></p>
 </main>
 
 <div id="windows"></div>
@@ -1376,22 +1264,18 @@
   </div>
 </div>
 
+<!-- System apps only: the projects and games live on the desktop pages (and in the launcher and Spotlight). -->
 <nav class="dock" id="dock" aria-label="Dock">
-  <button class="dk" type="button" data-open="fukuoka"><span class="ic ic-fukuoka"><svg><use href="#g-torii"/></svg></span><span class="tip" data-i18n="app.fukuoka">福岡自駕旅遊</span></button>
-  <button class="dk" type="button" data-open="busan"><span class="ic ic-busan"><svg><use href="#g-wave"/></svg></span><span class="tip" data-i18n="app.busan">釜山旅遊</span></button>
-  <button class="dk" type="button" data-open="yangmingshan"><span class="ic ic-yms"><svg><use href="#g-mountain"/></svg></span><span class="tip" data-i18n="app.yangmingshan">陽明山慶生旅遊</span></button>
-  <button class="dk" type="button" data-open="wordtrailer"><span class="ic ic-wordtrailer"><svg><use href="#g-wordtrailer"/></svg></span><span class="tip" data-i18n="app.wordtrailer">WordTrailer</span></button>
-  <button class="dk" type="button" data-open="pockettrip"><span class="ic ic-pockettrip"></span><span class="tip" data-i18n="app.pockettrip">口袋旅行</span></button>
-  <button class="dk" type="button" data-open="averlyn"><span class="ic ic-averlyn"></span><span class="tip" data-i18n="app.averlyn">Averlyn 疫苗</span></button>
-  <button class="dk" type="button" data-open="shachiku"><span class="ic ic-shachiku"><svg><use href="#g-bell"/></svg></span><span class="tip" data-i18n="app.shachiku">我是社畜</span></button>
-  <button class="dk" type="button" data-open="nightmarket"><span class="ic ic-nightmarket"><svg><use href="#g-stall"/></svg></span><span class="tip" data-i18n="app.nightmarket">今晚出攤</span></button>
   <button class="dk" type="button" data-open="readme" data-m><span class="ic ic-readme"><svg><use href="#g-doc"/></svg></span><span class="tip">README.md</span></button>
-  <button class="dk" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="tip" data-i18n="app.terminal">終端機</span></button>
   <button class="dk" type="button" data-open="contact" data-m><span class="ic ic-contact"><svg><use href="#g-mail"/></svg></span><span class="tip" data-i18n="app.contact">聯絡我</span></button>
+  <button class="dk" type="button" data-open="terminal"><span class="ic ic-terminal"><svg><use href="#g-term"/></svg></span><span class="tip" data-i18n="app.terminal">終端機</span></button>
+  <button class="dk" type="button" data-open="activity"><span class="ic ic-activity"><svg><use href="#g-pulse"/></svg></span><span class="tip" data-i18n="app.activity">活動監視器</span></button>
+  <button class="dk" type="button" data-open="calc"><span class="ic ic-calc"><svg><use href="#g-calc"/></svg></span><span class="tip" data-i18n="app.calc">計算機</span></button>
+  <!-- paintCalIcons() writes into .ci-wd and .ci-d of every .ic-cal; keep both. -->
+  <button class="dk" type="button" data-open="calendar"><span class="ic ic-cal" aria-hidden="true"><b class="ci-wd"></b><b class="ci-d"></b></span><span class="tip" data-i18n="app.calendar">日曆</span></button>
+  <button class="dk" type="button" data-open="settings"><span class="ic ic-settings"><svg><use href="#g-gear"/></svg></span><span class="tip" data-i18n="app.settings">設定</span></button>
   <span class="dk-sep" aria-hidden="true"></span>
-  <button class="dk ui2-only" type="button" data-open="settings"><span class="ic ic-settings"><svg><use href="#g-gear"/></svg></span><span class="tip" data-i18n="app.settings">設定</span></button>
   <a class="dk" href="classic/" data-m><span class="ic ic-classic" aria-hidden="true">T</span><span class="tip" data-i18n="app.classic">經典版</span></a>
-  <!-- TankOS 2.0 (?ui=2): every app, opened from here. Hidden in v2.4. -->
   <button class="dk dk-launch" id="btnLaunch" type="button" data-m aria-haspopup="dialog" aria-controls="launcher" aria-expanded="false"><span class="ic ic-launch" aria-hidden="true"><svg><use href="#g-grid"/></svg></span><span class="tip" data-i18n="os.ln.btn">所有 App</span></button>
 </nav>
 
@@ -1402,11 +1286,9 @@
       <h3 id="stLook" data-i18n="st.look">外觀</h3>
       <div class="st-card">
         <span class="st-swatch" aria-hidden="true"></span>
-        <span class="st-card-t"><b data-i18n="st.look.name">Nocturne</b><span data-i18n="st.look.desc">TankOS 2.0 預覽的深色主題</span></span>
+        <span class="st-card-t"><b data-i18n="st.look.name">Nocturne</b><span data-i18n="st.look.desc">TankOS 2.0 的深色主題</span></span>
         <span class="st-badge" data-i18n="st.look.on">使用中</span>
       </div>
-      <button class="st-btn" type="button" data-act="v1" data-i18n="st.look.back">切回 v2.4 介面</button>
-      <p class="st-note" data-i18n-html="st.look.note"></p>
     </section>
     <fieldset class="st-sec">
       <legend data-i18n="st.wall">桌布</legend>
@@ -1728,10 +1610,8 @@
     "app.settings":{zh:"設定", en:"Settings"},
     "st.look":     {zh:"外觀", en:"Appearance"},
     "st.look.name":{zh:"Nocturne", en:"Nocturne"},
-    "st.look.desc":{zh:"TankOS 2.0 預覽的深色主題", en:"The dark theme of the TankOS 2.0 preview"},
+    "st.look.desc":{zh:"TankOS 2.0 的深色主題", en:"The dark theme of TankOS 2.0"},
     "st.look.on":  {zh:"使用中", en:"In use"},
-    "st.look.back":{zh:"切回 v2.4 介面", en:"Switch back to v2.4"},
-    "st.look.note":{zh:"之後在網址加上 <code>?ui=2</code> 就能回到 2.0。", en:"Add <code>?ui=2</code> to the address to come back to 2.0."},
     "st.wall":     {zh:"桌布", en:"Wallpaper"},
     "st.wall.pixel":{zh:"Pixelverse 湖畔夜景", en:"Pixelverse lakeside night"},
     "st.wall.kome":{zh:"阿蘇米塚", en:"Komezuka, Aso"},
@@ -1771,6 +1651,9 @@
     "os.zone.lab": {zh:"遊戲區", en:"Games"},
     "os.zone.about":{zh:"關於我", en:"About me"},
     "os.zone.tools":{zh:"小工具", en:"Utilities"},
+    "os.desk":     {zh:"桌面 App", en:"Desktop apps"},
+    "os.page.dot": {zh:"第 {n} 頁，共 {m} 頁", en:"Page {n} of {m}"},
+    "os.page.now": {zh:"第 {n} 頁", en:"Page {n}"},
     "os.ln.btn":   {zh:"所有 App", en:"All apps"},
     "os.ln.title": {zh:"所有 App", en:"All apps"},
     "os.ln.close": {zh:"關閉", en:"Close"},
@@ -1827,43 +1710,43 @@
 
   // Site apps run the live page in an iframe beside a sidebar about it; `link` apps open in a new tab;
   // `file` apps load apps/<id>.js the first time they open; the rest clone a <template id="tpl-{id}">.
+  // `cat` is the App Launcher group (os.zone.*: proj, lab, tools, about); apps without one go under "More".
   var APPS = {
-    fukuoka: {k:"w1", url:"https://tankfinal.github.io/fukuoka-trip/", src:"https://github.com/tankfinal/fukuoka-trip",
+    fukuoka: {cat:"proj", k:"w1", url:"https://tankfinal.github.io/fukuoka-trip/", src:"https://github.com/tankfinal/fukuoka-trip",
               spec:[["spec.build","w1.s1"], ["spec.feat","w1.s2"], ["spec.size",null,"113 KB"]], w:1080, h:720},
-    busan:   {k:"w2", url:"https://tankfinal.github.io/busan-trip/", src:"https://github.com/tankfinal/busan-trip",
+    busan:   {cat:"proj", k:"w2", url:"https://tankfinal.github.io/busan-trip/", src:"https://github.com/tankfinal/busan-trip",
               spec:[["spec.build","w2.s1"], ["spec.feat","w2.s2"], ["spec.size",null,"136 KB"]], w:1080, h:720},
-    yangmingshan: {k:"w4", url:"https://tankfinal.github.io/yangmingshan-trip/", src:"https://github.com/tankfinal/yangmingshan-trip",
+    yangmingshan: {cat:"proj", k:"w4", url:"https://tankfinal.github.io/yangmingshan-trip/", src:"https://github.com/tankfinal/yangmingshan-trip",
               spec:[["spec.build","w4.s1"], ["spec.feat","w4.s2"], ["spec.size",null,"28 KB"]], w:1080, h:720},
-    activity:{w:780, h:430},
-    blocks:  {w:420, h:660},
-    trace:   {w:760, h:620, file:"apps/trace.js"},
+    activity:{cat:"tools", w:780, h:430},
+    blocks:  {cat:"lab", w:420, h:660},
+    trace:   {cat:"lab", w:760, h:620, file:"apps/trace.js"},
     // A game with its own site (tankfinal/shachiku, a private repo, so no Source link).
-    shachiku:{k:"w5", url:"https://shachiku.xarenvich.com/",
+    shachiku:{cat:"lab", k:"w5", url:"https://shachiku.xarenvich.com/",
               spec:[["spec.build",null,"Vanilla JS · Canvas · JSON"], ["spec.deploy","w5.s2"], ["spec.feat","w5.s3"]], w:1080, h:720},
     // Another game with its own site (tankfinal/open-tonight, private too); its leaderboard is nightmarket_scores in
     // this site's D1.
-    nightmarket:{k:"w6", url:"https://open-tonight.xarenvich.com/",
+    nightmarket:{cat:"lab", k:"w6", url:"https://open-tonight.xarenvich.com/",
               spec:[["spec.build",null,"Phaser 4 · Canvas · D1"], ["spec.deploy","w6.s2"], ["spec.feat","w6.s3"]], w:1080, h:720},
     // A vocabulary site with its own Worker (tankfinal/wordtrailer, private, so no Source link).
-    wordtrailer:{k:"w7", url:"https://wordtrailer.xarenvich.com/",
+    wordtrailer:{cat:"proj", k:"w7", url:"https://wordtrailer.xarenvich.com/",
               spec:[["spec.build",null,"Vanilla JS · ES Modules · Tailwind"], ["spec.deploy","w7.s2"], ["spec.feat","w7.s3"]], w:1080, h:720},
     // A shared list of places with its own Worker, D1 tables and password (tankfinal/pocket-trip, private, so no Source link).
-    pockettrip:{k:"w8", url:"https://pocket-trip.xarenvich.com/",
+    pockettrip:{cat:"proj", k:"w8", url:"https://pocket-trip.xarenvich.com/",
               spec:[["spec.build",null,"Vanilla JS · Leaflet · D1"], ["spec.deploy","w8.s2"], ["spec.feat","w8.s3"]], w:1080, h:720},
     // Our daughter's vaccine schedule behind its own password (tankfinal/averlyn-vaccine, private, so no Source link).
-    averlyn:{k:"w9", url:"https://averlyn-vaccine.xarenvich.com/",
+    averlyn:{cat:"proj", k:"w9", url:"https://averlyn-vaccine.xarenvich.com/",
               spec:[["spec.build",null,"React 19 · TypeScript · Vite"], ["spec.deploy","w9.s2"], ["spec.feat","w9.s3"]], w:1080, h:720},
     // A hand-painted daily room with its own Worker and D1 (tankfinal/dayday, private, so no Source link). The site is a
     // portrait phone layout, so the window is tall: the 270px sidebar plus about a 470px column for the preview (DayDay's own column is 460px).
-    dayday:{k:"w10", url:"https://dayday.xarenvich.com/",
+    dayday:{cat:"proj", k:"w10", url:"https://dayday.xarenvich.com/",
               spec:[["spec.build",null,"Vanilla JS · ES Modules · WebGL · Canvas 2D"], ["spec.deploy","w10.s2"], ["spec.feat","w10.s3"]], w:740, h:820},
-    readme:  {w:680, h:660},
-    terminal:{w:700, h:560, cls:"term-win"},
-    contact: {w:440, h:450},
-    calc:    {w:260, h:400, cls:"calc-win"},
-    calendar:{w:560, h:520},
-    // TankOS 2.0 only: its desktop icon, Dock button and Spotlight entry exist under ?ui=2 alone.
-    settings:{w:520, h:640, ui2:true},
+    readme:  {cat:"about", w:680, h:660},
+    terminal:{cat:"tools", w:700, h:560, cls:"term-win"},
+    contact: {cat:"about", w:440, h:450},
+    calc:    {cat:"tools", w:260, h:400, cls:"calc-win"},
+    calendar:{cat:"tools", w:560, h:520},
+    settings:{cat:"tools", w:520, h:640},
     about:   {w:420, h:580},
     // The private TankOS (tankfinal/portfolio-private) sits behind Cloudflare Access, whose sign-in page
     // cannot run in an iframe, so this one opens in a new tab instead of a window.
@@ -1883,7 +1766,6 @@
   var btnZh  = document.getElementById("btnZh");
   var btnEn  = document.getElementById("btnEn");
   var narrow = window.matchMedia("(max-width: 768px)");
-  var coarse = window.matchMedia("(pointer: coarse)");
   var stillMq = window.matchMedia("(prefers-reduced-motion: reduce)");
   // Reduced motion: 2.0's Settings may override the system (data-motion on <html>, only ever set under ?ui=2);
   // v2.4 follows the system as before. Same .matches interface as the MediaQueryList it replaces.
@@ -1906,6 +1788,10 @@
     root.querySelectorAll("[data-i18n-html]").forEach(function(el){
       var e = I18N[el.getAttribute("data-i18n-html")];
       if (e) el.innerHTML = e[lang];
+    });
+    root.querySelectorAll("[data-i18n-aria]").forEach(function(el){
+      var e = I18N[el.getAttribute("data-i18n-aria")];
+      if (e) el.setAttribute("aria-label", e[lang]);
     });
     root.querySelectorAll("[data-i18n-title]").forEach(function(el){
       var e = I18N[el.getAttribute("data-i18n-title")];
@@ -2191,7 +2077,7 @@
   // Shrink toward the window's own Dock icon.
   function minimize(id){
     var el = wins[id].el, r = el.getBoundingClientRect();
-    // Apps without a Dock icon (Activity Monitor) shrink toward the middle of the Dock.
+    // Apps without a Dock icon (the projects and games on the desktop) shrink toward the middle of the Dock.
     var d = (dock.querySelector('[data-open="' + id + '"]') || dock).getBoundingClientRect();
     el.style.setProperty("--dx", (d.left + d.width / 2 - r.left - r.width / 2) + "px");
     el.style.setProperty("--dy", (d.top + d.height / 2 - r.top - r.height / 2) + "px");
@@ -2573,8 +2459,9 @@
     return null;
   }
   function paintWidget(){
-    var today = dayStart(new Date()), b = nextBreak(today);
+    var today = dayStart(new Date()), b = nextBreak(today), was = wg.hidden;
     wg.hidden = !b;
+    if (deskReady && was !== wg.hidden) deskLayout();
     if (!b) return;
     wgStart = b.start;
     var f = new Intl.DateTimeFormat(lang === "en" ? "en-US" : "zh-TW", {month:"numeric", day:"numeric", weekday:"short"});
@@ -3376,29 +3263,232 @@
   }
 
   /* ---------- desktop + dock ---------- */
-  function select(b){
-    document.querySelectorAll(".dicon.sel").forEach(function(x){ x.classList.remove("sel"); });
-    if (b) b.classList.add("sel");
-  }
-
-  document.querySelectorAll(".dicon").forEach(function(b){
-    b.addEventListener("click", function(e){
-      // Touch screens and keyboard activation (detail 0) open right away; a mouse selects first and opens on double-click.
-      if (coarse.matches || narrow.matches || e.detail === 0) { open(b.dataset.open); return; }
-      select(b);
-    });
-    b.addEventListener("dblclick", function(){ open(b.dataset.open); });
+  // One click (or tap, or Enter) opens a desktop icon, like an iPad. A click that ends a swipe never gets here
+  // (see deskSwallow below).
+  desk.querySelectorAll(".dicon").forEach(function(b){
+    b.addEventListener("click", function(){ open(b.dataset.open); });
   });
 
   dock.querySelectorAll("[data-open]").forEach(function(b){
     b.addEventListener("click", function(){ open(b.dataset.open); });
   });
 
-  desk.addEventListener("pointerdown", function(e){
-    if (e.target.closest(".dicon")) return;
-    select(null);
-    blurAll();
+  /* ---------- desktop pages ---------- */
+  // Every desktop item (the long-weekend widget, 2×2, then the apps in markup order) fills one grid between the
+  // menu bar and the page dots above the Dock: at most 6 columns on a computer, centred; 4 on phones. Full pages
+  // continue to the right. Flip with a swipe, a horizontal trackpad scroll, a mouse drag on empty desktop, the
+  // dots, or ← → while the desktop has focus. Icons on other pages stay focusable, and focus on one flips to its
+  // page. Opening an app from Spotlight, the launcher or the terminal does not flip (its window covers the desktop).
+  // The page is not remembered: a reload starts on page 1.
+  var deskList = document.getElementById("deskIcons");
+  var pager = document.getElementById("pager");
+  var pageLive = document.getElementById("pageLive");
+  var deskCells = [].slice.call(deskList.children);
+  var wgCell = wg.parentElement;
+  // Cell sizes: icon (60 / 56px) plus a two-line label fits the height; cw 0 = the width shared by 4 columns.
+  var GRID = {
+    desk:  {cw: 96, ch: 112, gx: 16, gy: 8, side: 24, top: 16},
+    phone: {cw: 0,  ch: 108, gx: 0,  gy: 8, side: 8,  top: 16}
+  };
+  var PAGER_H = 24;
+  var deskGrid = {cols: 1, rows: 1, pages: 1, w: 0};
+  var deskPage = 0, deskReady = false;
+  deskCells.forEach(function(c, i){ c.dataset.seq = i; });
+
+  function deskLayout(){
+    var g = narrow.matches ? GRID.phone : GRID.desk;
+    var W = desk.clientWidth;
+    var dockTop = dock.getBoundingClientRect().top - desk.getBoundingClientRect().top;
+    var pagerTop = Math.round(dockTop - 6 - PAGER_H);
+    var availW = W - 2 * g.side, availH = pagerTop - 4 - g.top;
+    var cw = g.cw || Math.floor(availW / 4);
+    var cols = g.cw ? Math.max(1, Math.min(6, Math.floor((availW + g.gx) / (cw + g.gx)))) : 4;
+    var rows = Math.max(1, Math.floor((availH + g.gy) / (g.ch + g.gy)));
+    var x0 = Math.round((W - (cols * cw + (cols - 1) * g.gx)) / 2);
+    // Keep the item that starts the current page on screen when the grid changes size.
+    var anchor = null;
+    if (deskReady) {
+      var first = deskCells.filter(function(c){ return !c.hidden && +c.dataset.page === deskPage; })[0];
+      if (first) anchor = +first.dataset.seq;
+    }
+    // The widget needs 2×2; it also hides itself once HOLIDAYS runs out (paintWidget). Either way its cells go to
+    // the apps after it.
+    wgCell.hidden = wg.hidden || rows < 2 || cols < 2;
+    var per = rows * cols, used = {}, next = 0, pages = 1;
+    deskCells.forEach(function(c){
+      if (c.hidden) return;
+      var n = c === wgCell ? 2 : 1, k = next, p, r, col;
+      for (;; k++) {
+        p = Math.floor(k / per); r = Math.floor((k % per) / cols); col = k % cols;
+        if (r + n > rows || col + n > cols) continue;
+        var free = true;
+        for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) if (used[p + ":" + (r + i) + ":" + (col + j)]) free = false;
+        if (free) break;
+      }
+      for (var i2 = 0; i2 < n; i2++) for (var j2 = 0; j2 < n; j2++) used[p + ":" + (r + i2) + ":" + (col + j2)] = true;
+      next = k + 1;
+      pages = Math.max(pages, p + 1);
+      c.dataset.page = p;
+      c.style.left = (p * W + x0 + col * (cw + g.gx)) + "px";
+      c.style.top = (g.top + r * (g.ch + g.gy)) + "px";
+      c.style.width = (n * cw + (n - 1) * g.gx) + "px";
+      c.style.height = (n * g.ch + (n - 1) * g.gy) + "px";
+    });
+    deskGrid = {cols: cols, rows: rows, pages: pages, w: W};
+    // For reading the grid from outside (the tests, devtools).
+    deskList.dataset.cols = cols; deskList.dataset.rows = rows; deskList.dataset.pages = pages;
+    pager.style.top = pagerTop + "px";
+    var to = deskPage;
+    if (anchor !== null) {
+      var back = deskCells.filter(function(c){ return !c.hidden && +c.dataset.seq >= anchor; })[0];
+      if (back) to = +back.dataset.page;
+    }
+    deskGo(to, {instant: true, quiet: true});
+  }
+
+  // dx: how far a finger or the mouse has dragged the current page.
+  function deskShift(dx){ deskList.style.transform = "translateX(" + (dx - deskPage * deskGrid.w) + "px)"; }
+
+  // Go to page n (clamped, so asking past either end springs back). Animated unless motion is reduced or
+  // opts.instant; announced to screen readers unless opts.quiet. Returns whether the page changed.
+  function deskGo(n, opts){
+    opts = opts || {};
+    n = clamp(n, 0, deskGrid.pages - 1);
+    var changed = n !== deskPage;
+    deskPage = n;
+    deskList.classList.toggle("anim", !opts.instant && !still.matches);
+    deskShift(0);
+    paintPager();
+    if (changed && !opts.quiet) pageLive.textContent = t("os.page.now").replace("{n}", n + 1);
+    return changed;
+  }
+
+  function paintPager(){
+    var n = deskGrid.pages;
+    pager.hidden = n < 2;
+    while (pager.children.length < n) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "pg";
+      pager.appendChild(b);
+    }
+    while (pager.children.length > n) pager.lastChild.remove();
+    [].forEach.call(pager.children, function(b, i){
+      b.setAttribute("aria-label", t("os.page.dot").replace("{n}", i + 1).replace("{m}", n));
+      if (i === deskPage) b.setAttribute("aria-current", "true"); else b.removeAttribute("aria-current");
+    });
+  }
+  pager.addEventListener("click", function(e){
+    var b = e.target.closest(".pg");
+    if (b) deskGo([].indexOf.call(pager.children, b));
   });
+
+  // Swipes (touch, anywhere on the desktop) and mouse drags (empty desktop only): the page follows the pointer,
+  // also with reduced motion (direct manipulation). On release, more than 40px or a quick flick goes to the
+  // neighbouring page in that direction, otherwise it springs back; past the first or last page it only stretches.
+  var deskDrag = null, deskSwallow = false;
+  desk.addEventListener("pointerdown", function(e){
+    deskSwallow = false;
+    if (!e.target.closest(".dicon")) blurAll();
+    if (deskGrid.pages < 2 || e.button !== 0 || e.target.closest(".pager")) return;
+    var mouse = e.pointerType === "mouse";
+    if (mouse && e.target.closest(".dicon, .wg")) return;
+    deskDrag = {id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, on: false, trail: [[e.timeStamp, e.clientX]]};
+    // A mouse drag starts on #desktop itself, so capturing costs no click. Touch is captured to its target by the
+    // browser already, and capturing it here would move the tap's click off the icon.
+    if (mouse) desk.setPointerCapture(e.pointerId);
+  });
+  desk.addEventListener("pointermove", function(e){
+    var d = deskDrag;
+    if (!d || e.pointerId !== d.id) return;
+    var dx = e.clientX - d.x, dy = e.clientY - d.y;
+    if (!d.on) {
+      if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy)) return;   // not a sideways drag (yet)
+      d.on = true;
+      deskList.classList.remove("anim");
+    }
+    d.trail.push([e.timeStamp, e.clientX]);
+    d.dx = dx;
+    var edge = (deskPage === 0 && dx > 0) || (deskPage === deskGrid.pages - 1 && dx < 0);
+    deskShift(edge ? dx * 0.3 : dx);
+  });
+  function deskDragEnd(e){
+    var d = deskDrag;
+    if (!d || e.pointerId !== d.id) return;
+    deskDrag = null;
+    if (!d.on) return;
+    deskSwallow = true;   // the click that may follow ends a swipe; it must not open the icon under it
+    // Speed over the last 100ms before release (px/ms): a flick is faster than 0.5.
+    var end = d.trail[d.trail.length - 1], from = end;
+    for (var i = d.trail.length - 1; i >= 0 && end[0] - d.trail[i][0] <= 100; i--) from = d.trail[i];
+    var vx = end[0] > from[0] ? (end[1] - from[1]) / (end[0] - from[0]) : 0;
+    var dir = 0;
+    if (e.type === "pointerup") {
+      if (Math.abs(d.dx) > 40) dir = d.dx < 0 ? 1 : -1;
+      else if (Math.abs(vx) > 0.5) dir = vx < 0 ? 1 : -1;
+    }
+    deskGo(deskPage + dir);
+  }
+  desk.addEventListener("pointerup", deskDragEnd);
+  desk.addEventListener("pointercancel", deskDragEnd);
+  desk.addEventListener("click", function(e){
+    if (!deskSwallow) return;
+    deskSwallow = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+
+  // Trackpad: a horizontal scroll past 50px flips one page, then waits until the wheel has been quiet for 200ms
+  // (the momentum after the fingers lift) before it can flip again. Pinch-zoom (ctrlKey) is not a page flip.
+  var wheelAcc = 0, wheelLock = false, wheelQuiet = null;
+  desk.addEventListener("wheel", function(e){
+    if (e.ctrlKey || deskGrid.pages < 2) return;
+    var dx = e.deltaX * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? deskGrid.w : 1);
+    clearTimeout(wheelQuiet);
+    wheelQuiet = setTimeout(function(){ wheelLock = false; wheelAcc = 0; }, 200);
+    if (wheelLock || !dx) return;
+    wheelAcc += dx;
+    if (Math.abs(wheelAcc) > 50) {
+      wheelLock = true;
+      deskGo(deskPage + (wheelAcc > 0 ? 1 : -1));
+      wheelAcc = 0;
+    }
+  }, {passive: true});
+
+  // Focus on an icon of another page (Tab, Shift+Tab back from the Dock, Spotlight handing focus back): show it.
+  desk.addEventListener("focusin", function(e){
+    var c = e.target.closest("#deskIcons > li");
+    if (c && !c.hidden && +c.dataset.page !== deskPage) deskGo(+c.dataset.page);
+  });
+  // Browsers without overflow:clip treat the desktop as a scroll box and would scroll it to a focused icon.
+  desk.addEventListener("scroll", function(){ desk.scrollLeft = 0; desk.scrollTop = 0; });
+
+  // ← → when the desktop has focus: not locked, no Spotlight or launcher, no window in front, and focus on <body>
+  // or somewhere on the desktop. Focus on an icon moves to the first one on the new page.
+  function deskKey(e){
+    var a = document.activeElement;
+    if (locked || !spot.hidden || !launcher.hidden || focused !== null) return false;
+    if (a && a !== document.body && !desk.contains(a)) return false;
+    if (deskGrid.pages < 2 || !deskGo(deskPage + (e.key === "ArrowRight" ? 1 : -1))) return false;
+    if (a && a.closest("#deskIcons")) {
+      var first = deskCells.filter(function(c){ return !c.hidden && +c.dataset.page === deskPage; })[0];
+      var f = first && first.querySelector("button:not([hidden])");
+      if (f) f.focus({preventScroll: true});
+    }
+    return true;
+  }
+
+  // Phones: the on-screen keyboard shrinks only the height while a text field has focus; keep the page then.
+  var deskSize = [window.innerWidth, window.innerHeight];
+  window.addEventListener("resize", function(){
+    var typing = /^(INPUT|TEXTAREA)$/.test((document.activeElement || {}).tagName || "");
+    if (typing && window.innerWidth === deskSize[0] && window.innerHeight !== deskSize[1]) return;
+    deskSize = [window.innerWidth, window.innerHeight];
+    deskLayout();
+  });
+  langHooks.push(paintPager);
+  deskLayout();
+  deskReady = true;
 
   window.addEventListener("resize", function(){
     Object.keys(wins).forEach(function(k){
@@ -3461,8 +3551,7 @@
     if (mq.addEventListener) mq.addEventListener("change", prefApply); else if (mq.addListener) mq.addListener(prefApply);
   });
 
-  // The Settings window: radio groups for the three preferences, "following your system" notes, reset, and the
-  // way back to v2.4.
+  // The Settings window: radio groups for the three preferences, "following your system" notes, and reset.
   function settingsSync(el){
     Object.keys(PREFS).forEach(function(n){
       var v = prefValue(n);
@@ -3479,14 +3568,13 @@
       if (m && PREFS[m[1]]) prefSet(m[1], e.target.value);
     });
     el.querySelector('[data-act="reset"]').addEventListener("click", prefReset);
-    el.querySelector('[data-act="v1"]').addEventListener("click", function(){ location.href = location.pathname + "?ui=1"; });
   }
 
-  /* ---------- App Launcher (TankOS 2.0, ?ui=2) ---------- */
-  // Every app in one place: the Dock's grid button opens it (the button only shows under ?ui=2). Not a second app
-  // list: it reads what is already on the page. The desktop's zones give the groups, their headings and order; the
-  // APPS entries with no desktop icon (About TankOS, the private link) and the Dock's own links (the classic site)
-  // form the last group. Names come from appName(), icons from iconOf(), and every app opens through open().
+  /* ---------- App Launcher ---------- */
+  // Every app in one place: the Dock's grid button opens it. Groups come from APPS[id].cat (headings os.zone.*),
+  // in desktop order for the projects and games and Dock order for the rest; apps with no cat (About TankOS, the
+  // private link) and the Dock's own links (the classic site) form the last group. Names come from shortName(),
+  // icons from iconOf(), and every app opens through open().
   var launcher = document.getElementById("launcher");
   var lnBody = document.getElementById("lnBody");
   var btnLaunch = document.getElementById("btnLaunch");
@@ -3500,17 +3588,19 @@
   function quietIcon(html){ return html.replace(/^<span /, '<span aria-hidden="true" '); }
 
   function lnGroups(){
-    var onDesk = {};
-    var groups = [].map.call(desk.querySelectorAll(".zone"), function(z){
-      var ids = [].map.call(z.querySelectorAll(".dicon[data-open]"), function(b){ onDesk[b.dataset.open] = true; return b.dataset.open; });
-      return {title: t(z.querySelector(".zh").getAttribute("data-i18n")), ids: ids, links: []};
+    var order = ["proj", "lab", "tools", "about"], by = {};
+    order.forEach(function(c){ by[c] = []; });
+    var more = [], seen = {};
+    // Desktop order for the projects and games, Dock order for the rest, then whatever is left in APPS.
+    [].map.call(document.querySelectorAll("#deskIcons [data-open], #dock [data-open]"), function(b){ return b.dataset.open; })
+      .concat(Object.keys(APPS)).forEach(function(id){
+        if (seen[id] || !APPS[id]) return;
+        seen[id] = true;
+        (by[APPS[id].cat] || more).push(id);
+      });
+    return order.map(function(c){ return {title: t("os.zone." + c), ids: by[c], links: []}; }).concat({
+      title: t("os.ln.more"), ids: more, links: [].slice.call(dock.querySelectorAll("a.dk[href]"))
     });
-    groups.push({
-      title: t("os.ln.more"),
-      ids: Object.keys(APPS).filter(function(id){ return !onDesk[id]; }),
-      links: [].slice.call(dock.querySelectorAll("a.dk[href]"))
-    });
-    return groups;
   }
 
   function lnRender(){
@@ -3684,7 +3774,7 @@
 
   function index(){
     var items = [];
-    ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","wordtrailer","pockettrip","averlyn","dayday","terminal","calc","calendar","about","readme","contact","private","settings"].filter(function(id){ return !APPS[id].ui2 || isUI2(); }).forEach(function(id){
+    ["fukuoka","busan","yangmingshan","activity","blocks","trace","shachiku","nightmarket","wordtrailer","pockettrip","averlyn","dayday","terminal","calc","calendar","about","readme","contact","private","settings"].forEach(function(id){
       items.push({label:appName(id), sub:"", kind:t("os.spot.app"), icon:iconOf(id), keys:(id + " " + KW[id]).toLowerCase(), app:id, go:function(){ open(id); }});
     });
     EXP.forEach(function(e){
@@ -3806,24 +3896,9 @@
     if (e.key === "Escape" && !spot.hidden) { spotClose(); return; }
     var typing = /^(INPUT|TEXTAREA)$/.test((document.activeElement || {}).tagName || "");
     if (e.key === "/" && !typing && spot.hidden && focused !== "calc") { e.preventDefault(); spotOpen(); }
+    if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && !typing && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey && deskKey(e)) e.preventDefault();
   });
 
-  // The README that opens on load must not cover the desktop icons. Below about 1150px the centred 680px window
-  // overlaps an icon column, so it is fitted into the gap between the two columns instead (narrower if need be,
-  // never under the 320px minimum). Only this first window; open() places every other window as before.
-  function fitBetweenZones(el){
-    var lz = desk.querySelector(".zones-l").getBoundingClientRect();
-    var rz = desk.querySelector(".zones-r").getBoundingClientRect();
-    var x0 = Math.ceil(lz.right) + 12, x1 = Math.floor(rz.left) - 12;
-    // offsetLeft/offsetWidth, not getBoundingClientRect: the opening animation scales the window.
-    if (el.offsetLeft >= x0 && el.offsetLeft + el.offsetWidth <= x1) return;
-    if (x1 - x0 < 320) return;
-    var w = Math.min(el.offsetWidth, x1 - x0);
-    el.style.width = w + "px";
-    el.style.left = Math.round(x0 + (x1 - x0 - w) / 2) + "px";
-  }
-
-  if (!narrow.matches) { open("readme"); fitBetweenZones(wins.readme.el); }
   if (!document.hidden) whoStart();
 })();
 </script>

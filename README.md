@@ -8,7 +8,7 @@ Tank Yang 的個人網站 — 經歷、個人專案與開源工具的集合。
 
 同一份內容做成兩個版本，都有中英雙語切換：
 
-- **TankOS**（首頁 `/`）：macOS 風格的桌面，作品以 App 視窗開啟、直接跑 live 站。見下方 TankOS 一節。v2.5.0 起預設是 **TankOS 2.0**（Nocturne 深色、Pixelverse 桌布、Launcher、設定）；`/?ui=1` 是 v2.4 的介面，選過會記住，`/?ui=2` 換回 2.0。
+- **TankOS**（首頁 `/`）：macOS 風格的桌面，作品以 App 視窗開啟、直接跑 live 站。見下方 TankOS 一節。介面是 **TankOS 2.0**（Nocturne 深色、Pixelverse 桌布、Launcher、設定）；v3.0.0 起桌面像 iPad 主畫面一樣左右翻頁，舊介面已移除，網址加 `?ui=` 不再有作用（見「TankOS 3.0（v3.0.0）」）。
 - **經典版**（[`/classic/`](https://portfolio.xarenvich.com/classic/)）：一頁式排版，收錄六段工作經歷、四個自己在用的個人網站，以及三個開源工具。
 
 `/os/` 是 TankOS 搬到首頁前的網址，已經分享出去過，現在只負責轉址回首頁。
@@ -38,9 +38,9 @@ images/
 ├── fukuoka-trip.jpg      # 經典版的作品縮圖（截自 live 站）
 ├── busan-trip.jpg
 ├── yangmingshan-trip.jpg
-├── wallpaper-komezuka.jpg     # TankOS 桌布（1920px）
+├── wallpaper-komezuka.jpg     # 設定裡可選的米塚桌布（1920px）
 ├── wallpaper-komezuka-sm.jpg  # 手機版桌布（1200px）
-├── wallpaper-pixelverse-lakeside-night.png   # TankOS 2.0（?ui=2）桌布原檔，1672×941，核准的素材，不要重新匯出或修改
+├── wallpaper-pixelverse-lakeside-night.png   # TankOS 預設桌布原檔，1672×941，核准的素材，不要重新匯出或修改
 ├── wallpaper-pixelverse-lakeside-night.webp  # 由上面那張轉的 WebP q90（300 KB），2.0 實際載入這張
 ├── shachiku.jpg
 ├── open-tonight.jpg
@@ -57,7 +57,7 @@ wrangler.jsonc      # Worker `portfolio`：靜態檔（repo 根目錄）＋ api/
 package.json        # 只有 devDependencies（@playwright/test），不部署
 playwright.config.js
 tests/              # Playwright 回歸測試，不部署，見「Tests」
-├── e2e/            # window manager、Dock 與 App、版面、基準截圖
+├── e2e/            # window manager、Dock 與 App、桌面格子與翻頁、基準截圖
 ├── __screenshots__/  # 基準截圖（在固定版本的 Playwright Docker image 裡產生）
 ├── support/        # 測試用靜態伺服器、共用 fixture（固定時間、mock 網路）
 └── assets/check-assets.mjs  # 用 wrangler dry-run 確認測試與開發工具不會變成公開檔案
@@ -95,34 +95,34 @@ PY
 
 macOS 風格的桌面版，就是網站首頁，整個是根目錄的 `index.html`。經典版從選單列的「經典版」或 Dock 的 T 進去，經典版 hero 的 TankOS 連結再連回來。
 
-- **設計語彙跟經典版相反**：漸層桌布、毛玻璃選單列與 Dock、圓角、陰影都在這裡用。桌布是九州自駕時拍的阿蘇米塚（`images/wallpaper-komezuka.jpg`，手機版吃 `-sm`），`background-size:cover` 滿版，上面疊一層白色漸層淡化，讓 icon 和視窗字好讀。
-- **視窗**：紅黃綠三顆鈕分別是關閉、縮到 Dock、放大（雙擊標題列也是放大）。標題列可拖曳，右下角可縮放。768px 以下視窗一律全螢幕、不可拖曳，桌面 icon 改成點一下就開。
-- **桌面分區**：icon 依類型分四區，各區有小標（`os.zone.*`，中英雙語）。左欄由上往下是「作品」（live 站）、「遊戲區」（方塊消除、Request 的一生、我是社畜、今晚出攤）；右欄由上往下是「小工具」（終端機、活動監視器、計算機、日曆）、「下個連假」小工具、「關於我」（README 與聯絡我）。四區都是兩欄，不會伸進預設開啟的 README 視窗底下。兩欄都從上往下排、沒有貼底的區塊。作品有四列以後，左欄底部約在 697px（2.0 的選單列高 8px，約 705px）；視窗高度 800px 以下（常見的 1366×768 筆電扣掉瀏覽器工具列只剩約 625–657px，1024×768、1440×760 也算）icon 縮成 48px、間距收緊，左欄底部約在 565px、右欄約 479px（2.0 約 573px、564px）。2.0 在 720px 以下再把左欄兩區之間的間距從 12px 收成 3px（左欄約 564px），補回選單列多出的 8px。1366×657 時兩欄都離 Dock 16px 以上（v2.4 約 18px、2.0 約 17px）；高度 640px 以下左欄最後一排會低於 Dock 頂端，1366 寬時左右錯開不會疊到，窄一點的螢幕就會。加 icon 前先在 1366×657 和 1440×760 量一下各欄底部，別碰到 Dock。「關於 TankOS」沒有桌面 icon，由選單列左上的 T、Spotlight、`open about` 開，跟 macOS 一樣。新增 App 時放進對應區塊的 `<ul class="icons">`。768px 以下四區改成由上往下排，每列四顆。
-- **App 視窗用 iframe 直接跑 live 站**，左側欄是經典版同一份作品介紹。新增 App：在 `APPS` 加一筆（`k` 指向經典版的作品 key、`url`、`src`、`spec`），再補桌面 icon 和 Dock 各一顆按鈕；要讓活動監視器和 `kubectl` 看得到，`SERVICES` 也加一筆；Spotlight 的別名寫在 `KW`。被嵌的站不能送 `X-Frame-Options` / `frame-ancestors`，GitHub Pages 預設沒有。
-- **獨立檔案 App**（`APPS` 裡帶 `file` 的，目前有 `trace`）：程式、CSS、中英字串都在 `apps/<id>.js`，第一次開視窗才用 `<script>` 載入（網址帶 `?v=<版號>`，升版就不會吃到舊快取；`file` 也可以是陣列，幾支檔案同時載入，其中一支呼叫 `TankOS.define`），載入中顯示轉圈，失敗顯示重試。檔案呼叫 `TankOS.define(id, {html, css, i18n, init})` 登記自己：`html` 是視窗內容（根元素帶 `body` class），`css` 第一次載入時注入一次，`i18n` 併進 `I18N`（key 用自己的前綴），`init(body, os)` 可以回傳一個關視窗時要跑的函式。`os` 是檔案唯一拿得到的東西：`t`、`fill`、`lang()`、`onLang(f)`（回傳取消函式）、`api`（Worker 網址）、`open`、`still`（減少動態效果的 media query）、`ver`（站台版號，App 自己 fetch 的檔案拿來加 `?v=`）。新增一個：寫 `apps/<id>.js`，`APPS` 加 `{w, h, file:"apps/<id>.js"}`，`I18N` 加 `app.<id>`，桌面 icon（含 `.ic-<id>` 顏色與 SVG symbol）、`KW`、`index()` 的清單、終端機 `OPENABLE` 與 `ls` 各補一處；App 名稱和 icon 留在 `index.html`，因為載入前桌面和 Spotlight 就要顯示。
+- **設計語彙跟經典版相反**：漸層、毛玻璃選單列與 Dock、圓角、陰影都在這裡用。桌布預設是 Pixelverse 湖畔露營夜景，設定裡可換成九州自駕時拍的阿蘇米塚（`images/wallpaper-komezuka.jpg`，手機版吃 `-sm`），見下面「2.0 選單列與桌布」。
+- **視窗**：紅黃綠三顆鈕分別是關閉、縮小、放大（雙擊標題列也是放大）。標題列可拖曳，右下角可縮放。768px 以下視窗一律全螢幕、不可拖曳。
+- **桌面格子與翻頁**（v3.0.0；CSS「desktop: one grid, paged sideways」、JS「desktop pages」）：整個桌面（選單列以下、Dock 上方那排頁碼小圓點以上）是一個格子，像 iPad 主畫面。電腦最多 6 欄、置中，格寬 96px、欄距 16px；768px 以下固定 4 欄，格寬是可用寬度的四分之一。格高照「icon＋兩行名稱」定（電腦 112px、icon 60px；手機 108px、icon 56px），名稱最多兩行，超過截斷，太長的單字會斷開不會跑出格子。列數依高度算，至少 1 列。項目照 `<ul class="icons" id="deskIcons">` 裡的順序排：「下個連假」小工具（第 1 頁最前面，佔 2 × 2）、福岡、釜山、陽明山、WordTrailer、口袋旅行、Averlyn、DayDay、方塊消除、Request 的一生、我是社畜、今晚出攤，滿了就換下一頁，不分區；剛好整除時不會多一頁空白。實測頁數：1440×900、1366×657、1024×768、768×1024、390×844 都是 1 頁，320×568 兩頁，手機橫放 667×375 三頁（只有 1 列，小工具不顯示），1024×400 兩頁。翻頁方式：手機左右滑（頁面跟著手指走，放開時超過約 40px 或快速甩動就換到相鄰頁，否則彈回；第一頁往右、最後一頁往左只有阻尼）、觸控板左右捲（累積 50px 換一頁，之後要停 200ms 才能再換，吃掉放手後的慣性；捏合縮放不算）、滑鼠在桌面空白處拖曳、點小圓點，或桌面有焦點時（沒鎖定、沒有 Spotlight 與 Launcher、沒有前景視窗）按 ← →。小圓點是 `<button>`，唸「第 N 頁，共 M 頁」，只有一頁時不顯示，換頁時 live region 會唸「第 N 頁」。其他頁的 icon 照樣可以 Tab 到，焦點落到哪一頁的 icon 就翻到那一頁；Tab 順序是 icon → 小圓點 → Dock。從 Spotlight、Launcher、終端機開其他頁的 App 不翻頁（視窗會蓋住桌面）。視窗大小改變時以「目前頁的第一個項目」為錨點換算新頁碼；焦點在輸入框而且只有高度改變（手機跳出鍵盤）時不重算。減少動態效果時跟手照舊，放開後的吸附、點小圓點、← → 都瞬間完成。不記住頁碼，重新整理回到第 1 頁。滑鼠、觸控、鍵盤都是單擊桌面 icon 就開（縮小的視窗也是單擊叫回來）；在桌面空白處按下會讓前景視窗失焦。格子的軌道層與每一格都設 `pointer-events:none`（只有 icon、小工具、小圓點接得到點擊），桌面本身用 `overflow:clip`，Tab 到畫面外的 icon 時瀏覽器才不會自己捲動。「關於 TankOS」沒有桌面 icon，由選單列左上的 T、Spotlight、`open about` 開，跟 macOS 一樣。
+- **App 視窗用 iframe 直接跑 live 站**，左側欄是經典版同一份作品介紹。新增 App：在 `APPS` 加一筆（`k` 指向經典版的作品 key、`url`、`src`、`spec`，以及 Launcher 分組 `cat`），再在桌面格子 `#deskIcons` 照順序加一個 `<li>`（作品與遊戲不放 Dock，Dock 只放系統類 App）；icon 是 2.0 的 logo，見「TankOS 2.0 App Logo」，不需要 `.ic-<id>` 漸層或 SVG symbol。加完到 `tests/e2e/layout.spec.js` 更新各尺寸的頁數與順序。要讓活動監視器和 `kubectl` 看得到，`SERVICES` 也加一筆；Spotlight 的別名寫在 `KW`。被嵌的站不能送 `X-Frame-Options` / `frame-ancestors`，GitHub Pages 預設沒有。
+- **獨立檔案 App**（`APPS` 裡帶 `file` 的，目前有 `trace`）：程式、CSS、中英字串都在 `apps/<id>.js`，第一次開視窗才用 `<script>` 載入（網址帶 `?v=<版號>`，升版就不會吃到舊快取；`file` 也可以是陣列，幾支檔案同時載入，其中一支呼叫 `TankOS.define`），載入中顯示轉圈，失敗顯示重試。檔案呼叫 `TankOS.define(id, {html, css, i18n, init})` 登記自己：`html` 是視窗內容（根元素帶 `body` class），`css` 第一次載入時注入一次，`i18n` 併進 `I18N`（key 用自己的前綴），`init(body, os)` 可以回傳一個關視窗時要跑的函式。`os` 是檔案唯一拿得到的東西：`t`、`fill`、`lang()`、`onLang(f)`（回傳取消函式）、`api`（Worker 網址）、`open`、`still`（減少動態效果的 media query）、`ver`（站台版號，App 自己 fetch 的檔案拿來加 `?v=`）。新增一個：寫 `apps/<id>.js`，`APPS` 加 `{cat, w, h, file:"apps/<id>.js"}`，`I18N` 加 `app.<id>`，桌面格子的 `<li>`（logo 見「TankOS 2.0 App Logo」）、`KW`、`index()` 的清單、終端機 `OPENABLE` 與 `ls` 各補一處；App 名稱和 icon 留在 `index.html`，因為載入前桌面和 Spotlight 就要顯示。
 - **私人版入口**：選單列右側的 🔒「私人版」，開新分頁到 [portfolio-private](https://github.com/tankfinal/portfolio-private)（Cloudflare Access 保護），跟私人版選單列的「公開版」對稱。手機只剩鎖頭。Spotlight 與 `open private` 也能開（`APPS.private` 用 `link` 標記，`open()` 直接開新分頁）。Access 登入頁不能放進 iframe，所以不開視窗。私人內容一律不進這個 repo，這裡只有入口。
-- **TankOS 2.0 與 v2.4（feature flag；v2.5.0 起預設 2.0）**：網址加 `?ui=2` 會在 `<html>` 加上 `data-ui="2"`，換成 Nocturne 深色主題；`?ui=1` 是目前的介面。兩個都是明確的選擇，記在 `localStorage.ui`，之後直接開首頁、重新整理都維持，預設值改了也一樣。優先順序是網址的 `?ui=` > 記住的選擇 > `DEFAULT_UI`，其他值一律忽略；瀏覽器擋 storage 時，`?ui=` 只對那一次載入有效。判斷寫在 `<head>` 最前面的 `<script>`，在任何 CSS 與 `<body>` 之前執行，所以不會先閃一下舊主題。沒有這個屬性時畫面跟 v2.4 一模一樣。2.0 的東西一律寫在 `:root[data-ui="2"]` 底下：design token 是 `--tank-*`（顏色、圓角、間距、字級、z-index、動畫，值照 Design System v1），舊的 `--win-*`、`--accent`、`--sel` 名稱不變、改指到 token，所以各 App 與 `apps/<id>.js` 不用改就會跟著換色。2.0 只有深色，不管系統設定；紅色仍是品牌色（`--tank-brand`，文字用較亮的 `--tank-brand-text`），紫色（`--tank-primary`）給互動與選取。正式切成 2.0（v2.5.0）時把 flag script 的 `DEFAULT_UI` 改成 `"2"`，想留在舊介面的人用 `?ui=1`。
-- **2.0 選單列與桌布**（`<style>` 最後的「TankOS 2.0 menu bar」「TankOS 2.0 wallpaper」）：選單列高度是 `--tank-menubar-height`（36px），經由 `--menu-h` 讓桌面與視窗圖層跟著下移；背景與聚焦視窗同一種玻璃，項目與 v2.4 完全相同，T 維持品牌紅。桌布是 Pixelverse 湖畔露營夜景：原檔 PNG 保留不動，瀏覽器載入它轉出的 WebP，不支援時退回 PNG（圖片宣告刻意不用 `var()`，否則退回會失效）。上面疊兩層很淡的深靛紫漸層（選單列與 Dock 附近、左右 icon 欄稍深，中間保持原色）；桌面標籤加深靛色光暈，月亮或燈籠剛好在標籤底下時也讀得清楚。橫向 `cover` + `50% 55%` 讓月亮與營地都在畫面裡，直向（手機、平板）改 `20% 50%` 保留營地。鎖定畫面的模糊背景跟著換。米塚照片仍是 v2.4 的桌布，之後可做成可選
-- **2.0 Dock 與 App Launcher**（`<style>` 最後的「TankOS 2.0 Dock + App Launcher」與 JS 的「App Launcher」）：Dock 是與視窗同一種玻璃，icon 用 `--tank-dock-icon-size`（48px），最後多一顆「所有 App」按鈕（v2.4 隱藏）。執行中是小圓點，最上層的 App 是紫色長條（`showApp()` 順手幫 Dock 按鈕標 `.cur`）。hover 只放大指到的那顆、用 transform，不像 v2.4 用 margin 把旁邊推開；減少動態效果時不放大。768px 以下 Dock 只顯示帶 `data-m` 的 README、聯絡我、經典版和「所有 App」，每顆 48×48，其他 App 從 Launcher 開。Launcher 不是另一份 App 清單：分組與順序讀桌面四區，最後一組是 `APPS` 裡沒有桌面 icon 的（關於 TankOS、私人版）加 Dock 上的連結（經典版）；名稱用桌面的短名稱（`app.<id>`），icon 用 `iconOf()`，一律經 `open()` 開，所以新增 App 時放進桌面分區就會出現在 Launcher。它是真正的 modal dialog：開著時選單列、桌面、視窗與 Dock 都設 `inert`（不能 Tab、不能點、不在無障礙樹裡）；Esc、關閉鈕、點外面都會關，關掉後焦點回到「所有 App」按鈕；從裡面開 App 時焦點交給那個 App 的視窗；開著時換語言，焦點留在同一個項目。z-index 9500，蓋住選單列（9000），在 Spotlight（9600）之下；Spotlight 與 Launcher 互相開啟時會先關掉另一個，同時只會有一個 modal
-- **2.0 設定**（`settings`，只在 `?ui=2`：桌面「小工具」、Dock 分隔線後、Spotlight，Launcher 會自動列出）：外觀（目前的 Nocturne，以及切回 v2.4 的按鈕，就是 `?ui=1`）、桌布（Pixelverse 湖畔夜景或米塚照片，桌面與鎖定畫面一起換）、透明度（一般／降低）、動態效果（一般／降低），還有「重設為預設」。選擇存在 `localStorage` 的 `ui2.wallpaper`、`ui2.transparency`、`ui2.motion`；沒選過就跟隨系統的 `prefers-reduced-transparency` / `prefers-reduced-motion`，系統設定改變時立即跟著變，選過之後以選擇為準（也能在系統要求降低時選回一般）。實際生效的值是 `<html>` 上的 `data-wall`、`data-transparency`、`data-motion`：`<head>` 的 flag script 在第一次繪製前就設好（不會先閃別的桌布），主程式的 `PREFS` 之後維持它們，兩邊規則要一致。這三個屬性只在 `?ui=2` 出現，所以 v2.4 不受影響；v2.4 原本的 reduced-motion 規則只多包一層 `:where(:root:not([data-motion="normal"]))`，零 specificity，v2.4 永遠沒有這個屬性。JS 的 `still`（window manager、方塊消除、`apps/trace.js` 用的 `os.still`）改成同樣有 `.matches` 的物件，有 `data-motion` 時以它為準。瀏覽器擋 storage 時設定只在這一頁有效，視窗裡會說明
-- **2.0 整合修正**（`<style>` 最後的「TankOS 2.0 polish」，PR-8 audit）：Spotlight 在 `?ui=2` 也是真正的 modal（背景 inert、Tab 留在搜尋欄、關閉後焦點回到原處，選了 App 就交給它的視窗；v2.4 照舊）；網站型 App 側欄的主要按鈕改成紫底深字（2.0 的 `--accent` 是給文字用的亮紅，白字壓在上面只有 3.08:1）；「下個連假」小工具改成跟視窗同一種玻璃；日曆的週末與假日紅字改用 `--tank-brand-text`；手機上桌面 icon 佔滿整欄、放不下的標籤才換行（320px 時第四欄原本會被切掉）；320–340px 的選單列間距再收；標題列按鈕的 hover 與各處的按下狀態統一
-- **2.0 視窗**（`<style>` 最後的「TankOS 2.0 window system」）：16px 圓角、1px 淡紫邊、44px 標題列，標題左邊是 App 的 icon（`.bar-ic`，複製桌面或 Dock 上那顆；v2.4 隱藏）。聚焦的視窗是半透明玻璃加 24px 模糊、紫色邊與光暈；沒聚焦的是不透明底色（沒有模糊時半透明會透出底下視窗的字）、icon 變淡，內文不變淡。模糊很吃效能，所以只給聚焦的那一個、只在 769px 以上、拖曳時暫停；手機與平板直向、不支援 `backdrop-filter`、或系統要求減少透明度時一律不透明。規則都包在 `:where(:root[data-ui="2"])` 裡（不增加 specificity），所以放大、手機全螢幕、終端機與計算機自己的視窗配色這些 v2.4 規則照樣生效；沒有新增動畫，減少動態效果的設定照舊涵蓋
-- **鎖定畫面**：每次進站都會出現（米塚模糊背景、時鐘、Tank Yang），點一下或按任意鍵解鎖。markup 帶 `hidden`，由 JS 打開，所以沒有 JS 時不會擋住頁面。
+- **TankOS 2.0 與 `data-ui`**：v3.0.0 起只有 2.0，舊介面已移除。`<head>` 最前面的 `<script>` 在任何 CSS 與 `<body>` 之前無條件在 `<html>` 加上 `data-ui="2"`，並清掉舊版記住的選擇（`localStorage.ui`）；網址帶不帶 `?ui=` 都顯示 2.0，網址不改寫。2.0 的規則仍然寫在 `:root[data-ui="2"]` 或 `:where(:root[data-ui="2"])` 底下（`tests/e2e/ui-flag.spec.js` 檢查這件事，新寫的 CSS 照舊包），兩層合併重寫另開一版。design token 是 `--tank-*`（顏色、圓角、間距、字級、z-index、動畫，值照 Design System v1），比較早的 `--win-*`、`--accent`、`--sel` 名稱不變、改指到 token，所以各 App 與 `apps/<id>.js` 不用改就會跟著換色。2.0 只有深色，不管系統設定；紅色仍是品牌色（`--tank-brand`，文字用較亮的 `--tank-brand-text`），紫色（`--tank-primary`）給互動與選取。
+- **2.0 選單列與桌布**（`<style>` 最後的「TankOS 2.0 menu bar」「TankOS 2.0 wallpaper」）：選單列高度是 `--tank-menubar-height`（36px），經由 `--menu-h` 讓桌面與視窗圖層跟著下移；背景與聚焦視窗同一種玻璃，T 維持品牌紅。桌布是 Pixelverse 湖畔露營夜景：原檔 PNG 保留不動，瀏覽器載入它轉出的 WebP，不支援時退回 PNG（圖片宣告刻意不用 `var()`，否則退回會失效）。上面疊兩層很淡的深靛紫漸層（選單列與 Dock 附近、左右 icon 欄稍深，中間保持原色）；桌面標籤加深靛色光暈，月亮或燈籠剛好在標籤底下時也讀得清楚。橫向 `cover` + `50% 55%` 讓月亮與營地都在畫面裡，直向（手機、平板）改 `20% 50%` 保留營地。鎖定畫面的模糊背景跟著換。米塚照片是設定裡的另一個桌布選項
+- **2.0 Dock 與 App Launcher**（`<style>` 最後的「TankOS 2.0 Dock + App Launcher」與 JS 的「App Launcher」）：Dock 只放系統類 App，依序是 README、聯絡我、終端機、活動監視器、計算機、日曆、設定，分隔線後是經典版與「所有 App」；作品與遊戲不放 Dock，開著的時候 Dock 上看不到，縮小後從桌面、Launcher 或 Spotlight 叫回來（縮小時縮向 Dock 中央）。Dock 是與視窗同一種玻璃，icon 用 `--tank-dock-icon-size`（48px）。日曆按鈕要保留 `.ci-wd`、`.ci-d` 兩個子元素：`paintCalIcons()` 直接寫進每個 `.ic-cal`、沒有 null 檢查，少了整支主程式會在開站時停掉（2.0 的 logo 蓋在上面，不顯示日期）。執行中是小圓點，最上層的 App 是紫色長條（`showApp()` 順手幫 Dock 按鈕標 `.cur`）。hover 只放大指到的那顆、用 transform，旁邊的不會被推開；減少動態效果時不放大。768px 以下 Dock 只顯示帶 `data-m` 的 README、聯絡我、經典版和「所有 App」，每顆 48×48，其他 App 從 Launcher 開。Launcher 不是另一份 App 清單：分組照 `APPS[id].cat`（`proj` 作品、`lab` 遊戲區、`tools` 小工具、`about` 關於我，組名是 `os.zone.*`，組的順序固定），組內順序作品與遊戲照桌面、其他照 Dock；沒有 `cat` 的（關於 TankOS、私人版）加上 Dock 上的連結（經典版）是最後的「其他」組。名稱用短名稱（`app.<id>`），icon 用 `iconOf()`（從桌面 `.icons` 或 Dock 找同一顆），一律經 `open()` 開。它是真正的 modal dialog：開著時選單列、桌面（含頁碼小圓點）、視窗與 Dock 都設 `inert`（不能 Tab、不能點、不在無障礙樹裡）；Esc、關閉鈕、點外面都會關，關掉後焦點回到「所有 App」按鈕；從裡面開 App 時焦點交給那個 App 的視窗；開著時換語言，焦點留在同一個項目。z-index 9500，蓋住選單列（9000），在 Spotlight（9600）之下；Spotlight 與 Launcher 互相開啟時會先關掉另一個，同時只會有一個 modal
+- **2.0 設定**（`settings`：Dock、Spotlight、Launcher「小工具」）：外觀（Nocturne，只有這一張卡片）、桌布（Pixelverse 湖畔夜景或米塚照片，桌面與鎖定畫面一起換）、透明度（一般／降低）、動態效果（一般／降低），還有「重設為預設」。選擇存在 `localStorage` 的 `ui2.wallpaper`、`ui2.transparency`、`ui2.motion`；沒選過就跟隨系統的 `prefers-reduced-transparency` / `prefers-reduced-motion`，系統設定改變時立即跟著變，選過之後以選擇為準（也能在系統要求降低時選回一般）。實際生效的值是 `<html>` 上的 `data-wall`、`data-transparency`、`data-motion`：`<head>` 的 flag script 在第一次繪製前就設好（不會先閃別的桌布），主程式的 `PREFS` 之後維持它們，兩邊規則要一致。原本的 reduced-motion 規則多包一層 `:where(:root:not([data-motion="normal"]))`（零 specificity），設定選「一般」時系統的減少動態效果就不套用。JS 的 `still`（window manager、方塊消除、`apps/trace.js` 用的 `os.still`）是同樣有 `.matches` 的物件，以 `data-motion` 為準；桌面翻頁也讀它。瀏覽器擋 storage 時設定只在這一頁有效，視窗裡會說明
+- **2.0 整合修正**（`<style>` 最後的「TankOS 2.0 polish」，PR-8 audit）：Spotlight 也是真正的 modal（背景 inert、Tab 留在搜尋欄、關閉後焦點回到原處，選了 App 就交給它的視窗）；網站型 App 側欄的主要按鈕改成紫底深字（2.0 的 `--accent` 是給文字用的亮紅，白字壓在上面只有 3.08:1）；「下個連假」小工具改成跟視窗同一種玻璃；日曆的週末與假日紅字改用 `--tank-brand-text`；手機上桌面標籤左右 padding 收小，放不下才換行；320–340px 的選單列間距再收；標題列按鈕的 hover 與各處的按下狀態統一
+- **2.0 視窗**（`<style>` 最後的「TankOS 2.0 window system」）：16px 圓角、1px 淡紫邊、44px 標題列，標題左邊是 App 的 icon（`.bar-ic`，複製桌面或 Dock 上那顆）。聚焦的視窗是半透明玻璃加 24px 模糊、紫色邊與光暈；沒聚焦的是不透明底色（沒有模糊時半透明會透出底下視窗的字）、icon 變淡，內文不變淡。模糊很吃效能，所以只給聚焦的那一個、只在 769px 以上、拖曳時暫停；手機與平板直向、不支援 `backdrop-filter`、或系統要求減少透明度時一律不透明。規則都包在 `:where(:root[data-ui="2"])` 裡（不增加 specificity），所以放大、手機全螢幕、終端機與計算機自己的視窗配色這些較早的規則照樣生效；沒有新增動畫，減少動態效果的設定照舊涵蓋
+- **鎖定畫面**：每次進站都會出現（目前桌布的模糊背景、時鐘、Tank Yang），點一下或按任意鍵解鎖。markup 帶 `hidden`，由 JS 打開，所以沒有 JS 時不會擋住頁面。
 - **Spotlight**：⌘K / Ctrl+K、`/`，或選單列的放大鏡。索引在 `index()`：App、經歷（`e1`–`e6`）、技術名詞、動作（切語言、經典版、GitHub）。
-- **活動監視器**（`activity`，只在桌面和 Spotlight，不放 Dock）：瀏覽器直接對 `SERVICES` 每個站發 `fetch(no-store)`，顯示狀態、延遲、趨勢線、HTML 大小、`Last-Modified` 當作最後部署時間，每 15 秒更新，關視窗就停。CORS 被擋時退回 `no-cors`，只能判斷有沒有活著。
-- **方塊消除**（`blocks`，桌面與 Spotlight）：8×8 盤面、一次給三塊，拖曳放置，點一下（指標沒移動超過 6px）方塊順時針轉 90 度；填滿整排或整列就消除，連擊加分，三塊不論轉成哪個方向都放不下才結束（灰掉的方塊也用同一個判斷）。開窗先出現說明卡：玩法、排行榜前 10 名、名字輸入框，名字填了「開始遊戲」才按得下去（名字記在 `localStorage.blocks.name`，下次預先填好）。遊戲結束當下把名字和分數送到排行榜，結束畫面列出前 10 名並標出這個名字的那一列，不在前 10 名就接在最後面顯示名次。按「重新開始」中途放棄的那局不送。排行榜的後端見「API」。方塊是純 CSS 的寶石切面（四邊 border 做斜面＋`::after` 高光，顏色在 `.j-*` 的變數）。消除特效：碎片噴散、整排光束掃過、盤面震動（多條或連擊震更大），`prefers-reduced-motion` 時全部關掉。選單上方的「最佳」是這台瀏覽器自己的紀錄，存在 `localStorage.blocks.best`，跟排行榜無關。手機拖曳時方塊會浮在手指上方，避免被擋住。
-- **計算機**（`calc`，桌面與 Spotlight）：照 macOS 基本計算機的算法，運算子套用到目前的累計值，`=` 連按會重複上一步。結果取 12 位有效數字（0.1 + 0.2 顯示 0.3），除以 0 顯示「錯誤」。視窗在最前面時吃鍵盤：數字、`+ - * /`、`Enter`、`Backspace`、`Esc`，這時 `/` 是除號、不開 Spotlight。768px 以下鍵盤貼底、按鍵變圓。
-- **日曆**（`calendar`，桌面與 Spotlight）：月曆，週日開頭，今天是紅圈；點日期會在底部顯示完整日期、距今幾天與農曆。月份標題下列出這個月跨到的農曆月份與年（例：農曆 八月 – 九月 · 丙午年），每天日期下方是農曆日（初一那天改寫月份名，紅字）。農曆直接用瀏覽器的 `Intl`（`ca-chinese`），不維護對照表；不支援的瀏覽器就不顯示農曆。放假日（週末與國定假日）日期是紅字；國定假日與補假整格淡紅、農曆那行改寫節日名，底部寫全名。放假資料在 `HOLIDAYS`，照抄人事行政總處「政府行政機關辦公日曆表」（政府資料開放平臺 dataset 14718 的 CSV），目前有 2026、2027 兩年；週末預設放假，所以只列有名稱的假日和平日補假。人事總處每年 6 月 30 日前公告隔年的日曆表，屆時把新的一年加進去；沒列到的年份只會把週末標紅。桌面 icon 顯示今天的星期與日期，每分鐘更新。
-- **下個連假小工具**（`#wgHol`）：連續放假 3 天以上、且其中有 `HOLIDAYS` 裡的日子才算連假。顯示還有幾天（或「明天」「放假中」）、節日名、連休天數與起訖日，每分鐘重算；點一下開日曆並選在連假第一天。`HOLIDAYS` 的資料用完就自動隱藏。
+- **活動監視器**（`activity`，Dock、Launcher 與 Spotlight）：瀏覽器直接對 `SERVICES` 每個站發 `fetch(no-store)`，顯示狀態、延遲、趨勢線、HTML 大小、`Last-Modified` 當作最後部署時間，每 15 秒更新，關視窗就停。CORS 被擋時退回 `no-cors`，只能判斷有沒有活著。
+- **方塊消除**（`blocks`，桌面、Launcher 與 Spotlight）：8×8 盤面、一次給三塊，拖曳放置，點一下（指標沒移動超過 6px）方塊順時針轉 90 度；填滿整排或整列就消除，連擊加分，三塊不論轉成哪個方向都放不下才結束（灰掉的方塊也用同一個判斷）。開窗先出現說明卡：玩法、排行榜前 10 名、名字輸入框，名字填了「開始遊戲」才按得下去（名字記在 `localStorage.blocks.name`，下次預先填好）。遊戲結束當下把名字和分數送到排行榜，結束畫面列出前 10 名並標出這個名字的那一列，不在前 10 名就接在最後面顯示名次。按「重新開始」中途放棄的那局不送。排行榜的後端見「API」。方塊是純 CSS 的寶石切面（四邊 border 做斜面＋`::after` 高光，顏色在 `.j-*` 的變數）。消除特效：碎片噴散、整排光束掃過、盤面震動（多條或連擊震更大），`prefers-reduced-motion` 時全部關掉。選單上方的「最佳」是這台瀏覽器自己的紀錄，存在 `localStorage.blocks.best`，跟排行榜無關。手機拖曳時方塊會浮在手指上方，避免被擋住。
+- **計算機**（`calc`，Dock、Launcher 與 Spotlight）：照 macOS 基本計算機的算法，運算子套用到目前的累計值，`=` 連按會重複上一步。結果取 12 位有效數字（0.1 + 0.2 顯示 0.3），除以 0 顯示「錯誤」。視窗在最前面時吃鍵盤：數字、`+ - * /`、`Enter`、`Backspace`、`Esc`，這時 `/` 是除號、不開 Spotlight。768px 以下鍵盤貼底、按鍵變圓。
+- **日曆**（`calendar`，Dock、Launcher 與 Spotlight）：月曆，週日開頭，今天是紅圈；點日期會在底部顯示完整日期、距今幾天與農曆。月份標題下列出這個月跨到的農曆月份與年（例：農曆 八月 – 九月 · 丙午年），每天日期下方是農曆日（初一那天改寫月份名，紅字）。農曆直接用瀏覽器的 `Intl`（`ca-chinese`），不維護對照表；不支援的瀏覽器就不顯示農曆。放假日（週末與國定假日）日期是紅字；國定假日與補假整格淡紅、農曆那行改寫節日名，底部寫全名。放假資料在 `HOLIDAYS`，照抄人事行政總處「政府行政機關辦公日曆表」（政府資料開放平臺 dataset 14718 的 CSV），目前有 2026、2027 兩年；週末預設放假，所以只列有名稱的假日和平日補假。人事總處每年 6 月 30 日前公告隔年的日曆表，屆時把新的一年加進去；沒列到的年份只會把週末標紅。icon 裡有今天的星期與日期（`paintCalIcons()` 每分鐘更新），2.0 的 logo 蓋在上面不顯示，但元素要留著（見「2.0 Dock 與 App Launcher」）。
+- **下個連假小工具**（`#wgHol`）：桌面第 1 頁最前面，佔 2 × 2；格子的列或欄不到 2 時不顯示，後面的 App 往前補。連續放假 3 天以上、且其中有 `HOLIDAYS` 裡的日子才算連假。顯示還有幾天（或「明天」「放假中」）、節日名、連休天數與起訖日，每分鐘重算；點一下開日曆並選在連假第一天。`HOLIDAYS` 的資料用完就自動隱藏，那 4 格讓給後面的 App。
 - **關於 TankOS**（`about`，點選單列左上的 T，或 Spotlight、`open about`）：版號直接讀 `.mb-ver`；更新紀錄從 GitHub API 抓 commit，只列 subject 結尾有 `（vX.Y.Z）` 的那些，所以版號規則裡「commit subject 標版號」是這個視窗的資料來源，不能省。主機欄依網址判斷是 Cloudflare Workers 還是 GitHub Pages。
 - **Terminal** 是假的，指令寫死在 `run()` 裡；開視窗時會先列出 `HELP`。有幾個吃真資料：`who`（見下一條）、`git log [repo]`（GitHub API，未登入每小時 60 次）、`kubectl get pods`（跟活動監視器同一個 `probe()`）、`neofetch`、`top`。Tab 會補指令、`open` 的 App 名稱和 `git log` 的 repo。彩蛋（不列在 help）：`sudo`、`sudo rm -rf /`、`rm`、`deploy`（禮拜五不同）、`乖乖`、`vim`、`咖啡`、`hi`、`fortune`、`bug`，中文在上、英文在下。
-- **我是社畜**（英文 I'm a Shachiku，`shachiku`，桌面「遊戲區」、Dock 與 Spotlight）：半夜被告警叫醒的像素 RPG，獨立在私人 repo `tankfinal/shachiku`、部署在 `https://shachiku.xarenvich.com`，遊戲內容、規則、版號都在那邊。跟其他作品一樣是網站型 App（`k: "w5"`，經典版作品第 05 項），視窗左邊介紹、右邊即時預覽，要全尺寸玩就按「開啟網站」開新分頁。repo 是私人的，所以沒有 Source 連結。舊名「凌晨三點」留在 Spotlight 關鍵字裡。
-- **今晚出攤**（英文 Open Tonight，`nightmarket`，桌面「遊戲區」、Dock 與 Spotlight）：七天的夜市小吃攤經營遊戲，獨立在私人 repo `tankfinal/open-tonight`、部署在 `https://open-tonight.xarenvich.com`（Worker `open-tonight`），遊戲內容、規則、版號都在那邊。跟我是社畜一樣是網站型 App（`k: "w6"`，經典版作品第 05 項），沒有 Source 連結。遊戲只有中文。它的排行榜放在這個站的 D1 `portfolio` 裡的 `nightmarket_scores`（照「App 名當前綴」，App id 就是 `nightmarket`），API 在它自己的 Worker、不在這個 repo 的 `api/`，表結構見那邊的 `schema.sql`。
-- **WordTrailer**（`wordtrailer`，桌面「作品」、Dock 與 Spotlight）：看美劇前先刷單字的網站，獨立在私人 repo `tankfinal/wordtrailer`、部署在 `https://wordtrailer.xarenvich.com`（Worker `wordtrailer`），內容與上架流程都在那邊。跟我是社畜一樣是網站型 App（`k: "w7"`，經典版作品第 06 項），沒有 Source 連結。網站只有中文。
-- **口袋旅行**（英文 PocketTrip，`pockettrip`，桌面「作品」、Dock 與 Spotlight）：兩個人共用的吃喝玩樂清單，貼 Google Maps 分享連結就建檔，獨立在私人 repo `tankfinal/pocket-trip`、部署在 `https://pocket-trip.xarenvich.com`（Worker `trip`，資料在私人版的 D1 `portfolio-private`、表名 `trip_*`），要密碼登入，所以訪客開視窗只會看到登入畫面。網站型 App（`k: "w8"`，經典版作品第 07 項），沒有 Source 連結。icon 用 App 自己的 logo 圖（`images/pocket-trip-icon.png`），不是 SVG 線條圖示。網站只有中文。
-- **Averlyn 疫苗**（英文 Averlyn's Vaccines，`averlyn`，桌面「作品」、Dock 與 Spotlight）：女兒的疫苗時程，獨立在私人 repo `tankfinal/averlyn-vaccine`、部署在 `https://averlyn-vaccine.xarenvich.com`（Worker `averlyn-vaccine`，密碼雜湊與登入紀錄在私人版的 D1 `portfolio-private`、表名 `averlyn_*`），要密碼登入，訪客開視窗只會看到登入畫面。網站型 App（`k: "w9"`，經典版作品第 08 項），沒有 Source 連結。icon 用 App 自己的 logo 圖（`images/averlyn-icon.png`）。跟口袋旅行同一套設計語彙。網站只有中文。
-- **DayDay**（`dayday`，桌面「作品」、App Launcher 與 Spotlight，不放 Dock）：手繪日式風的日記與祈福小天地，獨立在私人 repo `tankfinal/dayday`、部署在 `https://dayday.xarenvich.com`（Worker ＋ D1，wrangler 部署），內容都在那邊。跟我是社畜一樣是網站型 App（`k: "w10"`，經典版作品第 09 項），沒有 Source 連結。網站只有中文。**不放 Dock**：Dock 再多一顆，769px 寬（比手機版面寬 1px）時會超出螢幕（v2.4 超出 3px、2.0 超出 17px），v2.4 手機版的 Dock icon 也會再縮小；2.0 從 Launcher 開，v2.4 從桌面、Spotlight 或終端機 `open dayday` 開。網站是手機直式版面，視窗用直式比例（`w:740, h:820`：左側欄 270px，右邊約 470px 給預覽）。2.0 的 icon 是 DayDay 自己的手繪小房子（`images/icons/dayday.webp`，見「TankOS 2.0 App Logo」），v2.4 是線條圖示 `g-dayday`。在視窗（iframe）裡 Google 登入可能被 Google 擋，要登入請按「開啟網站」開新分頁；訪客「先逛逛」在視窗裡可以用。
-- **Request 的一生**（`trace`，獨立檔案 App，桌面「遊戲區」與 Spotlight）：按「送出請求」打一次 `GET /trace`，畫出三塊：路線圖（你 → Cloudflare 機房，Worker 在這裡跑 → D1 所在機房），每段標實測來回時間、直線距離與光速來回下限（光纖約 200 km/ms），送出時有一顆點沿路線來回（減少動態效果時不跑）；瀑布圖用瀏覽器的 Resource Timing（`PerformanceObserver`，不受 250 筆緩衝上限影響）拆 DNS、連線、TLS、等待回應、下載，「等待回應」再拆成網路來回（Cloudflare 量的 RTT）、Worker 等 D1、其他；細節列協定、TLS、網路業者、資料庫（D1 所在機房、主要或副本）與查詢（`SELECT 1` 與資料庫實際執行的時間）。路線圖、圖例與結論都寫「資料庫」而不是 D1，結論那句直接用兩端的城市（例：從達拉斯到新加坡），讓不懂後端的人也看得懂。選單列的線上人數讓這台 Worker 的連線一直開著，所以通常是連線重用、DNS 與 TLS 為 0，畫面會照實說明，並列出當初開這條連線的那個請求（通常是 `/presence` 的心跳）花了多少 DNS、連線、TLS 時間——找法是這次之前、最後一個有連線時間的 API 請求；瀏覽器的 Resource Timing 緩衝（250 筆）滿了以後只信視窗開著時 `PerformanceObserver` 看到的，找不到就不顯示。網頁沒辦法要求瀏覽器開新連線，所以只能顯示當初那條的數字。機房座標表在 `apps/trace.js` 的 `COLO`，不在表裡的機房只顯示代號、不算距離。最近 10 次的總時間與中位數列在最下面。路線圖、結論和細節以外分三個分頁：**時間軸**（預設，SVG 循序圖，三條泳道「你／Cloudflare／資料庫」由上往下走時間；色塊是實測的建立連線、資料庫執行查詢、其他、下載，虛線箭頭是單程，量不到所以用來回除以 2 並標 ≈；照視窗實際寬度畫、`ResizeObserver` 在寬度變了才重畫）、**瀑布圖**（上面那段）、**原始封包**（請求依 HTTP 版本顯示：HTTP/2、3 用 `:method`、`:path` 這類 pseudo-header，HTTP/1.1 用請求行；瀏覽器自動加的 header 網頁讀不到，畫面上註明。回應列 status、全部 header（Worker 送 `Access-Control-Expose-Headers: *`）和排版過的 JSON，加上內容大小（有壓縮時列壓縮前後）。header 的實際大小瀏覽器不公開：Resource Timing 規格的 `transferSize` 是內容大小加固定 300，避免從大小推出 cookie，所以畫面不拿它算 header，直接照實說明）。
+- **我是社畜**（英文 I'm a Shachiku，`shachiku`，桌面、Launcher「遊戲區」與 Spotlight）：半夜被告警叫醒的像素 RPG，獨立在私人 repo `tankfinal/shachiku`、部署在 `https://shachiku.xarenvich.com`，遊戲內容、規則、版號都在那邊。跟其他作品一樣是網站型 App（`k: "w5"`，經典版作品第 05 項），視窗左邊介紹、右邊即時預覽，要全尺寸玩就按「開啟網站」開新分頁。repo 是私人的，所以沒有 Source 連結。舊名「凌晨三點」留在 Spotlight 關鍵字裡。
+- **今晚出攤**（英文 Open Tonight，`nightmarket`，桌面、Launcher「遊戲區」與 Spotlight）：七天的夜市小吃攤經營遊戲，獨立在私人 repo `tankfinal/open-tonight`、部署在 `https://open-tonight.xarenvich.com`（Worker `open-tonight`），遊戲內容、規則、版號都在那邊。跟我是社畜一樣是網站型 App（`k: "w6"`，經典版作品第 05 項），沒有 Source 連結。遊戲只有中文。它的排行榜放在這個站的 D1 `portfolio` 裡的 `nightmarket_scores`（照「App 名當前綴」，App id 就是 `nightmarket`），API 在它自己的 Worker、不在這個 repo 的 `api/`，表結構見那邊的 `schema.sql`。
+- **WordTrailer**（`wordtrailer`，桌面、Launcher「作品」與 Spotlight）：看美劇前先刷單字的網站，獨立在私人 repo `tankfinal/wordtrailer`、部署在 `https://wordtrailer.xarenvich.com`（Worker `wordtrailer`），內容與上架流程都在那邊。跟我是社畜一樣是網站型 App（`k: "w7"`，經典版作品第 06 項），沒有 Source 連結。網站只有中文。
+- **口袋旅行**（英文 PocketTrip，`pockettrip`，桌面、Launcher「作品」與 Spotlight）：兩個人共用的吃喝玩樂清單，貼 Google Maps 分享連結就建檔，獨立在私人 repo `tankfinal/pocket-trip`、部署在 `https://pocket-trip.xarenvich.com`（Worker `trip`，資料在私人版的 D1 `portfolio-private`、表名 `trip_*`），要密碼登入，所以訪客開視窗只會看到登入畫面。網站型 App（`k: "w8"`，經典版作品第 07 項），沒有 Source 連結。icon 用 App 自己的 logo 圖（`images/pocket-trip-icon.png`），不是 SVG 線條圖示。網站只有中文。
+- **Averlyn 疫苗**（英文 Averlyn's Vaccines，`averlyn`，桌面、Launcher「作品」與 Spotlight）：女兒的疫苗時程，獨立在私人 repo `tankfinal/averlyn-vaccine`、部署在 `https://averlyn-vaccine.xarenvich.com`（Worker `averlyn-vaccine`，密碼雜湊與登入紀錄在私人版的 D1 `portfolio-private`、表名 `averlyn_*`），要密碼登入，訪客開視窗只會看到登入畫面。網站型 App（`k: "w9"`，經典版作品第 08 項），沒有 Source 連結。icon 用 App 自己的 logo 圖（`images/averlyn-icon.png`）。跟口袋旅行同一套設計語彙。網站只有中文。
+- **DayDay**（`dayday`，桌面、Launcher「作品」與 Spotlight）：手繪日式風的日記與祈福小天地，獨立在私人 repo `tankfinal/dayday`、部署在 `https://dayday.xarenvich.com`（Worker ＋ D1，wrangler 部署），內容都在那邊。跟我是社畜一樣是網站型 App（`k: "w10"`，經典版作品第 09 項），沒有 Source 連結。網站只有中文。跟其他作品一樣不放 Dock（v3.0.0 起 Dock 只放系統類 App）。網站是手機直式版面，視窗用直式比例（`w:740, h:820`：左側欄 270px，右邊約 470px 給預覽）。icon 是 DayDay 自己的手繪小房子（`images/icons/dayday.webp`，見「TankOS 2.0 App Logo」）。在視窗（iframe）裡 Google 登入可能被 Google 擋，要登入請按「開啟網站」開新分頁；訪客「先逛逛」在視窗裡可以用。
+- **Request 的一生**（`trace`，獨立檔案 App，桌面、Launcher「遊戲區」與 Spotlight）：按「送出請求」打一次 `GET /trace`，畫出三塊：路線圖（你 → Cloudflare 機房，Worker 在這裡跑 → D1 所在機房），每段標實測來回時間、直線距離與光速來回下限（光纖約 200 km/ms），送出時有一顆點沿路線來回（減少動態效果時不跑）；瀑布圖用瀏覽器的 Resource Timing（`PerformanceObserver`，不受 250 筆緩衝上限影響）拆 DNS、連線、TLS、等待回應、下載，「等待回應」再拆成網路來回（Cloudflare 量的 RTT）、Worker 等 D1、其他；細節列協定、TLS、網路業者、資料庫（D1 所在機房、主要或副本）與查詢（`SELECT 1` 與資料庫實際執行的時間）。路線圖、圖例與結論都寫「資料庫」而不是 D1，結論那句直接用兩端的城市（例：從達拉斯到新加坡），讓不懂後端的人也看得懂。選單列的線上人數讓這台 Worker 的連線一直開著，所以通常是連線重用、DNS 與 TLS 為 0，畫面會照實說明，並列出當初開這條連線的那個請求（通常是 `/presence` 的心跳）花了多少 DNS、連線、TLS 時間——找法是這次之前、最後一個有連線時間的 API 請求；瀏覽器的 Resource Timing 緩衝（250 筆）滿了以後只信視窗開著時 `PerformanceObserver` 看到的，找不到就不顯示。網頁沒辦法要求瀏覽器開新連線，所以只能顯示當初那條的數字。機房座標表在 `apps/trace.js` 的 `COLO`，不在表裡的機房只顯示代號、不算距離。最近 10 次的總時間與中位數列在最下面。路線圖、結論和細節以外分三個分頁：**時間軸**（預設，SVG 循序圖，三條泳道「你／Cloudflare／資料庫」由上往下走時間；色塊是實測的建立連線、資料庫執行查詢、其他、下載，虛線箭頭是單程，量不到所以用來回除以 2 並標 ≈；照視窗實際寬度畫、`ResizeObserver` 在寬度變了才重畫）、**瀑布圖**（上面那段）、**原始封包**（請求依 HTTP 版本顯示：HTTP/2、3 用 `:method`、`:path` 這類 pseudo-header，HTTP/1.1 用請求行；瀏覽器自動加的 header 網頁讀不到，畫面上註明。回應列 status、全部 header（Worker 送 `Access-Control-Expose-Headers: *`）和排版過的 JSON，加上內容大小（有壓縮時列壓縮前後）。header 的實際大小瀏覽器不公開：Resource Timing 規格的 `transferSize` 是內容大小加固定 300，避免從大小推出 cookie，所以畫面不拿它算 header，直接照實說明）。
 - **線上訪客**（選單列時鐘左邊的綠點與人數、終端機 `who`）：每個分頁每 30 秒向 `/presence` 回報一次（分頁在背景時停止，切回來馬上補一次），回應就是 60 秒內有回報的人；離開頁面時用 `sendBeacon` 打 `/presence/leave` 立刻下線。回報內容是分頁 id 和「現在在看什麼」（最上層視窗的 App id，沒開視窗是 `desktop`，還沒解鎖是 `lock`）。`who` 會重新問一次伺服器，列出 `visitor-xxxx`、城市與國家、上線時間（看的人的當地時間）、在看什麼，自己那列標「← 你」，只有自己時跳彩蛋。點選單列的人數會開終端機並執行 `who`（`initTerm` 把 `exec` 掛在視窗的 `_cmd` 上）。分頁 id 存在 `sessionStorage.who.sid`，新分頁或下次造訪就是新的人，不跨造訪追蹤。API 連不上時人數不顯示，`who` 印錯誤。後端見「API」。
 
 ### 文案與經典版同步
@@ -153,7 +153,7 @@ PY
 | 位數 | 什麼時候升 | 例子 |
 |---|---|---|
 | X 大改版 | 整體架構、網址結構或操作方式變了，舊的連結或用法會失效 | TankOS 換成首頁、經典版搬到 `/classic/` |
-| Y 新功能 | 多了看得到的新東西：新 App、新的系統功能、新的桌面分區 | 新增陽明山 App、Spotlight、方塊消除 |
+| Y 新功能 | 多了看得到的新東西：新 App、新的系統功能 | 新增陽明山 App、Spotlight、方塊消除 |
 | Z 修正 | 沒有新功能：修 bug、改文案、調樣式、更新經歷或作品介紹 | 終端機 `open` 認得中文名、拿掉車型描述 |
 
 - 升哪一位，它右邊的位數歸零：`1.4.2 → 1.5.0`、`1.5.0 → 2.0.0`
@@ -171,39 +171,35 @@ sips -Z 900 shot.png                                   # 長邊縮到 900
 sips -s format jpeg -s formatOptions 78 shot.png --out out.jpg
 ```
 
-## TankOS 2.0 發布（v2.5.0）
+## TankOS 3.0（v3.0.0）
 
-### Release notes
+### 改了什麼
 
-- **首頁預設改成 TankOS 2.0**：Nocturne 深色主題、Pixelverse 湖畔夜景桌布、Nocturne 選單列與視窗、新的 Dock 與 App Launcher、設定 App（桌布、透明度、動態效果）。v2.4.1–v2.4.7 在 `?ui=2` 後面完成的東西，現在是每個人的預設
-- **v2.4 還在**：`/?ui=1` 或「設定 › 切回 v2.4 介面」，選了會記住；`/?ui=2` 隨時換回 2.0。v2.4 的程式、樣式、桌布照片都沒刪
-- **不會蓋掉任何人的選擇**：優先順序仍是網址的 `?ui=` > 記住的選擇（`localStorage.ui`）> 預設值。之前用過 `?ui=1` 的人繼續看到 v2.4；沒選過的人才會看到新的預設，而且不會替他們寫入任何值
+- **桌面像 iPad 主畫面一樣左右翻頁**：整個桌面一個格子（電腦最多 6 欄、置中；手機 4 欄），照順序排、滿了換頁，不再分「作品／遊戲區／小工具／關於我」四區。細節見 TankOS 一節的「桌面格子與翻頁」
+- **單擊就開**：滑鼠點一下桌面 icon 就打開（以前是單擊選取、雙擊開啟）
+- **README 不再一進站就打開**，從 Dock 開
+- **Dock 只放系統類 App**：README、聯絡我、終端機、活動監視器、計算機、日曆、設定｜經典版、所有 App。作品與遊戲從桌面、Launcher、Spotlight 開
+- **舊的 v2.4 介面移除**：`?ui=1` 不再有作用，設定裡沒有「切回 v2.4」；之前存在 `localStorage.ui` 的選擇會被清掉，`ui2.*` 的設定（桌布、透明度、動態效果）保留
 - 經典版（`/classic/`）、`/os/` 轉址、`/api` 都不變
 
-### Rollback
-
-1. `index.html` 開頭 flag script 的 `var DEFAULT_UI = "2";` 改回 `"1"`，升 Z 位版號（例如 v2.5.1），commit 到 `main`。Workers Builds 會照常部署，不用改任何 Cloudflare 設定
-2. 會回到 v2.4 的：所有沒選過的訪客（預設值不會被存下來）。不會回去的：自己用過 `?ui=2` 的人（他們存了 `"2"`，這是他們明確的選擇）；這些人要回 v2.4 就開 `/?ui=1`
-3. 急的話也可以在 Cloudflare Dashboard 的 Worker `portfolio` › Deployments 把前一版設為 active（只是部署上的回退，不改 Build 設定）；之後仍要用第 1 步讓 `main` 與線上一致
-4. `tests/e2e/ui-flag.spec.js` 已經在 `DEFAULT_UI` 為 `"1"` 與 `"2"` 兩種情況下測過優先順序，改回去不需要動測試；`release.spec.js` 裡「新訪客得到 2.0」那幾個要跟著改成 v2.4
+要退回 v2.7.0：`git revert` 這次的 commit 再 push 到 `main`（push 就是部署）；急的話先在 Cloudflare Dashboard 的 Worker `portfolio` › Deployments 把前一版設為 active，之後仍要 revert 讓 `main` 與線上一致。
 
 ### 發布後 Smoke test
 
 在無痕視窗（沒有任何 localStorage）依序確認：
 
-1. 開 `https://portfolio.xarenvich.com/`：鎖定畫面是 Pixelverse 夜景（模糊），解鎖後是深色選單列與 Dock，右上版號 **v2.5.0**
-2. 選單列：時鐘、中／EN、線上人數、Spotlight（⌘K）、私人版連結都在；切 EN 再切回中文
-3. Dock：點 README、終端機；最右邊「所有 App」打開 Launcher，用它開計算機；Esc 關閉
-4. 視窗：拖曳、縮放、最小化（再從 Dock 叫回來）、放大、關閉
-5. 設定：換成米塚桌布 → 桌面與鎖定畫面都換；重新整理仍是米塚；按「重設為預設」
-6. 設定 › 切回 v2.4 介面：網址變成 `?ui=1`、畫面回到 v2.4（白色視窗、舊 Dock）；重新整理仍是 v2.4；開 `/?ui=2` 回到 2.0
-7. 手機（或瀏覽器 390 寬）：Dock 只有四顆、點「所有 App」從底部出現面板；開一個作品是全螢幕視窗
+1. 開 `https://portfolio.xarenvich.com/`：鎖定畫面是 Pixelverse 夜景（模糊），解鎖後是深色選單列、桌面格子與 Dock，沒有自動打開的視窗，右上版號 **v3.0.0**
+2. 桌面：「下個連假」在左上佔 2 × 2，作品與遊戲照順序排；滑鼠點一下福岡就打開；縮小後再點一下 icon 叫回來
+3. 把瀏覽器拉矮（約 400px 高）：出現頁碼小圓點；觸控板左右捲、在空白處拖曳、點小圓點、← → 都能換頁
+4. Dock：README、聯絡我、終端機、活動監視器、計算機、日曆、設定都打得開；「所有 App」打開 Launcher，分組是作品、遊戲區、小工具、關於我、其他；Esc 關閉
+5. 設定：沒有「切回 v2.4」；換成米塚桌布 → 桌面與鎖定畫面都換；重新整理仍是米塚；按「重設為預設」
+6. 開 `/?ui=1`：仍是 2.0
+7. 手機（或瀏覽器 390 寬）：Dock 只有四顆、點「所有 App」從底部出現面板；開一個作品是全螢幕視窗；手機橫放（667×375）時左右滑換頁
 8. `/classic/` 正常、`/os/` 轉回首頁
-9. 有問題就照上面的 Rollback
 
 ## TankOS 2.0 App Logo（v2.6.0 起；v2.6.4 換成 v3 圖）
 
-`?ui=2` 的每個 App 用自己的品牌圖，不跟 Nocturne 主題統一配色。v2.6.4 起是 **App Brand Icons v3**，依四大分類設計（只是設計與維護依據，桌面分組不變）：
+每個 App 用自己的品牌圖，不跟 Nocturne 主題統一配色。v2.6.4 起是 **App Brand Icons v3**，依四大分類設計（只是設計與維護依據，跟 Launcher 的分組無關）：
 
 | 分類 | App |
 |---|---|
@@ -212,13 +208,12 @@ sips -s format jpeg -s formatOptions 78 shot.png --out out.jpg
 | 遊戲作品 | 方塊消除、今晚出攤、我是社畜、Request 的一生 |
 | 系統與工具 | 終端機、活動監視器、計算機、日曆、設定、Launcher、README、聯絡我、About、經典版、Private |
 
-- **PocketTrip 例外**：保留原本的 `images/pocket-trip-icon.png`（Git 歷史只有新增時的那一版），v2.4 與 2.0 都用它，不用 v3 的皮夾圖。
-- **DayDay 例外**：不在 v3 素材包裡，2.0 用 DayDay 自己的手繪小房子 `images/icons/dayday.webp`（192×192，圓角與透明邊跟 v3 的圖對齊），跟其他 App 一樣用 `:where(:root[data-ui="2"]) .ic-dayday{--logo:url(...)}` 套用；`build.py` 不會產生也不會蓋掉它。v2.4 用線條圖示（`.ic-dayday` 漸層＋`g-dayday`）。
+- **PocketTrip 例外**：保留原本的 `images/pocket-trip-icon.png`（Git 歷史只有新增時的那一版），不用 v3 的皮夾圖；這張圖由 `.ic-pockettrip` 規則直接套用，不在 logo 清單裡。
+- **DayDay 例外**：不在 v3 素材包裡，2.0 用 DayDay 自己的手繪小房子 `images/icons/dayday.webp`（192×192，圓角與透明邊跟 v3 的圖對齊），跟其他 App 一樣用 `:where(:root[data-ui="2"]) .ic-dayday{--logo:url(...)}` 套用；`build.py` 不會產生也不會蓋掉它。
 - 素材：`design/brand-icons-v3/`（`manifest.json`、`ICON_GUIDE.md`、圖板與 512／256／128／64 的 PNG），列在 `.assetsignore`，不會公開。素材是概念圖板切出後放大的點陣圖，不是向量圖。
 - **計算機例外（v2.6.5）**：v3 素材包的計算機按鍵是「× − × =」，沒有「+」，改用另外提供的完整鍵盤版（`design/brand-icons-v3/calc-v2-source.png`）。原圖是黑底 RGB，`python3 design/brand-icons-v3/calc-v2-build.py` 找出圖示、照原圖的圓角把外圍改成透明、留同樣 4/256 的透明邊後輸出 `images/icons/calc.webp`；圖面不改。`build.py` 會跳過 calc，不會蓋掉它。
 - 產出：`python3 design/brand-icons-v3/build.py` → `images/icons/<id>.webp`（計算機以外的 19 張，192px）。取 256px PNG 縮成 192px，圖面、圓角外框與 4px 透明邊照原樣，不裁切、不改色。
-- 套用：只靠 CSS。Desktop、Dock、Launcher、Spotlight、視窗標題列用的都是同一個 `<span class="ic ic-<id>">`（`iconOf()` 複製出來的），`:where(:root[data-ui="2"]) .ic-<id>{--logo:url(...)}` 一組規則就涵蓋全部；裡面原本的線條圖示、字母或日期在 2.0 隱藏。HTML 沒有改，按鈕名稱仍是原本的 i18n。
-- v2.4（`?ui=1`）不吃這些規則，外觀不變，也不會下載這些圖。
+- 套用：只靠 CSS。Desktop、Dock、Launcher、Spotlight、視窗標題列用的都是同一個 `<span class="ic ic-<id>">`（`iconOf()` 複製出來的），`:where(:root[data-ui="2"]) .ic-<id>{--logo:url(...)}` 一組規則就涵蓋全部；裡面原本的線條圖示、字母或日期隱藏（元素還在，例如日曆的 `.ci-wd`、`.ci-d`）。HTML 沒有改，按鈕名稱仍是原本的 i18n。
 - 18px 標題列上，細節多的插畫主要靠顏色辨識；旁邊就是 App 名稱。
 
 ## API（`api/`）
@@ -288,9 +283,9 @@ npm run check:assets   # 用 wrangler dry-run 列出會變成公開檔案的清�
 - **不碰正式資料**：測試用 `tests/support/serve.js` 在本機起站，`/api/*` 一律回固定的假資料，iframe 裡的作品站、活動監視器、GitHub API 也都換成假的回應，不會打到 D1 或任何外部網站
 - **不會不穩定**：時間固定在 2026-11-07 10:30（Asia/Taipei），開「減少動態效果」讓 TankOS 跳過動畫，截圖前等字型與桌布載完；不設 retry，偶發失敗就會被看到
 - **基準截圖**只在 `mcr.microsoft.com/playwright:v1.63.0-noble` 裡比對（字型與繪製要一模一樣），所以 `npm test` 會跳過，`test:docker` 與 CI 才跑。升 `@playwright/test` 版本時，image tag（`package.json` 的 scripts 與 `.github/workflows/e2e.yml`）要一起改，並重產截圖
-- **已知 bug** 用 `test.fail()` 記錄：測試寫的是正確行為，所以現在預期失敗；修好以後它會變紅（「Expected to fail, but passed」），這時把 `test.fail()` 和旁邊的「reproduces」測試一起拿掉。寫法見 `tests/e2e/layout.spec.js` 開頭（v2.4.1 修掉的 Dock 溢出、README 蓋住 icon 就是這樣記錄的）
+- **已知 bug** 用 `test.fail()` 記錄：測試寫的是正確行為，所以現在預期失敗；修好以後它會變紅（「Expected to fail, but passed」），這時把 `test.fail()` 和旁邊的「reproduces」測試一起拿掉。寫法見 `tests/e2e/layout.spec.js` 開頭的說明（v2.4.1 修掉的 Dock 溢出、README 蓋住 icon 當時就是這樣記錄的）
 - **基準截圖遮住選單列的版號**（洋紅色方塊），只升版不會讓截圖失效；比對門檻是 `threshold: 0.01`（預設 0.2 會把 6% 的透明度變化當成沒變）
-- **兩個 project**：`v24` 以「選了 v2.4 的訪客」（`localStorage.ui = "1"`）跑全部測試，包含 v2.4 的七張基準截圖，所以預設改成 2.0 之後 v2.4 的回歸驗證一項沒少；`ui2` 在 2.0 下再跑一次 window manager、Dock 與 App、版面測試。flag 本身（`ui-flag.spec.js`）與發布情境（`release.spec.js`）以沒存任何東西的新訪客跑（`test.use({ tankUi: null })`）；`release.spec.js` 也守著 `v24` 的設定真的是 v2.4。`?ui=2` 的基準截圖檔名帶 `-ui2`
+- **一個 project、每個 spec 檔都跑**：`playwright.config.js` 沒有 `projects` 也沒有 `testMatch`，`npx playwright test --list` 可以確認每個檔都有測試。每個測試結束時也檢查頁面沒有丟出未捕捉的錯誤（`pageerror`，在 `tests/support/fixtures.js`）。共用 helper：`boot(page, {readme: true})` 開站後從 Dock 打開 README（給需要背景視窗的測試）、`openApp(page, id)` 在 Dock 上就點 Dock、否則走 Launcher、`openFromDesktop(page, id)` 單擊桌面 icon（先 focus，其他頁的 icon 會翻過來）。基準截圖檔名的 `-ui2` 是舊介面那組還在時留下的，沒有改名
 - **新增根目錄檔案**時，不是網站的檔案記得加進 `.assetsignore`，`npm run check:assets` 會擋
 - CI（GitHub Actions `e2e`）在 `gh-pages` 以外的每次 push 與對 `main` 的 PR 跑，只測試、不部署
 - Workers Builds 看到 `package-lock.json` 會先 `npm ci`（只裝 `@playwright/test`，不下載瀏覽器），部署指令跟結果都不變；想省掉這一步可以在 Dashboard 的 build 變數設 `SKIP_DEPENDENCY_INSTALL=1`

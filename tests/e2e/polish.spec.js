@@ -1,6 +1,5 @@
-// PR-8 audit findings, one test each (see the PR for how each was found and measured). All under ?ui=2; v2.4 is
-// only checked to be unchanged.
-const { test, expect, boot, win } = require("../support/fixtures");
+// PR-8 audit findings, one test each (see the PR for how each was found and measured).
+const { test, expect, boot, win, openFromDesktop } = require("../support/fixtures");
 
 // WCAG contrast of an element's text against its real stacked background, with whatever is under the top-most
 // translucent layer taken as `under` (default: white, the worst case).
@@ -20,8 +19,8 @@ function contrast(locator, under){
 }
 const inert = (page) => page.evaluate(() => [".menubar", "#desktop", "#windows", "#dock"].map((s) => document.querySelector(s).hasAttribute("inert")));
 
-test.describe("P2-1 Spotlight is a real modal under ?ui=2", () => {
-  test.beforeEach(async ({ page }) => { await boot(page, { path: "/?ui=2" }); });
+test.describe("P2-1 Spotlight is a real modal", () => {
+  test.beforeEach(async ({ page }) => { await boot(page); });
 
   test("background inert while open, and only then", async ({ page }) => {
     expect(await inert(page)).toEqual([false, false, false, false]);
@@ -71,36 +70,21 @@ test.describe("P2-1 Spotlight is a real modal under ?ui=2", () => {
   });
 });
 
-test.describe("P2-1 v2.4 Spotlight keeps its original behaviour", () => {
-  test("?ui=1: no inert background (unchanged)", async ({ page }) => {
-    await boot(page, { path: "/?ui=1" });
-    await page.keyboard.press("Control+k");
-    await expect(page.locator("#spot")).toBeVisible();
-    expect(await inert(page)).toEqual([false, false, false, false]);
-  });
-});
-
 test.describe("P2-2 the sidebar's primary button", () => {
-  test("?ui=2: violet with dark text, at least 4.5:1 (was white on light red, 3.08:1)", async ({ page }) => {
-    await boot(page, { path: "/?ui=2" });
-    await page.locator('#dock .dk[data-open="fukuoka"]').click();
+  test("violet with dark text, at least 4.5:1 (was white on light red, 3.08:1)", async ({ page }) => {
+    await boot(page);
+    await openFromDesktop(page, "fukuoka");
     const b = win(page, "fukuoka").locator(".links a.primary");
     await expect(b).toHaveCSS("background-color", "rgb(139, 124, 255)");
     expect(await contrast(b)).toBeGreaterThanOrEqual(4.5);
-  });
-
-  test("?ui=1: still white on brand red", async ({ page }) => {
-    await boot(page, { path: "/?ui=1" });
-    await page.locator('#dock .dk[data-open="fukuoka"]').click();
-    await expect(win(page, "fukuoka").locator(".links a.primary")).toHaveCSS("background-color", "rgb(214, 40, 40)");
   });
 });
 
 test.describe("P2-3 the long-weekend widget", () => {
   for (const wall of ["pixelverse", "komezuka"]) {
-    test(`?ui=2 (${wall}): Nocturne glass; every line at least 4.5:1 even with white behind the glass`, async ({ page }) => {
+    test(`${wall}: Nocturne glass; every line at least 4.5:1 even with white behind the glass`, async ({ page }) => {
       await page.addInitScript((w) => { try { localStorage.setItem("ui2.wallpaper", w); } catch (e) {} }, wall);
-      await boot(page, { path: "/?ui=2" });
+      await boot(page);
       const wg = page.locator("#wgHol");
       await expect(wg).toHaveCSS("background-color", "rgba(21, 29, 61, 0.88)");
       for (const sel of [".wg-k", ".wg-n", ".wg-name", ".wg-name small", ".wg-when"]) {
@@ -116,10 +100,11 @@ test.describe("P2-4 phone icon grid", () => {
   for (const [w, h] of [[320, 568], [360, 740], [390, 844]]) {
     test.describe(`${w}×${h}`, () => {
       test.use({ viewport: { width: w, height: h }, isMobile: true, hasTouch: true });
-      test("?ui=2: every icon fully on screen, labels inside their own column, none overlapping", async ({ page }) => {
-        await boot(page, { path: "/?ui=2" });
+      test("every icon on the page shown fully on screen, labels inside their own column, none overlapping", async ({ page }) => {
+        await boot(page);
         const r = await page.evaluate(() => {
-          const icons = [...document.querySelectorAll(".desktop .dicon")].filter((e) => e.getClientRects().length);
+          // The icons of the page on screen (later pages wait off to the right).
+          const icons = [...document.querySelectorAll("#desktop .dicon")].filter((e) => e.closest("li").dataset.page === "0");
           const out = { cut: [], overlaps: [], wider: [] };
           for (const i of icons) {
             const b = i.getBoundingClientRect(), l = i.querySelector(".lbl").getBoundingClientRect();
@@ -142,8 +127,8 @@ test.describe("P2-4 phone icon grid", () => {
 });
 
 test.describe("P2-5 calendar reds", () => {
-  test("?ui=2: weekends and holidays use the text red, at least 4.5:1 on the window surfaces", async ({ page }) => {
-    await boot(page, { path: "/?ui=2" });
+  test("weekends and holidays use the text red, at least 4.5:1 on the window surfaces", async ({ page }) => {
+    await boot(page);
     await page.locator("#btnLaunch").click();
     await page.locator('#launcher .ln-app[data-open="calendar"]').click();
     const off = win(page, "calendar").locator(".cal-day.off:not(.today) span").first();
@@ -158,8 +143,8 @@ test.describe("P2-5 calendar reds", () => {
 
 test.describe("P3-1 menu bar at 320px", () => {
   test.use({ viewport: { width: 320, height: 568 }, isMobile: true, hasTouch: true });
-  test("?ui=2: the app name is not cut off and nothing leaves the screen", async ({ page }) => {
-    await boot(page, { path: "/?ui=2" });
+  test("the app name is not cut off and nothing leaves the screen", async ({ page }) => {
+    await boot(page);
     const m = await page.evaluate(() => {
       const a = document.getElementById("mbApp");
       return { cut: a.scrollWidth > a.clientWidth, right: document.querySelector(".menubar .mb-r").getBoundingClientRect().right };
@@ -170,9 +155,9 @@ test.describe("P3-1 menu bar at 320px", () => {
 });
 
 test.describe("P3-2 one set of hover / pressed states", () => {
-  test("?ui=2: title-bar buttons hover like the rest; launcher items show a pressed state", async ({ page }) => {
-    await boot(page, { path: "/?ui=2" });
-    await page.locator('#dock .dk[data-open="fukuoka"]').click();
+  test("title-bar buttons hover like the rest; launcher items show a pressed state", async ({ page }) => {
+    await boot(page);
+    await openFromDesktop(page, "fukuoka");
     const side = win(page, "fukuoka").locator('[data-act="side"]');
     await side.hover();
     await expect(side).toHaveCSS("background-color", "rgba(255, 255, 255, 0.1)");
@@ -187,8 +172,8 @@ test.describe("P3-2 one set of hover / pressed states", () => {
 });
 
 test.describe("performance guards", () => {
-  test("?ui=2: opening and closing the launcher, Spotlight and Settings 15 times adds no event listeners", async ({ page }) => {
-    await boot(page, { path: "/?ui=2" });
+  test("opening and closing the launcher, Spotlight and Settings 15 times adds no event listeners", async ({ page }) => {
+    await boot(page);
     const cdp = await page.context().newCDPSession(page);
     await cdp.send("Performance.enable");
     const listeners = async () => { await cdp.send("HeapProfiler.collectGarbage"); const { metrics } = await cdp.send("Performance.getMetrics"); return metrics.find((m) => m.name === "JSEventListeners").value; };
@@ -203,11 +188,11 @@ test.describe("performance guards", () => {
     expect(await listeners()).toBe(before);
   });
 
-  test("?ui=2: no layout shift on load, and only the WebP wallpaper is fetched", async ({ page }) => {
+  test("no layout shift on load, and only the WebP wallpaper is fetched", async ({ page }) => {
     const seen = [];
     page.on("request", (q) => { const m = q.url().match(/images\/(wallpaper[^?]+)/); if (m) seen.push(m[1]); });
     await page.addInitScript(() => { window.__cls = 0; new PerformanceObserver((l) => l.getEntries().forEach((e) => { if (!e.hadRecentInput) window.__cls += e.value; })).observe({ type: "layout-shift", buffered: true }); });
-    await boot(page, { path: "/?ui=2" });
+    await boot(page);
     expect(await page.evaluate(() => window.__cls)).toBeLessThan(0.01);
     expect(seen).toEqual(["wallpaper-pixelverse-lakeside-night.webp"]);
   });

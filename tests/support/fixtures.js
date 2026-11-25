@@ -48,12 +48,7 @@ async function mockExternal(route){
 }
 
 const test = base.test.extend({
-  // The visitor's saved UI choice for the whole test, stored in localStorage.ui before the first page load (the
-  // state after opening ?ui=1 or ?ui=2 once). "1": the v24 project, a visitor who chose v2.4; "2": the ui2 project;
-  // null: a new visitor with nothing saved, who gets DEFAULT_UI (2.0 since v2.5.0). A ?ui= in a test's URL still
-  // wins, exactly as on the site.
-  tankUi: [null, { option: true }],
-  context: async ({ context, tankUi }, use) => {
+  context: async ({ context }, use) => {
     await context.route("**/*", (route) => {
       const url = route.request().url();
       if (url.startsWith("data:") || url.startsWith("blob:")) return route.continue();
@@ -65,20 +60,22 @@ const test = base.test.extend({
     await context.addInitScript(() => {
       try { if (!localStorage.getItem("lang")) localStorage.setItem("lang", "zh"); } catch (e) {}
     });
-    if (tankUi === "1" || tankUi === "2") {
-      await context.addInitScript((ui) => {
-        try { if (!sessionStorage.getItem("pw.ui.set")) { localStorage.setItem("ui", ui); sessionStorage.setItem("pw.ui.set", "1"); } } catch (e) {}
-      }, tankUi);
-    }
     await use(context);
   },
+  // Every test also checks that the page never threw: a script error stops TankOS's main script half way
+  // (a missing element in paintCalIcons or initSettings once did exactly that), and nothing else would notice.
   page: async ({ page }, use) => {
+    const errors = [];
+    page.on("pageerror", (e) => errors.push(e.message));
     await page.clock.setFixedTime(NOW);
     await use(page);
+    expect(errors, "uncaught errors in the page").toEqual([]);
   }
 });
 
 // Load TankOS, unlock it (any key) and wait until it has settled.
+// readme: true also opens README from the Dock (it no longer opens on load), for tests that need a window behind
+// the one they open; afterwards the pointer is off the Dock and nothing has keyboard focus, as right after boot.
 async function boot(page, opts){
   opts = opts || {};
   await page.goto(opts.path || "/");
@@ -88,17 +85,22 @@ async function boot(page, opts){
   // Reduced motion: TankOS removes the lock screen at once instead of sliding it away.
   await expect(page.locator("#lock")).toHaveCount(0);
   await settle(page);
+  if (opts.readme) {
+    await page.locator('#dock .dk[data-open="readme"]').click();
+    await expect(win(page, "readme")).toHaveClass(/\bfocused\b/);
+    await page.mouse.move(1, 1);
+    await page.evaluate(() => document.activeElement && document.activeElement.blur());
+  }
 }
 
 // Fonts and the wallpaper decoded, and the (mocked) online count painted: nothing left to pop in.
 async function settle(page){
   await page.evaluate(async () => {
     await document.fonts.ready;
-    // Wait for the wallpaper this page actually shows (v2.4's photo, or the 2.0 art under ?ui=2), so the test
-    // itself never downloads the other one.
+    // Wait for the wallpaper this page actually shows (the Pixelverse art, or the Komezuka photo chosen in
+    // Settings), so the test itself never downloads the other one.
     const small = matchMedia("(max-width: 768px)").matches;
     const img = new Image();
-    // Under 2.0 that is the art unless Settings chose the photo (data-wall="komezuka").
     const r = document.documentElement;
     img.src = r.getAttribute("data-ui") === "2" && r.getAttribute("data-wall") !== "komezuka"
       ? "images/wallpaper-pixelverse-lakeside-night.webp"
@@ -121,8 +123,25 @@ function win(page, id){
   return page.locator("section.win", { has: page.locator("#wt-" + id) });
 }
 
+// A desktop icon, with one click. An icon on another page is still focusable, and focusing it flips the desktop
+// to its page, so the click always lands on a visible icon.
 async function openFromDesktop(page, id){
-  await page.locator('.desktop .dicon[data-open="' + id + '"]').dblclick();
+  const icon = page.locator('#desktop .dicon[data-open="' + id + '"]');
+  await icon.focus();
+  await icon.click();
+  await expect(win(page, id)).toBeVisible();
+  return win(page, id);
+}
+
+// Any app: its Dock button when it has one on screen, otherwise the App Launcher.
+async function openApp(page, id){
+  const dk = page.locator('#dock .dk[data-open="' + id + '"]');
+  if (await dk.isVisible()) {
+    await dk.click();
+  } else {
+    await page.locator("#btnLaunch").click();
+    await page.locator('#launcher .ln-app[data-open="' + id + '"]').click();
+  }
   await expect(win(page, id)).toBeVisible();
   return win(page, id);
 }
@@ -160,4 +179,4 @@ async function emptyDesktopPoint(page){
   return p;
 }
 
-module.exports = { test, expect, boot, settle, win, openFromDesktop, box, zOrder, emptyDesktopPoint, NOW };
+module.exports = { test, expect, boot, settle, win, openFromDesktop, openApp, box, zOrder, emptyDesktopPoint, NOW };
