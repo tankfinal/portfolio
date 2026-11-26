@@ -5,11 +5,10 @@
   "name": "portfolio",
   "main": "api/src/index.js",
   "compatibility_date": "2026-10-01",
-  "workers_dev": true,
+  "workers_dev": false,
   "preview_urls": false,
   // Custom Domains on xarenvich.com. The apex shows TankOS until there is a brand home page; portfolio.xarenvich.com is
-  // TankOS's lasting address. Keep workers_dev true: with routes set and workers_dev unset, Wrangler turns the old
-  // portfolio.xarenvich.workers.dev URL off on the next deploy, and links already shared would break.
+  // TankOS's lasting address. The old *.xarenvich.workers.dev URL is off (workers_dev false, 2026-11-26).
   "routes": [
     { "pattern": "xarenvich.com", "custom_domain": true },
     { "pattern": "portfolio.xarenvich.com", "custom_domain": true }

@@ -2,7 +2,7 @@
 
 Tank Yang 的個人網站 — 經歷、個人專案與開源工具的集合。
 
-> Live: [portfolio.xarenvich.com](https://portfolio.xarenvich.com/)（`xarenvich.com` 目前也是 TankOS；舊網址 portfolio.xarenvich.workers.dev 照常可用，tankfinal.github.io/portfolio 會轉到這裡）
+> Live: [portfolio.xarenvich.com](https://portfolio.xarenvich.com/)（`xarenvich.com` 目前也是 TankOS；舊網址 portfolio.xarenvich.workers.dev 已關閉，tankfinal.github.io/portfolio 會轉到這裡）
 
 ## About
 
@@ -292,7 +292,7 @@ npm run check:assets   # 用 wrangler dry-run 列出會變成公開檔案的清�
 
 ## Deploy
 
-Push 到 `main` → Cloudflare Workers Builds 自動部署 Worker `portfolio`（網址 `portfolio.xarenvich.com` 與 `xarenvich.com`，由 `wrangler.jsonc` 的 `routes` 接上 Custom Domain；`workers_dev: true` 讓舊的 `portfolio.xarenvich.workers.dev` 繼續可用）。Dashboard 上的設定（`portfolio` → Settings → Build）：
+Push 到 `main` → Cloudflare Workers Builds 自動部署 Worker `portfolio`（網址 `portfolio.xarenvich.com` 與 `xarenvich.com`，由 `wrangler.jsonc` 的 `routes` 接上 Custom Domain；`workers_dev: false`，舊的 `portfolio.xarenvich.workers.dev` 已關閉）。Dashboard 上的設定（`portfolio` → Settings → Build）：
 
 | 設定 | 值 |
 |---|---|
