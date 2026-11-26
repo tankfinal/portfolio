@@ -16,10 +16,10 @@ function wallpapers(page){
 }
 
 test.describe("a new visitor", () => {
-  test("gets TankOS 2.0 at v3.0.0, with only the Pixelverse WebP downloaded, and nothing saved", async ({ page }) => {
+  test("gets TankOS 2.0 at v3.0.1, with only the Pixelverse WebP downloaded, and nothing saved", async ({ page }) => {
     const seen = wallpapers(page);
     await boot(page);
-    expect(await state(page)).toEqual({ ui: "2", stored: null, ver: "v3.0.0" });
+    expect(await state(page)).toEqual({ ui: "2", stored: null, ver: "v3.0.1" });
     expect(seen).toEqual(["wallpaper-pixelverse-lakeside-night.webp"]);   // not the Komezuka photo
     await boot(page);
     expect((await state(page)).stored).toBeNull();
